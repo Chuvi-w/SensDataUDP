@@ -13,5 +13,66 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Заголовочные файлы\MathLib">
+      <UniqueIdentifier>{70624e5c-613c-4d10-ad4c-9ce170159510}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы исходного кода\MathLib">
+      <UniqueIdentifier>{ad4cb3a9-10e7-4330-b634-d6fa1bc882e0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="VCApp.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="CTouchEvent.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="CSensorEvent.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="CDataReceiver.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="CIMUSensor.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="MathLib\MathUtils.cpp">
+      <Filter>Файлы исходного кода\MathLib</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="jni.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CTouchEvent.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="EvCommon.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CSensorEvent.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CDataReceiver.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CIMUSensor.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="MathLib\MathUtils.h">
+      <Filter>Заголовочные файлы\MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="MathLib\Vector2D.h">
+      <Filter>Заголовочные файлы\MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="MathLib\Vector3D.h">
+      <Filter>Заголовочные файлы\MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="MathLib\Vector4D.h">
+      <Filter>Заголовочные файлы\MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="MathLib\MathLib3D.h">
+      <Filter>Заголовочные файлы\MathLib</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

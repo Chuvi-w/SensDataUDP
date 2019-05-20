@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 
 public class CNetStream {
 
@@ -60,13 +61,30 @@ public class CNetStream {
         mClientAdr = null;
     }
 
-    public void SendPacket(ArrayStream Pack)
+    public void SendPacket(long PacketID, ArrayStream Pack)
     {
+
+        ArrayStream OutPacket=new ArrayStream();
+        OutPacket.write(Long.valueOf(0x1));
+        OutPacket.write(PacketID);
+        OutPacket.write(Long.valueOf(Pack.size()));
+        try {
+            OutPacket.write(Pack.toByteArray());
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            //Log.e("Error", "SendBlock");
+            return;
+        }
+        byte OutPacketArray[]=OutPacket.toByteArray();
+
         if(mSocket!=null&&mClientAdr!=null)
         {
             try {
-                byte[] sendBuf = Pack.toByteArray();
-                DatagramPacket packet = new DatagramPacket(sendBuf, sendBuf.length, mClientAdr, 4452);
+
+                DatagramPacket packet = new DatagramPacket(OutPacketArray, OutPacketArray.length, mClientAdr, 4452);
                 mSocket.send(packet);
             }
             catch (IOException e)

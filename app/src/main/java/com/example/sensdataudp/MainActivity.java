@@ -1,5 +1,6 @@
 package com.example.sensdataudp;
 
+import android.hardware.Sensor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -9,217 +10,103 @@ import android.util.Log;
 import android.view.View.OnTouchListener;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
+import android.hardware.SensorManager;
+import android.location.LocationManager;
 
 
 
-
-public class MainActivity extends AppCompatActivity implements OnTouchListener {
+public class MainActivity extends AppCompatActivity  {
 
     // Used to load the 'native-lib' library on application startup.
     static {
         System.loadLibrary("native-lib");
     }
-    ArrayStream m_Touch = new ArrayStream();
-    StringBuilder sb = new StringBuilder();
+
+
     TextView tv;
-    CNetStream NetStream;
+
+    TouchEvListener TEvListener=new TouchEvListener();
     int upPI = 0;
     int downPI = 0;
     boolean inTouch = false;
+    static boolean  bStreamEnable=false;
+    static CNetStream NetStream=new CNetStream();
     String result = "";
 
+    public static SensorManager mSensor_Stream;
+    public static LocationManager mLocationmanager;
+    private static int mDelay = SensorManager.SENSOR_DELAY_FASTEST;
+
+    SensorListener SensListener=new SensorListener();
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         tv = new TextView(this);
         tv.setTextSize(8);
-        tv.setOnTouchListener(this);
+        tv.setOnTouchListener(TEvListener);
         setContentView(tv);
-        m_Touch.Init();
-        NetStream.start_UDP_Stream();
+        //m_Touch.Init();
+        mSensor_Stream = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mLocationmanager = (LocationManager) getSystemService(LOCATION_SERVICE);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(bStreamEnable==false)
+        {
+            bStreamEnable=NetStream.start_UDP_Stream();
+        }
+
+        StartSensors();
     }
 
     @Override
     protected void onStop()
     {
         super.onStop();
-        NetStream.stop_UDP_Stream();
+       if(bStreamEnable)
+       {
+           NetStream.stop_UDP_Stream();
+           bStreamEnable=false;
+       }
+       StopSensors();
 
     }
 
-    @Override
-    public boolean onTouch(View view, MotionEvent event) {
-        // событие
-        m_Touch.reset();
-        int pointerCount = event.getPointerCount();
-        m_Touch.write(Long.valueOf(1));
-        m_Touch.write(event.getEventTime());
-        m_Touch.write(event.getDownTime());
-        m_Touch.write(event.getAction());
-        m_Touch.write(event.getActionMasked());
-
-        m_Touch.write(event.getXPrecision());
-        m_Touch.write(event.getYPrecision());
-        m_Touch.write(event.getRawX());
-        m_Touch.write(event.getRawY());
-        m_Touch.write(event.getActionIndex());
-        m_Touch.write(pointerCount);
-        for (int i = 0; i < pointerCount; i++) {
-
-            m_Touch.write(i);
-            m_Touch.write(event.getPointerId(i));
-            m_Touch.write(event.getX(i));
-            m_Touch.write(event.getY(i));
-            m_Touch.write(event.getToolType(i));
-            m_Touch.write(event.getSize(i));
-            m_Touch.write(event.getToolMajor(i));
-            m_Touch.write(event.getToolMinor(i));
-            m_Touch.write(event.getTouchMajor(i));
-            m_Touch.write(event.getTouchMinor(i));
-            m_Touch.write(event.getPressure(i));
-            m_Touch.write(event.getOrientation(i));
-            m_Touch.write(pointerCount);
-        }
-
-       // ParseTouchEvent(m_Touch.toByteArray());
-      //  PrintTouch(event);
-      //  gestureDetector.onTouchEvent(event);
-
-
-        NetStream.SendPacket(m_Touch);
-        return true;
-    }
-
-    private boolean PrintTouch(MotionEvent event)
+    public static void SendData(long PacketID, ArrayStream Pack)
     {
-
-        int actionMask = event.getActionMasked();
-        // индекс касания
-        int pointerIndex = event.getActionIndex();
-        // число касаний
-        int pointerCount = event.getPointerCount();
-
-        sb.setLength(0);
-        sb.append(event.actionToString(event.getAction())+"\r\n");
-        sb.append("{" + event.getXPrecision()+", "+event.getYPrecision()+"}, ");
-        sb.append("{" + event.getRawX()+", "+event.getRawY()+"}\r\n");
-        sb.append(event.getEventTime()-event.getDownTime()+", "+event.getEdgeFlags()+"\r\n");
-
-        for (int i = 0; i < 10; i++) {
-            sb.append(i);
-            if (i < pointerCount) {
-                sb.append("," + event.getPointerId(i));
-                sb.append(", {" + event.getToolMajor(i)+", "+event.getToolMinor(i)+"}");
-                sb.append(", {" + event.getTouchMajor(i)+", "+event.getTouchMinor(i)+"}, "+event.getPressure(i)+", "+event.getOrientation(i));
-                sb.append(", {" + event.getX(i)+", "+event.getY(i)+"}");
-
-            } else {
-                sb.append(",");
-                sb.append("{");
-                sb.append(",");
-                sb.append("}");
-            }
-            sb.append("\r\n");
-        }
-
-        switch (actionMask) {
-            case MotionEvent.ACTION_DOWN: // первое касание
-                inTouch = true;
-            case MotionEvent.ACTION_POINTER_DOWN: // последующие касания
-                downPI = pointerIndex;
-                break;
-
-            case MotionEvent.ACTION_UP: // прерывание последнего касания
-                inTouch = false;
-                //sb.setLength(0);
-            case MotionEvent.ACTION_POINTER_UP: // прерывания касаний
-                upPI = pointerIndex;
-                break;
-
-            case MotionEvent.ACTION_MOVE: // движение
-
-                break;
-        }
-        result = "down: " + downPI + "\n" + "up: " + upPI + "\n";
-
-        //if (inTouch)
+        if(bStreamEnable)
         {
-            result += "pointerCount = " + pointerCount + "\n" + sb.toString();
-        }
-        tv.setText(result);
-        return true;
-    }
-
-
-
-
-    @SuppressWarnings("deprecation")
-    private final GestureDetector gestureDetector = new GestureDetector(new GestureListener());
-
-
-    private final class GestureListener extends SimpleOnGestureListener {
-
-        private static final int SWIPE_THRESHOLD = 100;
-        private static final int SWIPE_VELOCITY_THRESHOLD = 100;
-
-        @Override
-        public boolean onDown(MotionEvent e) {
-            Log.d("MyTagGoesHere", "onDown");
-            return true;
-        }
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e) {
-            Log.d("MyTagGoesHere", "onSingleTapConfirmed");
-            //onTouch(e);
-            return true;
-        }
-
-
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            boolean result = false;
-            try {
-                float diffY = e2.getY() - e1.getY();
-                float diffX = e2.getX() - e1.getX();
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                        if (diffX > 0) {
-                            onSwipeRight();
-                        } else {
-                            onSwipeLeft();
-                        }
-                    }
-                } else {
-                    // onTouch(e);
-                }
-            } catch (Exception exception) {
-                exception.printStackTrace();
-            }
-            return result;
+            NetStream.SendPacket(PacketID,Pack);
         }
     }
 
 
-    public void onSwipeRight() {
-        Log.d("MyTagGoesHere", "onSwipeRight");
+    public boolean StartSensors()
+    {
+        try
+        {
+            mSensor_Stream.registerListener(SensListener, mSensor_Stream.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), mDelay);
+            mSensor_Stream.registerListener(SensListener, mSensor_Stream.getDefaultSensor(Sensor.TYPE_ACCELEROMETER_UNCALIBRATED), mDelay);
+            mSensor_Stream.registerListener(SensListener, mSensor_Stream.getDefaultSensor(Sensor.TYPE_GYROSCOPE), mDelay);
+            mSensor_Stream.registerListener(SensListener, mSensor_Stream.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED), mDelay);
+            mSensor_Stream.registerListener(SensListener, mSensor_Stream.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), mDelay);
+            mSensor_Stream.registerListener(SensListener, mSensor_Stream.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED), mDelay);
+
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+
+        return  true;
     }
 
-    public void onSwipeLeft() {
-        Log.d("MyTagGoesHere", "onSwipeLeft");
+    public void StopSensors()
+    {
+        mSensor_Stream.unregisterListener(SensListener);
     }
-
-    public void onSwipeTop() {
-        Log.d("MyTagGoesHere", "onSwipeTop");
-    }
-
-    public void onSwipeBottom() {
-        Log.d("MyTagGoesHere", "onSwipeBottom");
-    }
-    /**
-     * A native method that is implemented by the 'native-lib' native library,
-     * which is packaged with this application.
-     */
-    public native String stringFromJNI();
-    public native void ParseTouchEvent(byte[] array);
 }

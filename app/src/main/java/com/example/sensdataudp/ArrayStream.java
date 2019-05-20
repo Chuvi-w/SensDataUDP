@@ -8,6 +8,13 @@ class ArrayStream extends ByteArrayOutputStream
 {
     private ByteBuffer m_Buff=ByteBuffer.allocate(32);
 
+    public ArrayStream()
+    {
+        this.m_Buff = ByteBuffer.allocate(32);
+        m_Buff.order(ByteOrder.LITTLE_ENDIAN);
+
+    }
+
     public void Init()
     {
         m_Buff.order(ByteOrder.LITTLE_ENDIAN);
