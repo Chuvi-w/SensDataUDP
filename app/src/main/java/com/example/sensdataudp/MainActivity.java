@@ -10,6 +10,9 @@ import android.view.View.OnTouchListener;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 
+
+
+
 public class MainActivity extends AppCompatActivity implements OnTouchListener {
 
     // Used to load the 'native-lib' library on application startup.
@@ -19,6 +22,7 @@ public class MainActivity extends AppCompatActivity implements OnTouchListener {
     ArrayStream m_Touch = new ArrayStream();
     StringBuilder sb = new StringBuilder();
     TextView tv;
+    CNetStream NetStream;
     int upPI = 0;
     int downPI = 0;
     boolean inTouch = false;
@@ -33,6 +37,15 @@ public class MainActivity extends AppCompatActivity implements OnTouchListener {
         tv.setOnTouchListener(this);
         setContentView(tv);
         m_Touch.Init();
+        NetStream.start_UDP_Stream();
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        NetStream.stop_UDP_Stream();
+
     }
 
     @Override
@@ -69,9 +82,12 @@ public class MainActivity extends AppCompatActivity implements OnTouchListener {
             m_Touch.write(pointerCount);
         }
 
-        ParseTouchEvent(m_Touch.toByteArray());
-        PrintTouch(event);
-        gestureDetector.onTouchEvent(event);
+       // ParseTouchEvent(m_Touch.toByteArray());
+      //  PrintTouch(event);
+      //  gestureDetector.onTouchEvent(event);
+
+
+        NetStream.SendPacket(m_Touch);
         return true;
     }
 
@@ -134,6 +150,9 @@ public class MainActivity extends AppCompatActivity implements OnTouchListener {
         tv.setText(result);
         return true;
     }
+
+
+
 
     @SuppressWarnings("deprecation")
     private final GestureDetector gestureDetector = new GestureDetector(new GestureListener());
