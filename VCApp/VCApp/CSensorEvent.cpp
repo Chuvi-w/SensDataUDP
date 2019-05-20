@@ -62,23 +62,23 @@ bool CSensorEvent::ParseEvent(const void *pData, size_t nDataSize, bool bEndian)
 #endif
    if (m_Acc.CheckSensorType((SensTypes)pHdr->nType))
    {
-      m_Acc.AddFrame(pValue, nDataSize - sizeof(ComSensorsHdr_t), pHdr->nTimeStamp);
+      m_Acc.AddFrame(pValue, nDataSize - sizeof(ComSensorsHdr_t), pHdr->nTimeStamp,pHdr->flRes,pHdr->flMaxRange);
    }
    if (m_Gyr.CheckSensorType((SensTypes)pHdr->nType))
    {
-      m_Gyr.AddFrame(pValue, nDataSize - sizeof(ComSensorsHdr_t), pHdr->nTimeStamp);
+      m_Gyr.AddFrame(pValue, nDataSize - sizeof(ComSensorsHdr_t), pHdr->nTimeStamp, pHdr->flRes, pHdr->flMaxRange);
    }
 
    if (m_Mag.CheckSensorType((SensTypes)pHdr->nType))
    {
-      m_Mag.AddFrame(pValue, nDataSize - sizeof(ComSensorsHdr_t), pHdr->nTimeStamp);
+      m_Mag.AddFrame(pValue, nDataSize - sizeof(ComSensorsHdr_t), pHdr->nTimeStamp, pHdr->flRes, pHdr->flMaxRange);
    }
 
-   printf("%06u\n", m_Acc.GetDataCount());
-   if (m_Acc.GetDataCount() == 4000)
-   {
-      m_Acc.Calibrate();
-   }
+  //  printf("%06u\n", m_Acc.GetDataCount());
+//    if (m_Acc.GetDataCount() == 4000)
+//    {
+//       m_Acc.Calibrate();
+//    }
 
    return true;
 }

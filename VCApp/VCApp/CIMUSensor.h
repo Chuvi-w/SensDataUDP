@@ -27,7 +27,14 @@ inline Vec3D RAD2DEG(Vec3D val)
    return val * 180.0 / MATHLIB3D::MathUtils::PI;
 }
 
-
+inline double DEG2RAD(double val)
+{
+   return val * MATHLIB3D::MathUtils::PI / 180.0;
+}
+inline double RAD2DEG(double val)
+{
+   return val * 180.0 / MATHLIB3D::MathUtils::PI;
+}
 
 class CTimeStampNS
 {
@@ -75,7 +82,7 @@ class CBaseIMUSensor
 {
   
 public:
-   CBaseIMUSensor()
+   CBaseIMUSensor(const std::string &sName, SensTypes nType1, SensTypes nType2) :m_Name(sName), m_Type1(nType1), m_Type2(nType2)
    {
 
    }
@@ -84,7 +91,7 @@ public:
       m_Data.clear();
       m_UData.clear();
    }
-   bool AddFrame(const void *pData, size_t nDataSize, CTimeStampNS nTimeStamp);
+   bool AddFrame(const void *pData, size_t nDataSize, CTimeStampNS nTimeStamp, float flRes, float flMaxRange);
 
    bool HaveData() const
    {
@@ -95,7 +102,7 @@ public:
    {
       return !m_UData.empty();
    }
-   virtual bool CheckSensorType(SensTypes nType) = 0;
+   bool CheckSensorType(SensTypes nType);
    virtual bool OnNewDataReceived(Vec3D &vData, Vec3D &vAddData, CTimeStampNS TimeStamp, bool bHaveAddData);
    virtual bool OnNewDataAdded(bool bUncalibrated=false);
    std::list<CSensorFrame> GetData() const
@@ -148,10 +155,15 @@ public:
    }
 
    void Calibrate();
+   float m_flRes;
+   float m_flMaxRange;
 private:
+
+   std::string m_Name;
+   SensTypes m_Type1, m_Type2;
    std::list<CSensorFrame> m_Data;
    std::list<CSensorFrameUncalibrated> m_UData;
-
+  
 };
 
 
@@ -159,36 +171,21 @@ private:
 class CACCSensor :public CBaseIMUSensor
 {
 public:
-   CACCSensor()
+   CACCSensor() :CBaseIMUSensor("Acc",TYPE_ACCELEROMETER,TYPE_ACCELEROMETER_UNCALIBRATED)
    {
 
    }
-
-
-   virtual bool CheckSensorType(SensTypes nType) override;
-
-   
-
-
-   virtual bool OnNewDataAdded(bool bUncalibrated = false) override;
-
-  
+   virtual bool OnNewDataAdded(bool bUncalibrated = false) override; 
 };
 
 
 class CGyroSensor :public CBaseIMUSensor
 {
 public:
-   CGyroSensor()
+   CGyroSensor() :CBaseIMUSensor("Gyr",TYPE_GYROSCOPE,TYPE_GYROSCOPE_UNCALIBRATED)
    {
 
    }
-
-
-   virtual bool CheckSensorType(SensTypes nType) override;
-
-
-
    virtual bool OnNewDataAdded(bool bUncalibrated = false) override;
 
 };
@@ -197,16 +194,10 @@ public:
 class CMagSensor :public CBaseIMUSensor
 {
 public:
-   CMagSensor()
+   CMagSensor() :CBaseIMUSensor("Mag",TYPE_MAGNETIC_FIELD,TYPE_MAGNETIC_FIELD_UNCALIBRATED)
    {
 
    }
-
-
-   virtual bool CheckSensorType(SensTypes nType) override;
-
-
-
    virtual bool OnNewDataAdded(bool bUncalibrated = false) override;
 
 };

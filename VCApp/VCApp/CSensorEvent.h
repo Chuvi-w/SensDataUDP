@@ -9,7 +9,8 @@ typedef struct ComSensorsHdr_s
    jlong nType;
    jlong nTimeStamp;
    jlong nSize;
-
+   jfloat flRes;
+   jfloat flMaxRange;
 }ComSensorsHdr_t;
 
 

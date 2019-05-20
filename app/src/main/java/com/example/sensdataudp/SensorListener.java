@@ -16,6 +16,8 @@ public class SensorListener  implements SensorEventListener{
         mSensorPacket.write(event.timestamp);
        // mSensorPacket.write(event.sensor);
         mSensorPacket.write(Long.valueOf(event.values.length));
+        mSensorPacket.write(event.sensor.getResolution());
+        mSensorPacket.write(event.sensor.getMaximumRange());
         for (int i = 0; i < event.values.length; i++)
         {
             mSensorPacket.write(event.values[i]);

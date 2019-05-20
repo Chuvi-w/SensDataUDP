@@ -3,12 +3,14 @@
 
 
 
-bool CBaseIMUSensor::AddFrame(const void *pData, size_t nDataSize, CTimeStampNS nTimeStamp)
+bool CBaseIMUSensor::AddFrame(const void *pData, size_t nDataSize, CTimeStampNS nTimeStamp, float flRes, float flMaxRange)
 {
 
    const float *fData = reinterpret_cast<const float*>(pData);
    Vec3D vData, vAddData=NullVec3D;
   
+   m_flRes = flRes;
+   m_flMaxRange = flMaxRange;
    if (nDataSize != sizeof(float) * 3 && nDataSize != sizeof(float) * 6)
    {
       return false;
@@ -45,6 +47,15 @@ bool CBaseIMUSensor::AddFrame(const void *pData, size_t nDataSize, CTimeStampNS 
    return true;
 }
 
+
+bool CBaseIMUSensor::CheckSensorType(SensTypes nType)
+{
+   if (nType == m_Type1 || nType == m_Type2)
+   {
+      return true;
+   }
+   return false;
+}
 
 bool CBaseIMUSensor::OnNewDataReceived(Vec3D &vData, Vec3D &vAddData, CTimeStampNS TimeStamp, bool bHaveAddData)
 {
@@ -115,11 +126,6 @@ void CBaseIMUSensor::Calibrate()
    printf("");
 }
 
-bool CACCSensor::CheckSensorType(SensTypes nType)
-{
-   return nType == TYPE_ACCELEROMETER || nType == TYPE_ACCELEROMETER_UNCALIBRATED;
-}
-
 
 bool CACCSensor::OnNewDataAdded(bool bUncalibrated /*= false*/)
 {
@@ -148,15 +154,13 @@ bool CACCSensor::OnNewDataAdded(bool bUncalibrated /*= false*/)
    return true;
 }
 
-
-bool CGyroSensor::CheckSensorType(SensTypes nType)
-{
-   return nType == TYPE_GYROSCOPE || nType == TYPE_GYROSCOPE_UNCALIBRATED;
-}
-
 bool CGyroSensor::OnNewDataAdded(bool bUncalibrated /*= false*/)
 {
-   return true;
+
+
+   auto rMax = RAD2DEG(m_flMaxRange);
+  
+    //return true;
    Vec3D vSCOData = NullVec3D;
    if (bUncalibrated)
    {
@@ -173,12 +177,15 @@ bool CGyroSensor::OnNewDataAdded(bool bUncalibrated /*= false*/)
       vSCOData.y = sqrt(vSCOData.y / (double)vCurData.size());
       vSCOData.z = sqrt(vSCOData.z / (double)vCurData.size());
       //vSCOData *= 100.0;
-
+      
      
       vAvgData = RAD2DEG(vAvgData);
       vSCOData = RAD2DEG(vSCOData);
       vAvgData *= 3600.0;
-      vSCOData *= 3600.0;
+      vSCOData *= 60.0;
+      auto rMin = RAD2DEG(m_flRes);
+      rMin *= 60.0;
+      vSCOData /= rMin;
       printf("{%05u} {%.15f, %.15f, %.15f} ,{%.15f, %.15f, %.15f}\n", GetDataCountUncalib(), vAvgData.x, vAvgData.y, vAvgData.z, vSCOData.x, vSCOData.y, vSCOData.z);
 
    }
@@ -186,10 +193,6 @@ bool CGyroSensor::OnNewDataAdded(bool bUncalibrated /*= false*/)
    return true;
 }
 
-bool CMagSensor::CheckSensorType(SensTypes nType)
-{
-   return nType == TYPE_MAGNETIC_FIELD || nType == TYPE_MAGNETIC_FIELD_UNCALIBRATED;
-}
 
 bool CMagSensor::OnNewDataAdded(bool bUncalibrated /*= false*/)
 {
