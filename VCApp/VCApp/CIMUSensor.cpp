@@ -22,7 +22,7 @@ bool CBaseIMUSensor::AddFrame(const void *pData, size_t nDataSize, CTimeStampNS 
       if (OnNewDataReceived(vData, vAddData, nTimeStamp, false))
       {
          m_Data.push_back({ vData, nTimeStamp });
-        // m_Data.sort();
+         m_Data.sort();
          OnNewDataAdded(false);
       }
      
@@ -35,7 +35,13 @@ bool CBaseIMUSensor::AddFrame(const void *pData, size_t nDataSize, CTimeStampNS 
       if (OnNewDataReceived(vData, vAddData, nTimeStamp, true))
       {
          m_UData.push_back({ vData,nTimeStamp,vAddData });
-         //m_UData.sort();
+         m_UData.sort();
+
+         if (m_Type1 == TYPE_GYROSCOPE)
+         {
+            printf("{%4.16f, %.14f, %.14f}\n", vData.x, vData.y, vData.z);
+         
+         }
          OnNewDataAdded(true);
       }
      
@@ -157,10 +163,10 @@ bool CACCSensor::OnNewDataAdded(bool bUncalibrated /*= false*/)
 bool CGyroSensor::OnNewDataAdded(bool bUncalibrated /*= false*/)
 {
 
-
+   return true;
    auto rMax = RAD2DEG(m_flMaxRange);
   
-    //return true;
+    //
    Vec3D vSCOData = NullVec3D;
    if (bUncalibrated)
    {
