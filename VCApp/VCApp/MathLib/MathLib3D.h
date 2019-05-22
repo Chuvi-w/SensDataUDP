@@ -29,28 +29,29 @@
 
 #include <math.h>
 
-namespace MATHLIB3D {
-	class Vector2D;
-	class Vector3D;
-	class Vector4D;
-	class Matrix3;
-	class Matrix4;
-	class Quaternion;
-	class MathUtils;
-	class Matrix3x3;
-	class Matrix4x4;
-	class Plane;
-	class Polynomial;
-}
+namespace MATHLIB3D
+{
+class Vector2D;
+class Vector3D;
+class Vector4D;
+class Matrix3;
+class Matrix4;
+class Quaternion;
+class MathUtils;
+class Matrix3x3;
+class Matrix4x4;
+class Plane;
+class Polynomial;
+} // namespace MATHLIB3D
 
-inline MATHLIB3D::Vector2D operator * (double scalar, MATHLIB3D::Vector2D& vector);
-inline MATHLIB3D::Vector2D operator * (double scalar, const MATHLIB3D::Vector2D& vector);
-inline MATHLIB3D::Vector3D operator * (double scalar, MATHLIB3D::Vector3D& vector);
-inline MATHLIB3D::Vector4D operator * (double scalar, MATHLIB3D::Vector4D& vector);
+inline MATHLIB3D::Vector2D operator*(double scalar, MATHLIB3D::Vector2D& vector);
+inline MATHLIB3D::Vector2D operator*(double scalar, const MATHLIB3D::Vector2D& vector);
+inline MATHLIB3D::Vector3D operator*(double scalar, MATHLIB3D::Vector3D& vector);
+inline MATHLIB3D::Vector4D operator*(double scalar, MATHLIB3D::Vector4D& vector);
 
-inline MATHLIB3D::Vector2D operator / (double scalar, MATHLIB3D::Vector2D& vector);
-inline MATHLIB3D::Vector3D operator / (double scalar, MATHLIB3D::Vector3D& vector);
-inline MATHLIB3D::Vector4D operator / (double scalar, MATHLIB3D::Vector4D& vector);
+inline MATHLIB3D::Vector2D operator/(double scalar, MATHLIB3D::Vector2D& vector);
+inline MATHLIB3D::Vector3D operator/(double scalar, MATHLIB3D::Vector3D& vector);
+inline MATHLIB3D::Vector4D operator/(double scalar, MATHLIB3D::Vector4D& vector);
 #include "MathUtils.h"
 #include "Vector2D.h"
 #include "Vector3D.h"

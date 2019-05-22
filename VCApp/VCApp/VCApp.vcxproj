@@ -94,6 +94,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;SFML_STATIC;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)\Depends\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -110,6 +111,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;SFML_STATIC;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)\Depends\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,6 +130,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;SFML_STATIC;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)\Depends\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,6 +151,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;SFML_STATIC;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)\Depends\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,25 +163,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AndroidHelperFuncs.cpp" />
     <ClCompile Include="CDataReceiver.cpp" />
     <ClCompile Include="CIMUSensor.cpp" />
     <ClCompile Include="CSensorEvent.cpp" />
     <ClCompile Include="CTouchEvent.cpp" />
+    <ClCompile Include="gestureDetector.cpp" />
     <ClCompile Include="MathLib\MathUtils.cpp" />
     <ClCompile Include="VCApp.cpp" />
+    <ClCompile Include="vecmath.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AndroidHelperFuncs.h" />
+    <ClInclude Include="AndroidInput.h" />
+    <ClInclude Include="android\ndk_helper\AndroidInput.h" />
     <ClInclude Include="CDataReceiver.h" />
     <ClInclude Include="CIMUSensor.h" />
     <ClInclude Include="CSensorEvent.h" />
     <ClInclude Include="CTouchEvent.h" />
     <ClInclude Include="EvCommon.h" />
+    <ClInclude Include="gestureDetector.h" />
     <ClInclude Include="jni.h" />
     <ClInclude Include="MathLib\MathLib3D.h" />
     <ClInclude Include="MathLib\MathUtils.h" />
     <ClInclude Include="MathLib\Vector2D.h" />
     <ClInclude Include="MathLib\Vector3D.h" />
     <ClInclude Include="MathLib\Vector4D.h" />
+    <ClInclude Include="TouchEvData.h" />
+    <ClInclude Include="vecmath.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

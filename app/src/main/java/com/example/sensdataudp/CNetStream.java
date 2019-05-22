@@ -28,7 +28,8 @@ public class CNetStream {
 
         try
         {
-            mClientAdr = InetAddress.getByName("192.168.1.10");
+           // mClientAdr = InetAddress.getByName("192.168.1.10");
+            mClientAdr = InetAddress.getByName("192.168.42.255");
         }
         catch (UnknownHostException e)
         {

@@ -1,23 +1,15 @@
 #include "CSensorEvent.h"
 #include <inttypes.h>
 
+CSensorEvent::CSensorEvent() {}
 
+CSensorEvent::~CSensorEvent() {}
 
-CSensorEvent::CSensorEvent()
+bool CSensorEvent::ParseEvent(const void* pData, size_t nDataSize, bool bEndian)
 {
+   const ComSensorsHdr_t* pHdr = reinterpret_cast<const ComSensorsHdr_t*>(pData);
 
-}
-
-CSensorEvent::~CSensorEvent()
-{
-
-}
-
-bool CSensorEvent::ParseEvent(const void *pData, size_t nDataSize, bool bEndian)
-{
-   const ComSensorsHdr_t *pHdr = reinterpret_cast<const ComSensorsHdr_t*>(pData);
-
-   const float *pValue = reinterpret_cast<const float*>((size_t)pHdr + sizeof(ComSensorsHdr_t));
+   const float* pValue = reinterpret_cast<const float*>((size_t)pHdr + sizeof(ComSensorsHdr_t));
 #if 0
    char *sType;
    bool bprint = false;
@@ -60,35 +52,29 @@ bool CSensorEvent::ParseEvent(const void *pData, size_t nDataSize, bool bEndian)
       printf("}\n");
    }
 #endif
-   if (m_Acc.CheckSensorType((SensTypes)pHdr->nType))
+   if(m_Acc.CheckSensorType((SensTypes)pHdr->nType))
    {
-      m_Acc.AddFrame(pValue, nDataSize - sizeof(ComSensorsHdr_t), pHdr->nTimeStamp,pHdr->flRes,pHdr->flMaxRange);
+      m_Acc.AddFrame(pValue, nDataSize - sizeof(ComSensorsHdr_t), pHdr->nTimeStamp, pHdr->flRes, pHdr->flMaxRange);
    }
-   if (m_Gyr.CheckSensorType((SensTypes)pHdr->nType))
+   if(m_Gyr.CheckSensorType((SensTypes)pHdr->nType))
    {
       m_Gyr.AddFrame(pValue, nDataSize - sizeof(ComSensorsHdr_t), pHdr->nTimeStamp, pHdr->flRes, pHdr->flMaxRange);
    }
 
-   if (m_Mag.CheckSensorType((SensTypes)pHdr->nType))
+   if(m_Mag.CheckSensorType((SensTypes)pHdr->nType))
    {
       m_Mag.AddFrame(pValue, nDataSize - sizeof(ComSensorsHdr_t), pHdr->nTimeStamp, pHdr->flRes, pHdr->flMaxRange);
    }
 
-  //  printf("%06u\n", m_Acc.GetDataCount());
-//    if (m_Acc.GetDataCount() == 4000)
-//    {
-//       m_Acc.Calibrate();
-//    }
+   //  printf("%06u\n", m_Acc.GetDataCount());
+   //    if (m_Acc.GetDataCount() == 4000)
+   //    {
+   //       m_Acc.Calibrate();
+   //    }
 
    return true;
 }
 
-uint32_t CSensorEvent::GetEventID()
-{
-   return 0xBB00;
-}
+uint32_t CSensorEvent::GetEventID() { return 0xBB00; }
 
-std::shared_ptr<IEventReceiver> CSensorEvent::GetEvShared()
-{
-   return shared_from_this();
-}
+std::shared_ptr<IEventReceiver> CSensorEvent::GetEvShared() { return shared_from_this(); }

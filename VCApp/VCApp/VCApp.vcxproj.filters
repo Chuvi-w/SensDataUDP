@@ -39,6 +39,15 @@
     <ClCompile Include="MathLib\MathUtils.cpp">
       <Filter>Файлы исходного кода\MathLib</Filter>
     </ClCompile>
+    <ClCompile Include="gestureDetector.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="vecmath.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="AndroidHelperFuncs.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="jni.h">
@@ -73,6 +82,24 @@
     </ClInclude>
     <ClInclude Include="MathLib\MathLib3D.h">
       <Filter>Заголовочные файлы\MathLib</Filter>
+    </ClInclude>
+    <ClInclude Include="android\ndk_helper\AndroidInput.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="AndroidHelperFuncs.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="AndroidInput.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="gestureDetector.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="vecmath.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="TouchEvData.h">
+      <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -30,228 +30,212 @@
 #include "MathLib3D.h"
 using namespace MATHLIB3D;
 
-namespace MATHLIB3D {
-	
-	class Vector3D {
-	public:
+namespace MATHLIB3D
+{
 
-		/* Constructors */
-      /**
-      * Default constructor of the Vector3D class
-      */
-      Vector3D(): x(0), y(0), z(0)
+class Vector3D
+{
+ public:
+   /* Constructors */
+   /**
+    * Default constructor of the Vector3D class
+    */
+   Vector3D() : x(0), y(0), z(0) {}
+
+   /**
+    * Default constructor of the Vector3D class
+    * @param x x coordinate value
+    * @param y y coordinate value
+    * @param z z coordinate value
+    */
+   Vector3D(const double& x, const double& y, const double& z) : x(x), y(y), z(z) {}
+
+   /**
+    * Copy constructor of the Vector3D class
+    * @param vector vector to copy
+    */
+   Vector3D(const Vector3D* pVector) : x(pVector->x), y(pVector->y), z(pVector->z) {}
+
+   /**
+    * Copy constructor of the Vector3D class
+    * @param vector vector to copy
+    */
+   Vector3D(const Vector3D& vector) : x(vector.x), y(vector.y), z(vector.z) {}
+
+   /* Get Methods - Original Vector Not Modified */
+   inline const double GetMagnitude() const;
+   inline const double GetDot(const Vector3D& vector) const;
+   inline const double GetAngle(const Vector3D& vector) const;
+   inline Vector3D     GetNormalized() const;
+   inline Vector3D     GetInverted() const;
+   inline Vector3D     GetCross(const Vector3D& vector) const;
+   inline Vector3D     GetProjected(const Vector3D& vector) const;
+   inline const double GetSphericCoordinates(double& angle1, double& angle2) const;
+   inline const double GetDistance(Vector3D& vector) const;
+
+   /* Set Methods - Original Vector Modified */
+   inline Vector3D& SetMagnitude(const double& magnitude);
+   inline Vector3D& SetNormalized();
+   inline Vector3D& SetInverted();
+   inline Vector3D& SetCross(const Vector3D& vector);
+   inline Vector3D& SetCross(const Vector3D& vector1, const Vector3D& vector2);
+   inline Vector3D& SetProjected(const Vector3D& vector);
+   inline Vector3D& SetProjected(const Vector3D& vector1, const Vector3D& vector2);
+
+   /* Operator replacements */
+   inline Vector3D  GetAdd(const Vector3D& vector) const;
+   inline Vector3D& SetAdd(const Vector3D& vector);
+   inline Vector3D& SetAdd(const Vector3D& vector1, const Vector3D& vector2);
+
+   inline Vector3D  GetSub(const Vector3D& vector) const;
+   inline Vector3D& SetSub(const Vector3D& vector);
+   inline Vector3D& SetSub(const Vector3D& vector1, const Vector3D& vector2);
+
+   inline Vector3D  GetMul(const double& scalar) const;
+   inline Vector3D& SetMul(const double& scalar);
+   inline Vector3D& SetMul(const Vector3D& vector, const double& scalar);
+
+   inline Vector3D  GetDiv(const double& scalar) const;
+   inline Vector3D& SetDiv(const double& scalar);
+   inline Vector3D& SetDiv(const Vector3D& vector, const double& scalar);
+
+   inline const bool equals(const Vector3D& vector) const;
+   inline const bool notEquals(const Vector3D& vector) const;
+
+   /* Operators */
+   inline Vector3D   operator+(const Vector3D& vector) const;
+   inline Vector3D   operator-(const Vector3D& vector) const;
+   inline Vector3D   operator*(const double& scalar) const;
+   inline Vector3D   operator/(const double& scalar) const;
+   inline Vector3D&  operator+=(const Vector3D& vector);
+   inline Vector3D&  operator-=(const Vector3D& vector);
+   inline Vector3D&  operator*=(const double& scalar);
+   inline Vector3D&  operator/=(const double& scalar);
+   inline Vector3D   operator-() const;
+   inline const bool operator==(Vector3D& vector) const;
+   inline const bool operator!=(Vector3D& vector);
+   inline const bool operator<(const Vector3D& vector) const
+   {
+      bool less;
+      if(z < vector.z)
       {
+         less = true;
       }
-
-      /**
-      * Default constructor of the Vector3D class
-      * @param x x coordinate value
-      * @param y y coordinate value
-      * @param z z coordinate value
-      */
-      Vector3D(const double& x, const double& y, const double& z): x(x), y(y), z(z)
+      else
       {
-      }
-
-      /**
-      * Copy constructor of the Vector3D class
-      * @param vector vector to copy
-      */
-      Vector3D(const Vector3D* pVector): x(pVector->x), y(pVector->y), z(pVector->z)
-      {
-      }
-
-      /**
-      * Copy constructor of the Vector3D class
-      * @param vector vector to copy
-      */
-      Vector3D(const Vector3D& vector): x(vector.x), y(vector.y), z(vector.z)
-      {
-      }
-
-
-		/* Get Methods - Original Vector Not Modified */
-		inline const double GetMagnitude() const;
-		inline const double GetDot(const Vector3D& vector) const;
-		inline const double GetAngle(const Vector3D& vector) const;
-		inline Vector3D GetNormalized() const;
-		inline Vector3D GetInverted() const;
-		inline Vector3D GetCross(const Vector3D& vector) const;
-		inline Vector3D GetProjected(const Vector3D& vector) const;
-		inline const double GetSphericCoordinates(double& angle1, double& angle2) const;
-		inline const double GetDistance(Vector3D& vector) const;
-
-		/* Set Methods - Original Vector Modified */
-		inline Vector3D& SetMagnitude(const double& magnitude);
-		inline Vector3D& SetNormalized();
-		inline Vector3D& SetInverted();
-		inline Vector3D& SetCross(const Vector3D& vector);
-		inline Vector3D& SetCross(const Vector3D& vector1, const Vector3D& vector2);
-		inline Vector3D& SetProjected(const Vector3D& vector);
-		inline Vector3D& SetProjected(const Vector3D& vector1, const Vector3D& vector2);
-
-		/* Operator replacements */
-		inline Vector3D GetAdd(const Vector3D& vector) const;
-		inline Vector3D& SetAdd(const Vector3D& vector);
-		inline Vector3D& SetAdd(const Vector3D& vector1, const Vector3D& vector2);
-
-		inline Vector3D GetSub(const Vector3D& vector) const;
-		inline Vector3D& SetSub(const Vector3D& vector);
-		inline Vector3D& SetSub(const Vector3D& vector1, const Vector3D& vector2);
-
-		inline Vector3D GetMul(const double& scalar) const;
-		inline Vector3D& SetMul(const double& scalar);
-		inline Vector3D& SetMul(const Vector3D& vector, const double& scalar);
-
-		inline Vector3D GetDiv(const double& scalar) const;
-		inline Vector3D& SetDiv(const double& scalar);
-		inline Vector3D& SetDiv(const Vector3D& vector, const double& scalar);
-
-		inline const bool equals(const Vector3D& vector) const;
-		inline const bool notEquals(const Vector3D& vector) const;
-
-		/* Operators */
-		inline Vector3D operator + (const Vector3D& vector) const;
-		inline Vector3D operator - (const Vector3D& vector) const;      
-		inline Vector3D operator * (const double& scalar) const;      
-		inline Vector3D operator / (const double& scalar) const;   
-		inline Vector3D& operator += (const Vector3D& vector);
-		inline Vector3D& operator -= (const Vector3D& vector);
-		inline Vector3D& operator *= (const double& scalar);
-		inline Vector3D& operator /= (const double& scalar);
-		inline Vector3D operator - () const;
-		inline const bool operator == (Vector3D &vector) const;
-		inline const bool operator != (Vector3D &vector);
-      inline const bool operator <(const Vector3D &vector) const
-      {
-         bool less;
-         if(z < vector.z)
+         if(z > vector.z)
          {
-            less = true;
+            less = false;
          }
          else
          {
-            if(z > vector.z)
+            if(y < vector.y)
             {
-               less = false;
+               less = true;
             }
             else
             {
-               if(y < vector.y)
+               if(y > vector.y)
                {
-                  less = true;
+                  less = false;
                }
                else
                {
-                  if(y > vector.y)
+                  if(x < vector.x)
                   {
-                     less = false;
+                     less = true;
                   }
                   else
                   {
-                     if(x < vector.x)
-                     {
-                        less = true;
-                     }
-                     else
-                     {
-                        less = false;
-                     }
+                     less = false;
                   }
                }
             }
          }
-
-
-         return less;
       }
-	public:
-		double x;
-		double y;
-		double z;
-	};
-}
+
+      return less;
+   }
+
+ public:
+   double x;
+   double y;
+   double z;
+};
+} // namespace MATHLIB3D
 
 //-------------------------------------------------------------------------------------------------
 // INLINED SOURCE
 //-------------------------------------------------------------------------------------------------
 
-
 /**
  * Magnitude of the vector (3D)
  * @return magnitude of the vector
  */
-inline const double Vector3D::GetMagnitude() const {
-	return static_cast<double>(sqrt(x*x + y*y + z*z)); 
-}
+inline const double Vector3D::GetMagnitude() const { return static_cast<double>(sqrt(x * x + y * y + z * z)); }
 
 /**
  * Dot product of two vectors (3D)
  * @param vector second vector on which the dot product is applied
  * @return dot product value
  */
-inline const double Vector3D::GetDot(const Vector3D& vector) const {
-	return (x * vector.x + y * vector.y + z * vector.z);
-}
+inline const double Vector3D::GetDot(const Vector3D& vector) const { return (x * vector.x + y * vector.y + z * vector.z); }
 
 /**
  * Angle between two vectors (3D)
  * @param vector second vector of the pair, where the angle is calculated
  * @return angle between the two vectors
  */
-inline const double Vector3D::GetAngle(const Vector3D& vector) const {
-	const double magnitudesProduct = GetMagnitude() * vector.GetMagnitude();
+inline const double Vector3D::GetAngle(const Vector3D& vector) const
+{
+   const double magnitudesProduct = GetMagnitude() * vector.GetMagnitude();
 
-	if (magnitudesProduct != 0.0f)
-		return static_cast<double>(acos(GetDot(vector) / magnitudesProduct));
-	else
-		return 0.0f;
+   if(magnitudesProduct != 0.0f)
+      return static_cast<double>(acos(GetDot(vector) / magnitudesProduct));
+   else
+      return 0.0f;
 }
 
 /**
  * Normalizes an INSTANCE of the vector (3D)
  * @return reference to a new normalized Vector3D
  */
-inline Vector3D Vector3D::GetNormalized() const {
-	const double magnitude = GetMagnitude();
-   
-	if (magnitude != 0.0f)
-		return Vector3D(x / magnitude, y / magnitude, z / magnitude);
-	else
-		return (*this);
+inline Vector3D Vector3D::GetNormalized() const
+{
+   const double magnitude = GetMagnitude();
+
+   if(magnitude != 0.0f)
+      return Vector3D(x / magnitude, y / magnitude, z / magnitude);
+   else
+      return (*this);
 }
 
 /**
  * Inverts an INSTANCE of the vector (3D)
  * @return reference to a new inverted Vector3D
  */
-inline Vector3D Vector3D::GetInverted() const {
-	return Vector3D(-x, -y, -z);
-}
+inline Vector3D Vector3D::GetInverted() const { return Vector3D(-x, -y, -z); }
 
 /**
  * Cross product of the two Vector3D, outputs a Vector3D
  * @param vector second vector of the pair
  * @return new perpendicular Vector3D
  */
-inline Vector3D Vector3D::GetCross(const Vector3D& vector) const {
-	return Vector3D(y * vector.z - z * vector.y, 
-					x * vector.z - z * vector.x, 
-					x * vector.y - y * vector.x);
-}
+inline Vector3D Vector3D::GetCross(const Vector3D& vector) const { return Vector3D(y * vector.z - z * vector.y, x * vector.z - z * vector.x, x * vector.y - y * vector.x); }
 
 /**
  * Projects an INSTANCE of the vector onto another (3D)
  * @param vector vector on which the projection is done
  * @return reference to a new normalized Vector3D
  */
-inline Vector3D Vector3D::GetProjected(const Vector3D& vector) const {
-	const double selfDot = vector.GetDot(vector);
+inline Vector3D Vector3D::GetProjected(const Vector3D& vector) const
+{
+   const double selfDot = vector.GetDot(vector);
 
-	if (selfDot != 0.0f)
-		return (vector * (GetDot(vector) / (selfDot)));
-	else
-		return (*this);
+   if(selfDot != 0.0f)
+      return (vector * (GetDot(vector) / (selfDot)));
+   else
+      return (*this);
 }
 
 /**
@@ -260,30 +244,31 @@ inline Vector3D Vector3D::GetProjected(const Vector3D& vector) const {
  * @param angle2 second angle
  * @return magnitude of the vector
  */
-inline const double Vector3D::GetSphericCoordinates(double& Theta, double& Phi) const {
-	const double magnitude = GetMagnitude();
+inline const double Vector3D::GetSphericCoordinates(double& Theta, double& Phi) const
+{
+   const double magnitude = GetMagnitude();
    /*
    const double squaredMagnitude = magnitude * magnitude;
-	const double squaredY = y * y;
-	const double ratio = static_cast<double>(squaredMagnitude - squaredY);
+   const double squaredY = y * y;
+   const double ratio = static_cast<double>(squaredMagnitude - squaredY);
 
-	if ((ratio != 0.0f) && (magnitude != 0.0f)) {
-		angle1 = static_cast<double>(acos(x / ratio));
-		angle2 = static_cast<double>(acos(y / magnitude));
-	}
+   if ((ratio != 0.0f) && (magnitude != 0.0f)) {
+      angle1 = static_cast<double>(acos(x / ratio));
+      angle2 = static_cast<double>(acos(y / magnitude));
+   }
    */
    Theta = 0.0;
-   Phi = 0.0;
-   if (magnitude)
+   Phi   = 0.0;
+   if(magnitude)
    {
       Theta = acos(z / magnitude);
    }
-   if (x)
+   if(x)
    {
       Phi = atan(y / x);
    }
 
-	return magnitude;
+   return magnitude;
 }
 
 /**
@@ -291,10 +276,11 @@ inline const double Vector3D::GetSphericCoordinates(double& Theta, double& Phi) 
  * @param vector vector to calculate the distance from
  * @return distance between the two vectors
  */
-inline const double Vector3D::GetDistance(Vector3D& vector) const {
-	Vector3D tmp = *this;
-	tmp -= vector;
-	return tmp.GetMagnitude();
+inline const double Vector3D::GetDistance(Vector3D& vector) const
+{
+   Vector3D tmp = *this;
+   tmp -= vector;
+   return tmp.GetMagnitude();
 }
 
 /**
@@ -302,44 +288,49 @@ inline const double Vector3D::GetDistance(Vector3D& vector) const {
  * @param new magnitude value
  * @return new vector
  */
-inline Vector3D& Vector3D::SetMagnitude(const double& magnitude) {
-	const double currentMagnitude = GetMagnitude();
+inline Vector3D& Vector3D::SetMagnitude(const double& magnitude)
+{
+   const double currentMagnitude = GetMagnitude();
 
-	if (currentMagnitude != 0.0f) {
-		const double magnitudeRatio = magnitude / currentMagnitude;	//Faster, but not nice.
-		x *= magnitudeRatio;
-		y *= magnitudeRatio;
-		z *= magnitudeRatio;
-	}
+   if(currentMagnitude != 0.0f)
+   {
+      const double magnitudeRatio = magnitude / currentMagnitude; // Faster, but not nice.
+      x *= magnitudeRatio;
+      y *= magnitudeRatio;
+      z *= magnitudeRatio;
+   }
 
-	return (*this);	
+   return (*this);
 }
 
 /**
  * Normalizes the vector (3D)
  * @return reference to THIS normalized Vector3D
  */
-inline Vector3D& Vector3D::SetNormalized() {
-	const double magnitude = GetMagnitude();
-   
-	if (magnitude != 0.0f) {
-		x /= magnitude;
-		y /= magnitude;
-		z /= magnitude;
-	}
+inline Vector3D& Vector3D::SetNormalized()
+{
+   const double magnitude = GetMagnitude();
 
-	return (*this);
+   if(magnitude != 0.0f)
+   {
+      x /= magnitude;
+      y /= magnitude;
+      z /= magnitude;
+   }
+
+   return (*this);
 }
 
 /**
  * Inverts the vector (3D)
  * @return reference to THIS inverted Vector3D
  */
-inline Vector3D& Vector3D::SetInverted() {
-	x = -x;
-	y = -y;
-	z = -z;
-	return (*this);
+inline Vector3D& Vector3D::SetInverted()
+{
+   x = -x;
+   y = -y;
+   z = -z;
+   return (*this);
 }
 
 /**
@@ -347,9 +338,10 @@ inline Vector3D& Vector3D::SetInverted() {
  * @param vector vector with which the cross product is done
  * @return reference to THIS crossed Vector3D
  */
-inline Vector3D& Vector3D::SetCross(const Vector3D& vector) {
-	*this = GetCross(vector);
-	return (*this);
+inline Vector3D& Vector3D::SetCross(const Vector3D& vector)
+{
+   *this = GetCross(vector);
+   return (*this);
 }
 
 /**
@@ -358,9 +350,10 @@ inline Vector3D& Vector3D::SetCross(const Vector3D& vector) {
  * @param vector2 second vector of the cross product
  * @return reference to THIS crossed Vector3D
  */
-inline Vector3D& Vector3D::SetCross(const Vector3D& vector1, const Vector3D& vector2) {
-	*this = vector1.GetCross(vector2);
-	return (*this);
+inline Vector3D& Vector3D::SetCross(const Vector3D& vector1, const Vector3D& vector2)
+{
+   *this = vector1.GetCross(vector2);
+   return (*this);
 }
 
 /**
@@ -368,9 +361,10 @@ inline Vector3D& Vector3D::SetCross(const Vector3D& vector1, const Vector3D& vec
  * @param vector vector on which the projection is done
  * @return reference to THIS projected Vector3D
  */
-inline Vector3D& Vector3D::SetProjected(const Vector3D& vector) {
-	*this = GetProjected(vector);
-	return (*this);
+inline Vector3D& Vector3D::SetProjected(const Vector3D& vector)
+{
+   *this = GetProjected(vector);
+   return (*this);
 }
 
 /**
@@ -379,9 +373,10 @@ inline Vector3D& Vector3D::SetProjected(const Vector3D& vector) {
  * @param vector2 vector projected onto first one
  * @return reference to THIS projected Vector3D
  */
-inline Vector3D& Vector3D::SetProjected(const Vector3D& vector1, const Vector3D& vector2) {
-	*this = vector1.GetProjected(vector2);
-	return (*this);
+inline Vector3D& Vector3D::SetProjected(const Vector3D& vector1, const Vector3D& vector2)
+{
+   *this = vector1.GetProjected(vector2);
+   return (*this);
 }
 
 /**
@@ -389,35 +384,35 @@ inline Vector3D& Vector3D::SetProjected(const Vector3D& vector1, const Vector3D&
  * @param vector vector to sum
  * @return summation result
  */
-inline Vector3D Vector3D::GetAdd(const Vector3D& vector) const {
-	return Vector3D(this->x + vector.x, this->y + vector.y, this->z + vector.z);
-}
+inline Vector3D Vector3D::GetAdd(const Vector3D& vector) const { return Vector3D(this->x + vector.x, this->y + vector.y, this->z + vector.z); }
 
 /**
  * ADD_EQUAL operator replacement
  * @param vector vector to add to the current vector
  * @return summation result
  */
-inline Vector3D& Vector3D::SetAdd(const Vector3D& vector) {
-	this->x += vector.x;
-	this->y += vector.y;
-	this->z += vector.z;
+inline Vector3D& Vector3D::SetAdd(const Vector3D& vector)
+{
+   this->x += vector.x;
+   this->y += vector.y;
+   this->z += vector.z;
 
-	return (*this);
+   return (*this);
 }
 
 /**
  * ADD_EQUAL operator replacement
- * @param vector1 first vector to add 
+ * @param vector1 first vector to add
  * @param vector2 second vector to add
  * @return summation result
  */
-inline Vector3D& Vector3D::SetAdd(const Vector3D& vector1, const Vector3D& vector2) {
-	this->x = vector1.x + vector2.x;
-	this->y = vector1.y + vector2.y;
-	this->z = vector1.z + vector2.z;
+inline Vector3D& Vector3D::SetAdd(const Vector3D& vector1, const Vector3D& vector2)
+{
+   this->x = vector1.x + vector2.x;
+   this->y = vector1.y + vector2.y;
+   this->z = vector1.z + vector2.z;
 
-	return (*this);
+   return (*this);
 }
 
 /**
@@ -425,35 +420,35 @@ inline Vector3D& Vector3D::SetAdd(const Vector3D& vector1, const Vector3D& vecto
  * @param vector vector to sub
  * @return substraction result
  */
-inline Vector3D Vector3D::GetSub(const Vector3D& vector) const {
-	return Vector3D(this->x - vector.x, this->y - vector.y, this->z - vector.z);
-}
+inline Vector3D Vector3D::GetSub(const Vector3D& vector) const { return Vector3D(this->x - vector.x, this->y - vector.y, this->z - vector.z); }
 
 /**
  * SUB_EQUAL operator replacement
  * @param vector vector to sub to the current vector
  * @return substraction result
  */
-inline Vector3D& Vector3D::SetSub(const Vector3D& vector) {
-	this->x -= vector.x;
-	this->y -= vector.y;
-	this->z -= vector.z;
+inline Vector3D& Vector3D::SetSub(const Vector3D& vector)
+{
+   this->x -= vector.x;
+   this->y -= vector.y;
+   this->z -= vector.z;
 
-	return (*this);
+   return (*this);
 }
 
 /**
  * SUB_EQUAL operator replacement
- * @param vector1 first vector to sub 
+ * @param vector1 first vector to sub
  * @param vector2 second vector to sub
  * @return substraction result
  */
-inline Vector3D& Vector3D::SetSub(const Vector3D& vector1, const Vector3D& vector2) {
-	this->x = vector1.x - vector2.x;
-	this->y = vector1.y - vector2.y;
-	this->z = vector1.z - vector2.z;
+inline Vector3D& Vector3D::SetSub(const Vector3D& vector1, const Vector3D& vector2)
+{
+   this->x = vector1.x - vector2.x;
+   this->y = vector1.y - vector2.y;
+   this->z = vector1.z - vector2.z;
 
-	return (*this);
+   return (*this);
 }
 
 /**
@@ -461,35 +456,35 @@ inline Vector3D& Vector3D::SetSub(const Vector3D& vector1, const Vector3D& vecto
  * @param scalar scalar value multiplied by the vector
  * @return scaled vector
  */
-inline Vector3D Vector3D::GetMul(const double& scalar) const {
-	return Vector3D(this->x * scalar, this->y * scalar, this->z * scalar);
-}
+inline Vector3D Vector3D::GetMul(const double& scalar) const { return Vector3D(this->x * scalar, this->y * scalar, this->z * scalar); }
 
 /**
  * MULTIPLY_EQUAL operator replacement
  * @param scalar scalar multiplied by the current vector
  * @return scaled vector
  */
-inline Vector3D& Vector3D::SetMul(const double& scalar) {
-	this->x *= scalar;
-	this->y *= scalar;
-	this->z *= scalar;
+inline Vector3D& Vector3D::SetMul(const double& scalar)
+{
+   this->x *= scalar;
+   this->y *= scalar;
+   this->z *= scalar;
 
-	return (*this);
+   return (*this);
 }
 
 /**
  * MULTIPLY_EQUAL operator replacement
- * @param vector1 first vector to multiply 
+ * @param vector1 first vector to multiply
  * @param scalar scalar to multiply to the first vector
  * @return scaled vector
  */
-inline Vector3D& Vector3D::SetMul(const Vector3D& vector, const double& scalar) {
-	this->x = vector.x * scalar;
-	this->y = vector.y * scalar;
-	this->z = vector.z * scalar;
+inline Vector3D& Vector3D::SetMul(const Vector3D& vector, const double& scalar)
+{
+   this->x = vector.x * scalar;
+   this->y = vector.y * scalar;
+   this->z = vector.z * scalar;
 
-	return (*this);
+   return (*this);
 }
 
 /**
@@ -497,35 +492,35 @@ inline Vector3D& Vector3D::SetMul(const Vector3D& vector, const double& scalar) 
  * @param scalar scalar value that divides the vector
  * @return scaled vector
  */
-inline Vector3D Vector3D::GetDiv(const double& scalar) const {
-	return Vector3D(this->x / scalar, this->y / scalar, this->z / scalar);
-}
+inline Vector3D Vector3D::GetDiv(const double& scalar) const { return Vector3D(this->x / scalar, this->y / scalar, this->z / scalar); }
 
 /**
  * DIVIDE_EQUAL operator replacement
  * @param scalar scalar multiplied by the current vector
  * @return scaled vector
  */
-inline Vector3D& Vector3D::SetDiv(const double& scalar) {
-	this->x /= scalar;
-	this->y /= scalar;
-	this->z /= scalar;
+inline Vector3D& Vector3D::SetDiv(const double& scalar)
+{
+   this->x /= scalar;
+   this->y /= scalar;
+   this->z /= scalar;
 
-	return (*this);
+   return (*this);
 }
 
 /**
  * MULTIPLY_EQUAL operator replacement
- * @param vector1 first vector to multiply 
+ * @param vector1 first vector to multiply
  * @param scalar scalar to multiply to the first vector
  * @return scaled vector
  */
-inline Vector3D& Vector3D::SetDiv(const Vector3D& vector, const double& scalar) {
-	this->x = vector.x / scalar;
-	this->y = vector.y / scalar;
-	this->z = vector.z / scalar;
+inline Vector3D& Vector3D::SetDiv(const Vector3D& vector, const double& scalar)
+{
+   this->x = vector.x / scalar;
+   this->y = vector.y / scalar;
+   this->z = vector.z / scalar;
 
-	return (*this);
+   return (*this);
 }
 
 /**
@@ -533,56 +528,47 @@ inline Vector3D& Vector3D::SetDiv(const Vector3D& vector, const double& scalar) 
  * @param vector vector to compare
  * @return equal value
  */
-inline const bool Vector3D::equals(const Vector3D& vector) const {
-	return ((this->x == vector.x) && (this->y == vector.y) && (this->z == vector.z));
-}
+inline const bool Vector3D::equals(const Vector3D& vector) const { return ((this->x == vector.x) && (this->y == vector.y) && (this->z == vector.z)); }
 
 /**
  * NOT_EQUAL operator
  * @param vector vector to compare
  * @return not equal value
  */
-inline const bool Vector3D::notEquals(const Vector3D& vector) const {
-	return ((this->x != vector.x) && (this->y != vector.y) && (this->z != vector.z));
-}
+inline const bool Vector3D::notEquals(const Vector3D& vector) const { return ((this->x != vector.x) && (this->y != vector.y) && (this->z != vector.z)); }
 
 /**
  * ADD operator
  * @param vector vector to sum
  * @return summation result
  */
-inline Vector3D Vector3D::operator + (const Vector3D& vector) const {
-	return Vector3D(x + vector.x, y + vector.y, z + vector.z);
-}
+inline Vector3D Vector3D::operator+(const Vector3D& vector) const { return Vector3D(x + vector.x, y + vector.y, z + vector.z); }
 
 /**
  * MINUS operator
  * @param vector vector to minus(sic)
  * @return minus result
  */
-inline Vector3D Vector3D::operator - (const Vector3D& vector) const {
-	return Vector3D(x - vector.x, y - vector.y, z - vector.z);
-}
+inline Vector3D Vector3D::operator-(const Vector3D& vector) const { return Vector3D(x - vector.x, y - vector.y, z - vector.z); }
 
 /**
  * MULTIPLY operator
  * @param scalar scalar value divided by the vector
  * @return scaled vector
  */
-inline Vector3D Vector3D::operator * (const double& scalar) const {
-	return Vector3D(x * scalar, y * scalar, z * scalar);
-}
+inline Vector3D Vector3D::operator*(const double& scalar) const { return Vector3D(x * scalar, y * scalar, z * scalar); }
 
 /**
  * DIVIDE operator
  * @param scalar scalar value divided by the vector
  * @return scaled vector
  */
-inline Vector3D Vector3D::operator / (const double& scalar) const {
-	if (scalar != 0.0f)
-		return Vector3D(x / scalar, y / scalar, z / scalar);
-	else
-		return (*this);
+inline Vector3D Vector3D::operator/(const double& scalar) const
+{
+   if(scalar != 0.0f)
+      return Vector3D(x / scalar, y / scalar, z / scalar);
+   else
+      return (*this);
 }
 
 /**
@@ -590,11 +576,12 @@ inline Vector3D Vector3D::operator / (const double& scalar) const {
  * @param vector vector to add to the current vector
  * @return summation result
  */
-inline Vector3D& Vector3D::operator += (const Vector3D& vector) {
-	x += vector.x;
-	y += vector.y;
-	z += vector.z;
-	return (*this);
+inline Vector3D& Vector3D::operator+=(const Vector3D& vector)
+{
+   x += vector.x;
+   y += vector.y;
+   z += vector.z;
+   return (*this);
 }
 
 /**
@@ -602,11 +589,12 @@ inline Vector3D& Vector3D::operator += (const Vector3D& vector) {
  * @param vector vector to minus(sic) to the current vector
  * @return minus result
  */
-inline Vector3D& Vector3D::operator -= (const Vector3D& vector) {
-	x -= vector.x;
-	y -= vector.y;
-	z -= vector.z;
-	return (*this);
+inline Vector3D& Vector3D::operator-=(const Vector3D& vector)
+{
+   x -= vector.x;
+   y -= vector.y;
+   z -= vector.z;
+   return (*this);
 }
 
 /**
@@ -614,11 +602,12 @@ inline Vector3D& Vector3D::operator -= (const Vector3D& vector) {
  * @param scalar scalar multiplied by the current vector
  * @return scaled result
  */
-inline Vector3D& Vector3D::operator *= (const double& scalar) {
-	x *= scalar;
-	y *= scalar;
-	z *= scalar;
-	return (*this);
+inline Vector3D& Vector3D::operator*=(const double& scalar)
+{
+   x *= scalar;
+   y *= scalar;
+   z *= scalar;
+   return (*this);
 }
 
 /**
@@ -626,38 +615,33 @@ inline Vector3D& Vector3D::operator *= (const double& scalar) {
  * @param scalar scalar divided by the current vector
  * @return scaled result
  */
-inline Vector3D& Vector3D::operator /= (const double& scalar) {
-	x /= scalar;
-	y /= scalar;
-	z /= scalar;
-	return (*this);
+inline Vector3D& Vector3D::operator/=(const double& scalar)
+{
+   x /= scalar;
+   y /= scalar;
+   z /= scalar;
+   return (*this);
 }
 
 /**
  * SIGN operator
  * @return signed result
  */
-inline Vector3D Vector3D::operator - () const {
-	return Vector3D(-x, -y, -z);
-}
+inline Vector3D Vector3D::operator-() const { return Vector3D(-x, -y, -z); }
 
 /**
  * EQUAL_EQUAL operator
  * @param vector vector to compare
  * @return equal value
  */
-inline const bool Vector3D::operator == (Vector3D &vector) const {
-	return ((x == vector.x) && (y == vector.y) && (z == vector.z)) ? true : false;
-}
+inline const bool Vector3D::operator==(Vector3D& vector) const { return ((x == vector.x) && (y == vector.y) && (z == vector.z)) ? true : false; }
 
 /**
  * NOT_EQUAL operator
  * @param vector vector to compare
  * @return not equal value
  */
-inline const bool Vector3D::operator != (Vector3D &vector) {
-	return ((x != vector.x) && (y != vector.y) && (z != vector.z)) ? true : false;
-}
+inline const bool Vector3D::operator!=(Vector3D& vector) { return ((x != vector.x) && (y != vector.y) && (z != vector.z)) ? true : false; }
 
 /**
  * Global MULTIPLY operator
@@ -665,9 +649,7 @@ inline const bool Vector3D::operator != (Vector3D &vector) {
  * @param vector vector to multiply the scalar value with
  * @return scaled vector instance
  */
-inline Vector3D operator * (double scalar, Vector3D& vector) {
-	return Vector3D(vector.x * scalar, vector.y * scalar, vector.z * scalar);
-}
+inline Vector3D operator*(double scalar, Vector3D& vector) { return Vector3D(vector.x * scalar, vector.y * scalar, vector.z * scalar); }
 
 /**
  * Global DIVIDE operator
@@ -675,8 +657,6 @@ inline Vector3D operator * (double scalar, Vector3D& vector) {
  * @param vector vector to divide the scalar value with
  * @return scaled vector instance
  */
-inline Vector3D operator / (double scalar, Vector3D& vector) {
-	return Vector3D(vector.x / scalar, vector.y / scalar, vector.z / scalar);
-}
+inline Vector3D operator/(double scalar, Vector3D& vector) { return Vector3D(vector.x / scalar, vector.y / scalar, vector.z / scalar); }
 
 #endif

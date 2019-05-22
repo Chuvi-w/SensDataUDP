@@ -4,7 +4,6 @@
 #include "CTouchEvent.h"
 #include "CSensorEvent.h"
 
-
 int main()
 {
 
@@ -15,13 +14,11 @@ int main()
    do
    {
 
-
-      if (_kbhit())
+      if(_kbhit())
       {
          auto c = _getch();
          break;
       }
-   }
-   while (true);
+   } while(true);
    return 1;
 }
