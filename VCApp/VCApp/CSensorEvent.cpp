@@ -1,57 +1,49 @@
 #include "CSensorEvent.h"
 #include <inttypes.h>
+#include "CDataPacket.h"
 
 CSensorEvent::CSensorEvent() {}
 
 CSensorEvent::~CSensorEvent() {}
 
-bool CSensorEvent::ParseEvent(const void* pData, size_t nDataSize, bool bEndian)
+bool CSensorEvent::ParseEvent(CDataPacket &pPacket)
 {
-   const ComSensorsHdr_t* pHdr = reinterpret_cast<const ComSensorsHdr_t*>(pData);
-
-   const float* pValue = reinterpret_cast<const float*>((size_t)pHdr + sizeof(ComSensorsHdr_t));
-#if 0
-   char *sType;
-   bool bprint = false;
-   switch (pHdr->nType)
+   ComSensorsHdr_t SensHDR;
+   float *FlValue = nullptr;
+   bool bReadOK = true;
+   if(pPacket.GetDataSize() < sizeof(ComSensorsHdr_t))
    {
-      case TYPE_ACCELEROMETER:
-         sType = "TYPE_ACCELEROMETER";
-        
-         break;
-      case TYPE_MAGNETIC_FIELD:
-         sType = "TYPE_MAGNETIC_FIELD";
-         break;
-      case TYPE_GYROSCOPE:
-         sType = "TYPE_GYROSCOPE";
-         break;
-      case TYPE_MAGNETIC_FIELD_UNCALIBRATED:
-         sType = "TYPE_MAGNETIC_FIELD_UNCALIBRATED";
-         bprint = true;
-         break;
-      case TYPE_GYROSCOPE_UNCALIBRATED:
-         sType = "TYPE_GYROSCOPE_UNCALIBRATED";
-         break;
-      case TYPE_ACCELEROMETER_UNCALIBRATED:
-         sType = "TYPE_ACCELEROMETER_UNCALIBRATED";
-         break;
-      default:
-         sType = "UNKNOWN";
-         break;
+      return false;
    }
-
-   uint64_t InvTS = pHdr->nTimeStamp;
-
-   if (bprint)
+   if(
+      !pPacket.GetData(SensHDR.nType) ||
+      !pPacket.GetData(SensHDR.nTimeStamp) ||
+      !pPacket.GetData(SensHDR.nSize) ||
+      !pPacket.GetData(SensHDR.flRes) ||
+      !pPacket.GetData(SensHDR.flMaxRange) ||
+      pPacket.GetRemainDataSize() < SensHDR.nSize*sizeof(float)
+      )
    {
-      printf("SensEv: %35s  %llu %llu %i %i {", sType, pHdr->nTimeStamp / 1000000000ll, pHdr->nTimeStamp % 1000000000ll, pHdr->nSize, nDataSize);
-      for (int i = 0; i < pHdr->nSize; i++)
+      return false;
+   }
+   
+   CTimeStampNS TS = SensHDR.nTimeStamp;
+   double Sec1 = TS.GetSeconds();
+   double Sec2 = pPacket.GetTimeStamp().GetSeconds();
+
+   
+   printf("%.3f %.3f %.3f\n", Sec1,Sec2,Sec1-Sec2);
+   FlValue=new float[SensHDR.nSize];
+   for(jlong i = 0; i < SensHDR.nSize; i++)
+   {
+      if(!pPacket.GetData(FlValue[i]))
       {
-         printf("%.6f, ", pValue[i]);
+         bReadOK = false;
       }
-      printf("}\n");
    }
-#endif
+
+#if 0
+
    if(m_Acc.CheckSensorType((SensTypes)pHdr->nType))
    {
       m_Acc.AddFrame(pValue, nDataSize - sizeof(ComSensorsHdr_t), pHdr->nTimeStamp, pHdr->flRes, pHdr->flMaxRange);
@@ -71,10 +63,11 @@ bool CSensorEvent::ParseEvent(const void* pData, size_t nDataSize, bool bEndian)
    //    {
    //       m_Acc.Calibrate();
    //    }
-
+#endif
    return true;
 }
 
-uint32_t CSensorEvent::GetEventID() { return 0xBB00; }
-
-std::shared_ptr<IEventReceiver> CSensorEvent::GetEvShared() { return shared_from_this(); }
+std::shared_ptr<IEventReceiver> CSensorEvent::GetEvShared()
+{
+   return shared_from_this();
+}

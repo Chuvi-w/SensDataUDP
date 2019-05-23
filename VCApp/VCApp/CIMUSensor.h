@@ -1,37 +1,14 @@
 #pragma once
 #include <stdint.h>
-#include "MathLib/MathLib3D.h"
+
 #include <list>
+#include "CTimeStamp.h"
+#include "MatConv.h"
 
-using Vec3D = MATHLIB3D::Vector3D;
 
-const Vec3D NullVec3D = Vec3D(0.0, 0.0, 0.0);
 
-typedef enum SensTypes
-{
-   TYPE_ACCELEROMETER               = 1,
-   TYPE_MAGNETIC_FIELD              = 2,
-   TYPE_GYROSCOPE                   = 4,
-   TYPE_MAGNETIC_FIELD_UNCALIBRATED = 14,
-   TYPE_GYROSCOPE_UNCALIBRATED      = 16,
-   TYPE_ACCELEROMETER_UNCALIBRATED  = 35,
-} SensTypes;
 
-inline Vec3D DEG2RAD(Vec3D val) { return val * MATHLIB3D::MathUtils::PI / 180.0; }
 
-inline Vec3D RAD2DEG(Vec3D val) { return val * 180.0 / MATHLIB3D::MathUtils::PI; }
-
-inline double DEG2RAD(double val) { return val * MATHLIB3D::MathUtils::PI / 180.0; }
-inline double RAD2DEG(double val) { return val * 180.0 / MATHLIB3D::MathUtils::PI; }
-
-class CTimeStampNS
-{
- public:
-   CTimeStampNS(uint64_t Ts) : m_TS(Ts) {}
-   bool operator<(const CTimeStampNS& pOther) const { return m_TS < pOther.m_TS; }
-
-   uint64_t m_TS;
-};
 
 class CSensorFrame
 {
@@ -50,11 +27,11 @@ class CSensorFrameUncalibrated : public CSensorFrame
    Vec3D m_AddData;
 };
 
-class CBaseIMUSensor
+class CBaseIMUSensorOLD
 {
 
  public:
-   CBaseIMUSensor(const std::string& sName, SensTypes nType1, SensTypes nType2) : m_Name(sName), m_Type1(nType1), m_Type2(nType2) {}
+   CBaseIMUSensorOLD(const std::string& sName, SensTypes nType1, SensTypes nType2) : m_Name(sName), m_Type1(nType1), m_Type2(nType2) {}
    void Reset()
    {
       m_Data.clear();
@@ -116,23 +93,23 @@ class CBaseIMUSensor
    std::list<CSensorFrameUncalibrated> m_UData;
 };
 
-class CACCSensor : public CBaseIMUSensor
+class CACCSensor : public CBaseIMUSensorOLD
 {
  public:
-   CACCSensor() : CBaseIMUSensor("Acc", TYPE_ACCELEROMETER, TYPE_ACCELEROMETER_UNCALIBRATED) {}
+   CACCSensor() : CBaseIMUSensorOLD("Acc", TYPE_ACCELEROMETER, TYPE_ACCELEROMETER_UNCALIBRATED) {}
    virtual bool OnNewDataAdded(bool bUncalibrated = false) override;
 };
 
-class CGyroSensor : public CBaseIMUSensor
+class CGyroSensor : public CBaseIMUSensorOLD
 {
  public:
-   CGyroSensor() : CBaseIMUSensor("Gyr", TYPE_GYROSCOPE, TYPE_GYROSCOPE_UNCALIBRATED) {}
+   CGyroSensor() : CBaseIMUSensorOLD("Gyr", TYPE_GYROSCOPE, TYPE_GYROSCOPE_UNCALIBRATED) {}
    virtual bool OnNewDataAdded(bool bUncalibrated = false) override;
 };
 
-class CMagSensor : public CBaseIMUSensor
+class CMagSensor : public CBaseIMUSensorOLD
 {
  public:
-   CMagSensor() : CBaseIMUSensor("Mag", TYPE_MAGNETIC_FIELD, TYPE_MAGNETIC_FIELD_UNCALIBRATED) {}
+   CMagSensor() : CBaseIMUSensorOLD("Mag", TYPE_MAGNETIC_FIELD, TYPE_MAGNETIC_FIELD_UNCALIBRATED) {}
    virtual bool OnNewDataAdded(bool bUncalibrated = false) override;
 };

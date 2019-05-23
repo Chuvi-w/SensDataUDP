@@ -7,6 +7,7 @@
 typedef struct CommPacket_s
 {
    jlong IsEndian;
+   jlong NanoTime;
    jlong PacketID;
    jlong DataSize;
 } CommPacket_t;
@@ -42,11 +43,27 @@ template <typename T> inline void bswap(T& s)
    }
 }
 
+
+class CDataPacket;
 class IEventReceiver : public std::enable_shared_from_this<IEventReceiver>
 {
  public:
    ~IEventReceiver() {}
-   virtual bool                            ParseEvent(const void* pData, size_t nDataSize, bool bEndian) = 0;
-   virtual uint32_t                        GetEventID()                                                  = 0;
+   virtual bool                            ParseEvent(CDataPacket &pPacket) = 0;
+   virtual uint32_t                        GetEventID() const = 0;
    virtual std::shared_ptr<IEventReceiver> GetEvShared()                                                 = 0;
+
+};
+
+template<uint64_t EvID>
+class IEventReceiverT: public IEventReceiver
+{
+public:
+   ~IEventReceiverT()
+   {
+   }
+   uint32_t GetEventID() const override
+   {
+      return EvID;
+   }
 };

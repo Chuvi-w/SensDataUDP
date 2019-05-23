@@ -1,60 +1,62 @@
 #include "CTouchEvent.h"
 #include <string.h>
 #include <stdio.h>
+#include "CDataPacket.h"
 
 CTouchEvent::CTouchEvent() {}
 
 CTouchEvent::~CTouchEvent() {}
 
-bool CTouchEvent::ParseEvent(const void* pData, size_t nDataSize, bool bEndian)
+bool CTouchEvent::ParseEvent(CDataPacket &pPacket)
 {
-   if(nDataSize < sizeof(MotionEvent_t))
+   if(pPacket.GetDataSize() < sizeof(MotionEvent_t))
    {
       return false;
    }
    TouchEvent_t         TEv;
-   const PointerData_t* pPtrData;
-   PointerData_t        PtrData;
-   memcpy(&TEv.MotEv, pData, sizeof(MotionEvent_t));
-   if(!bEndian)
+   PointerData_t PtrData;
+   if(
+      !pPacket.GetData(TEv.MotEv.EventTime) ||
+      !pPacket.GetData(TEv.MotEv.DownTime) ||
+      !pPacket.GetData(TEv.MotEv.Action) ||
+      !pPacket.GetData(TEv.MotEv.ActionMasked) ||
+      !pPacket.GetData(TEv.MotEv.XPrecision) ||
+      !pPacket.GetData(TEv.MotEv.YPrecision) ||
+      !pPacket.GetData(TEv.MotEv.RawX) ||
+      !pPacket.GetData(TEv.MotEv.RawY) ||
+      !pPacket.GetData(TEv.MotEv.ActionIndex) ||
+      !pPacket.GetData(TEv.MotEv.PointerCount)
+      )
    {
-      bswap(TEv.MotEv.EventTime);
-      bswap(TEv.MotEv.DownTime);
-      bswap(TEv.MotEv.Action);
-      bswap(TEv.MotEv.ActionMasked);
-      bswap(TEv.MotEv.XPrecision);
-      bswap(TEv.MotEv.YPrecision);
-      bswap(TEv.MotEv.RawX);
-      bswap(TEv.MotEv.RawY);
-      bswap(TEv.MotEv.ActionIndex);
-      bswap(TEv.MotEv.PointerCount);
+      return false;
    }
-   if(nDataSize < sizeof(MotionEvent_t) + TEv.MotEv.PointerCount * sizeof(PointerData_t))
+
+
+   if(pPacket.GetRemainDataSize() < TEv.MotEv.PointerCount * sizeof(PointerData_t))
    {
       printf("Wrong DataSize\n");
       return false;
    }
-   pPtrData = reinterpret_cast<const PointerData_t*>((size_t)pData + sizeof(MotionEvent_t));
-   // printf("PC=%i\n", TEv.MotEv.PointerCount);
+  
    for(int i = 0; i < TEv.MotEv.PointerCount; i++)
    {
-      memcpy(&PtrData, &pPtrData[i], sizeof(PointerData_t));
-      if(!bEndian)
+      if(
+         !pPacket.GetData(PtrData.nID) ||
+         !pPacket.GetData(PtrData.PointerId) ||
+         !pPacket.GetData(PtrData.X) ||
+         !pPacket.GetData(PtrData.Y) ||
+         !pPacket.GetData(PtrData.ToolType) ||
+         !pPacket.GetData(PtrData.Size) ||
+         !pPacket.GetData(PtrData.ToolMajor) ||
+         !pPacket.GetData(PtrData.ToolMinor) ||
+         !pPacket.GetData(PtrData.TouchMajor) ||
+         !pPacket.GetData(PtrData.TouchMinor) ||
+         !pPacket.GetData(PtrData.Pressure) ||
+         !pPacket.GetData(PtrData.Orientation)
+         )
       {
-         bswap(PtrData.nID);
-         bswap(PtrData.PointerId);
-         bswap(PtrData.X);
-         bswap(PtrData.Y);
-         bswap(PtrData.ToolType);
-         bswap(PtrData.Size);
-         bswap(PtrData.ToolMajor);
-         bswap(PtrData.ToolMinor);
-         bswap(PtrData.TouchMajor);
-         bswap(PtrData.TouchMinor);
-         bswap(PtrData.Pressure);
-         bswap(PtrData.Orientation);
+         return false;
       }
-
       //  printf("%i %i %.4f %.4f\n", PtrData.nID, PtrData.PointerId, PtrData.X, PtrData.Y);
       TEv.vPtr.push_back(PtrData);
    }
@@ -107,6 +109,5 @@ bool CTouchEvent::ParseEvent(const void* pData, size_t nDataSize, bool bEndian)
    return true;
 }
 
-uint32_t CTouchEvent::GetEventID() { return 0xAA00; }
 
 std::shared_ptr<IEventReceiver> CTouchEvent::GetEvShared() { return shared_from_this(); }

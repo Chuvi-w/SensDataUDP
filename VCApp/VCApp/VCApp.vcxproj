@@ -164,9 +164,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AndroidHelperFuncs.cpp" />
+    <ClCompile Include="CDataPacket.cpp" />
     <ClCompile Include="CDataReceiver.cpp" />
+    <ClCompile Include="CIMUBase.cpp" />
     <ClCompile Include="CIMUSensor.cpp" />
     <ClCompile Include="CSensorEvent.cpp" />
+    <ClCompile Include="CTimeStamp.cpp" />
     <ClCompile Include="CTouchEvent.cpp" />
     <ClCompile Include="gestureDetector.cpp" />
     <ClCompile Include="MathLib\MathUtils.cpp" />
@@ -177,13 +180,18 @@
     <ClInclude Include="AndroidHelperFuncs.h" />
     <ClInclude Include="AndroidInput.h" />
     <ClInclude Include="android\ndk_helper\AndroidInput.h" />
+    <ClInclude Include="CDataPacket.h" />
     <ClInclude Include="CDataReceiver.h" />
+    <ClInclude Include="CIMUBase.h" />
     <ClInclude Include="CIMUSensor.h" />
     <ClInclude Include="CSensorEvent.h" />
+    <ClInclude Include="CTimeStamp.h" />
     <ClInclude Include="CTouchEvent.h" />
     <ClInclude Include="EvCommon.h" />
     <ClInclude Include="gestureDetector.h" />
+    <ClInclude Include="IIMUSensor.h" />
     <ClInclude Include="jni.h" />
+    <ClInclude Include="MatConv.h" />
     <ClInclude Include="MathLib\MathLib3D.h" />
     <ClInclude Include="MathLib\MathUtils.h" />
     <ClInclude Include="MathLib\Vector2D.h" />

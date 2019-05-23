@@ -12,7 +12,7 @@ typedef struct ComSensorsHdr_s
    jfloat flMaxRange;
 } ComSensorsHdr_t;
 
-class CSensorEvent : public IEventReceiver
+class CSensorEvent: public IEventReceiverT<0xBB00>
 {
  private:
    CSensorEvent();
@@ -23,9 +23,8 @@ class CSensorEvent : public IEventReceiver
 
    ~CSensorEvent();
 
-   virtual bool ParseEvent(const void* pData, size_t nDataSize, bool bEndian) override;
+   virtual bool ParseEvent(CDataPacket &pPacket) override;
 
-   virtual uint32_t GetEventID() override;
 
    virtual std::shared_ptr<IEventReceiver> GetEvShared() override;
 

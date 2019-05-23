@@ -1,7 +1,7 @@
 #include "CIMUSensor.h"
 #include <algorithm>
 
-bool CBaseIMUSensor::AddFrame(const void* pData, size_t nDataSize, CTimeStampNS nTimeStamp, float flRes, float flMaxRange)
+bool CBaseIMUSensorOLD::AddFrame(const void* pData, size_t nDataSize, CTimeStampNS nTimeStamp, float flRes, float flMaxRange)
 {
 
    const float* fData = reinterpret_cast<const float*>(pData);
@@ -51,7 +51,7 @@ bool CBaseIMUSensor::AddFrame(const void* pData, size_t nDataSize, CTimeStampNS 
    return true;
 }
 
-bool CBaseIMUSensor::CheckSensorType(SensTypes nType)
+bool CBaseIMUSensorOLD::CheckSensorType(SensTypes nType)
 {
    if(nType == m_Type1 || nType == m_Type2)
    {
@@ -60,11 +60,11 @@ bool CBaseIMUSensor::CheckSensorType(SensTypes nType)
    return false;
 }
 
-bool CBaseIMUSensor::OnNewDataReceived(Vec3D& vData, Vec3D& vAddData, CTimeStampNS TimeStamp, bool bHaveAddData) { return true; }
+bool CBaseIMUSensorOLD::OnNewDataReceived(Vec3D& vData, Vec3D& vAddData, CTimeStampNS TimeStamp, bool bHaveAddData) { return true; }
 
-bool CBaseIMUSensor::OnNewDataAdded(bool bUncalibrated) { return true; }
+bool CBaseIMUSensorOLD::OnNewDataAdded(bool bUncalibrated) { return true; }
 
-void CBaseIMUSensor::Calibrate()
+void CBaseIMUSensorOLD::Calibrate()
 {
 
    Vec3D dMin, dMax, Dif;

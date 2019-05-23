@@ -3,7 +3,7 @@
 #include "TouchEvData.h"
 #include "gestureDetector.h"
 
-class CTouchEvent : public IEventReceiver
+class CTouchEvent: public IEventReceiverT<0xAA00>
 {
  private:
    CTouchEvent();
@@ -12,8 +12,7 @@ class CTouchEvent : public IEventReceiver
  public:
    static PTR Create() { return std::shared_ptr<CTouchEvent>(new CTouchEvent); }
    ~CTouchEvent();
-   virtual bool                            ParseEvent(const void* pData, size_t nDataSize, bool bEndian) override;
-   virtual uint32_t                        GetEventID() override;
+   virtual bool                            ParseEvent(CDataPacket &pPacket) override;
    virtual std::shared_ptr<IEventReceiver> GetEvShared() override;
 
  private:

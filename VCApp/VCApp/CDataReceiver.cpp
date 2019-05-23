@@ -1,11 +1,15 @@
 #include "CDataReceiver.h"
 #include <inttypes.h>
+#include <algorithm>
 #include "CTouchEvent.h"
 #include "CSensorEvent.h"
+#include "CDataPacket.h"
 
 CReceiverUDP::CReceiverUDP(uint16_t nPort) : m_nPort(nPort) { StartThread(); }
 
 CReceiverUDP::~CReceiverUDP() { StopThread(); }
+
+
 
 void CReceiverUDP::RecvThread()
 {
@@ -18,6 +22,8 @@ void CReceiverUDP::RecvThread()
    std::string    RecvName;
    unsigned short RecvPort;
    m_Socket.setBlocking(false);
+   CDataPacket DataPack;
+
    do
    {
       stat = m_Socket.receive(RecvData, sizeof(RecvData), NumRecvBytes, RecvFrom, RecvPort);
@@ -28,7 +34,9 @@ void CReceiverUDP::RecvThread()
             RecvData[NumRecvBytes] = 0;
          }
          RecvName = std::string("IMU_UDP_") + RecvFrom.toString() + "_" + std::to_string(RecvPort);
-         ProcessPacket(RecvName, RecvData, NumRecvBytes);
+
+         DataPack.LoadData(RecvData, NumRecvBytes, RecvName);
+         ProcessPacket(DataPack);
       }
 
    } while(!IsStopped());
@@ -38,31 +46,19 @@ CDataReceiver::~CDataReceiver() {}
 
 std::atomic_bool CDataReceiver::IsStopped() const { return m_bStopThread; }
 
-bool CDataReceiver::ProcessPacket(const std::string& RecvName, const void* pPacket, size_t nDataSize)
+
+bool CDataReceiver::ProcessPacket(CDataPacket &Packet)
 {
-   static int nPack = 0;
-
-   const CommPacket_t* pComm      = reinterpret_cast<const CommPacket_t*>(pPacket);
-   uint64_t            nPacketID  = pComm->PacketID;
-   uint64_t            nPacketLen = pComm->DataSize;
-   // printf("Recv_%s_%i %"PRIX64" %"PRIX64"\n", RecvName.c_str(), nPack++,pComm->IsEndian,pComm->PacketID);
-
-   if(pComm->IsEndian != 1)
-   {
-      bswap(nPacketID);
-      bswap(nPacketLen);
-   }
-
-   if(nPacketLen + sizeof(CommPacket_t) < nDataSize)
+   if(!Packet.IsValid())
    {
       return false;
    }
 
    for(auto& Listener : m_vListeners)
    {
-      if(Listener->GetEventID() == nPacketID)
+      if(Listener->GetEventID() == Packet.GetPacketID())
       {
-         Listener->ParseEvent((const void*)((size_t)pPacket + sizeof(CommPacket_t)), nDataSize - sizeof(CommPacket_t), pComm->IsEndian == 1);
+         Listener->ParseEvent(Packet);
       }
    }
    return true;
@@ -110,3 +106,201 @@ void CDataReceiver::StartThread()
 }
 
 void CDataReceiver::SetLogging(bool bLogging /*= true*/) { m_bLogging = bLogging; }
+
+CReceiverFile::CReceiverFile()
+{
+
+}
+
+CReceiverFile::~CReceiverFile()
+{
+
+}
+
+void CReceiverFile::ResetPackets()
+{
+   m_vPackets.clear();
+}
+
+void CReceiverFile::SortPackets()
+{
+   std::sort(m_vPackets.begin(), m_vPackets.end(), [](const std::vector<uint8_t > &p1, const std::vector<uint8_t > &p2)
+   {
+      const CommPacket_t *HDR1, *HDR2;
+
+      jlong Time1, Time2;
+      HDR1 = reinterpret_cast<const CommPacket_t*>(p1.data());
+      HDR2= reinterpret_cast<const CommPacket_t*>(p2.data());
+      Time1 = HDR1->NanoTime;
+      Time2 = HDR2->NanoTime;
+
+      if(HDR1->IsEndian != 1)
+      {
+         bswap(Time1);
+      }
+
+      if(HDR2->IsEndian != 1)
+      {
+         bswap(Time2);
+      }
+
+      return Time1 < Time2;
+   });
+}
+#if 0
+bool CReceiverFile::LoadFile(const std::string &sFileName)
+{
+   FILE *fIN = fopen(sFileName.c_str(), "rb");
+ 
+   std::vector<uint8_t> PackData;
+   const CommPacket_t *CommHdr=nullptr;
+   size_t FileSz = 0;
+
+   if(!fIN)
+   {
+      return false;
+   }
+
+   fseek(fIN, 0, SEEK_END);
+   FileSz = ftell(fIN);
+   fseek(fIN, 0, SEEK_SET);
+   size_t ReadSz;
+   size_t DataSz = 0;
+
+   do 
+   {
+      PackData.clear();
+      PackData.resize(sizeof(CommHdr));
+      CommHdr = reinterpret_cast<const CommPacket_t*>(PackData.data());
+      ReadSz = fread(&CommHdr, 1, sizeof(CommHdr), fIN);
+      if(ReadSz != sizeof(CommHdr))
+      {
+         break;
+      }
+      else
+      {
+         DataSz = CommHdr->DataSize;
+         if(CommHdr->IsEndian!=1)
+         {
+            bswap(DataSz);
+         }
+         if(FileSz - ftell(fIN) < DataSz)
+         {
+            break;
+         }
+         else
+         {
+            PackData.resize(sizeof(CommHdr)+DataSz);
+
+            ReadSz= fread(reinterpret_cast<void*>((size_t)PackData.data()+sizeof(CommHdr)), 1, DataSz, fIN);
+           
+            AddPacket(PackData);
+         }
+      }
+
+
+   } while (ftell(fIN)<FileSz);
+   fclose(fIN);
+
+   SortPackets();
+   return true;
+
+}
+
+#endif
+
+bool CReceiverFile::LoadFile(const std::string &sFileName)
+{
+   FILE *fIN = fopen(sFileName.c_str(), "rb");
+   size_t FileSz = 0;
+   size_t ReadOffset = 0;
+   int32_t CurRead = 0;
+
+   CDataPacket DataPack;
+   void *pFileData = nullptr;
+
+   if(!fIN)
+   {
+      return false;
+   }
+
+   fseek(fIN, 0, SEEK_END);
+   FileSz = ftell(fIN);
+   fseek(fIN, 0, SEEK_SET);
+   pFileData = new uint8_t[FileSz];
+   fread(pFileData, FileSz, 1, fIN);
+   fclose(fIN);
+
+   do 
+   {
+      CurRead = DataPack.LoadData(reinterpret_cast<void*>((size_t)pFileData + ReadOffset), FileSz - ReadOffset, "Data");
+      if(CurRead > 0)
+      {
+         ProcessPacket(DataPack);
+         ReadOffset += CurRead;
+      }
+   } while (CurRead>0&&ReadOffset<FileSz);
+   size_t ReadSz;
+   size_t DataSz = 0;
+}
+
+bool CReceiverFile::AddPacket(const vPacket &pPacket)
+{
+   bool bExist = false;
+
+#if 0
+   for(auto &Pack : m_vPackets)
+   {
+      if(Pack.nTimeStamp == pPacket.nTimeStamp)
+      {
+         if(Pack.nPacketID == pPacket.nPacketID&&Pack.vData.size() == pPacket.vData.size() && pPacket.bIsEndian == Pack.bIsEndian)
+         {
+            if(!memcmp(Pack.vData.data(), pPacket.vData.data(), pPacket.vData.size()))
+            {
+               bExist = true;
+               break;
+            }
+         }
+
+      }
+   }
+#endif
+   if(!bExist)
+   {
+      m_vPackets.push_back(pPacket);
+      return true;
+   }
+   return false;
+
+}
+
+void CReceiverFile::RecvThread()
+{
+  
+}
+
+
+
+bool vPacketIsEndian(const vPacket &p)
+{
+   if(p.size() < sizeof(CommPacket_t))
+   {
+      return 0;
+   }
+   const CommPacket_t *pComm = reinterpret_cast<const CommPacket_t*>(p.data());
+   uint64_t nData = pComm->NanoTime;
+}
+
+
+
+uint64_t GetTimeFixed(const vPacket &p)
+{
+   if(p.size() < sizeof(CommPacket_t))
+   {
+      return 0;
+   }
+   const CommPacket_t *pComm = reinterpret_cast<const CommPacket_t*>(p.data());
+   uint64_t nData = pComm->NanoTime;
+   
+
+}
