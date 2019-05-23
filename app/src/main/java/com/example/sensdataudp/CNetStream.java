@@ -15,7 +15,7 @@ import android.util.Log;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+import android.os.SystemClock;
 public class CNetStream {
 
     //private
@@ -105,14 +105,15 @@ public class CNetStream {
 
     }
 
-    public void SendPacket(long PacketID, ArrayStream Pack)
+    public void SendPacket(int PacketID, ArrayStream Pack)
     {
 
         ArrayStream OutPacket=new ArrayStream();
-        OutPacket.write(Long.valueOf(0x1));
+        OutPacket.write(Integer.valueOf(0x1));
+        OutPacket.write(Integer.valueOf(PacketID));
         OutPacket.write(Long.valueOf(System.nanoTime()));
-        OutPacket.write(PacketID);
-        OutPacket.write(Long.valueOf(Pack.size()));
+        OutPacket.write(Long.valueOf(SystemClock.elapsedRealtimeNanos()));
+        OutPacket.write(Integer.valueOf(Pack.size()));
         try {
             OutPacket.write(Pack.toByteArray());
         }

@@ -20,3 +20,8 @@ double CTimeStampNS::GetSeconds() const
 {
    return (double)m_TS / 1000000000.0;
 }
+
+bool CTimeStampNS::operator==(const CTimeStampNS& pOther) const
+{
+   return m_TS == pOther.m_TS;
+}

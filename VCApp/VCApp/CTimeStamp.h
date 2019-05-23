@@ -9,5 +9,6 @@ public:
    CTimeStampNS(const CTimeStampNS &pOther);
    bool operator<(const CTimeStampNS& pOther) const;
    double GetSeconds() const;
+   bool operator ==(const CTimeStampNS& pOther) const;
    uint64_t m_TS;
 };

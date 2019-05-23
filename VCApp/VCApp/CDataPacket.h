@@ -31,13 +31,17 @@ public:
    size_t GetRemainDataSize() const;
    size_t GetDataSize() const;
    bool IsValid() const;
-   CTimeStampNS GetTimeStamp() const;
+   CTimeStampNS GetNanoTime() const;
+   CTimeStampNS GetRealTime() const;
    uint64_t GetPacketID() const;
+
+   bool operator == (const CDataPacket &pOther) const;
 private:
    void *m_nData;
    size_t m_nReadPos;
    bool m_bEndian;
-   CTimeStampNS m_nTimeStampNS;
+   CTimeStampNS m_nNanoTime;
+   CTimeStampNS m_nRealtimeNanos;
    uint64_t m_nPacketID;
    uint64_t m_nRecvSize;
 };

@@ -4,24 +4,16 @@
 #include "CTouchEvent.h"
 #include "CSensorEvent.h"
 
-int main()
-{
 
+
+void RunReceiver(CDataReceiver &pReceiver)
+{
    auto TouchEv = CTouchEvent::Create();
    auto SensEv = CSensorEvent::Create();
 
-#if 0
-   CReceiverFile RF;
-   RF.AddListener(TouchEv);
-   RF.AddListener(SensEv);
-   RF.LoadFile(R"(D:\AnDroid\2019_05_23-13_07_18.bin)");
-
-   return 0;
-#endif
-   CReceiverUDP Recv(4452);
-   Recv.AddListener(TouchEv);
-   Recv.AddListener(SensEv);
-
+   pReceiver.AddListener(TouchEv);
+   pReceiver.AddListener(SensEv);
+   pReceiver.StartThread();
    do
    {
 
@@ -30,6 +22,31 @@ int main()
          auto c = _getch();
          break;
       }
-   } while(true);
+   }
+   while(true);
+}
+
+
+void RunUDP()
+{
+   CReceiverUDP Recv(4452);
+   RunReceiver(Recv);
+}
+
+
+void RunFRead()
+{
+   CReceiverFile RF;
+   RF.LoadFile(R"(D:\AnDroid\2019_05_23-13_07_18.bin)");
+
+   RunReceiver(RF);
+}
+int main()
+{
+
+ 
+  
+   RunUDP();
+   
    return 1;
 }

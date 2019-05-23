@@ -51,7 +51,6 @@ class CReceiverUDP : public CDataReceiver
    sf::UdpSocket m_Socket;
 };
 
-using vPacket = std::vector<uint8_t>;
 
 class CReceiverFile: public CDataReceiver
 {
@@ -77,11 +76,11 @@ public:
 private:
 
    
-   bool AddPacket(const vPacket &pPacket);
+   bool AddPacket(CDataPacket &pPacket);
 protected:
    virtual void RecvThread() override;
 
-   std::vector<vPacket> m_vPackets;
+   std::vector<CDataPacket> m_vPackets;
 };
 
 #endif // CIMUReceiver_h__

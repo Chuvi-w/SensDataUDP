@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity  {
 
     }
 
-    public static void SendData(long PacketID, ArrayStream Pack)
+    public static void SendData(int PacketID, ArrayStream Pack)
     {
         if(bStreamEnable)
         {

@@ -5,7 +5,7 @@
 #include "CSensorEvent.h"
 #include "CDataPacket.h"
 
-CReceiverUDP::CReceiverUDP(uint16_t nPort) : m_nPort(nPort) { StartThread(); }
+CReceiverUDP::CReceiverUDP(uint16_t nPort) : m_nPort(nPort) { }
 
 CReceiverUDP::~CReceiverUDP() { StopThread(); }
 
@@ -124,27 +124,9 @@ void CReceiverFile::ResetPackets()
 
 void CReceiverFile::SortPackets()
 {
-   std::sort(m_vPackets.begin(), m_vPackets.end(), [](const std::vector<uint8_t > &p1, const std::vector<uint8_t > &p2)
+   std::sort(m_vPackets.begin(), m_vPackets.end(), [](const CDataPacket &p1, const CDataPacket &p2)
    {
-      const CommPacket_t *HDR1, *HDR2;
-
-      jlong Time1, Time2;
-      HDR1 = reinterpret_cast<const CommPacket_t*>(p1.data());
-      HDR2= reinterpret_cast<const CommPacket_t*>(p2.data());
-      Time1 = HDR1->NanoTime;
-      Time2 = HDR2->NanoTime;
-
-      if(HDR1->IsEndian != 1)
-      {
-         bswap(Time1);
-      }
-
-      if(HDR2->IsEndian != 1)
-      {
-         bswap(Time2);
-      }
-
-      return Time1 < Time2;
+      return p1.GetNanoTime() < p2.GetNanoTime();
    });
 }
 #if 0
@@ -236,71 +218,54 @@ bool CReceiverFile::LoadFile(const std::string &sFileName)
       CurRead = DataPack.LoadData(reinterpret_cast<void*>((size_t)pFileData + ReadOffset), FileSz - ReadOffset, "Data");
       if(CurRead > 0)
       {
-         ProcessPacket(DataPack);
+       
+         AddPacket(DataPack);
          ReadOffset += CurRead;
       }
    } while (CurRead>0&&ReadOffset<FileSz);
-   size_t ReadSz;
-   size_t DataSz = 0;
+  
+   printf("sz=%i\n", m_vPackets.size());
+   SortPackets();
+   return true;
 }
 
-bool CReceiverFile::AddPacket(const vPacket &pPacket)
+bool CReceiverFile::AddPacket(CDataPacket &pPacket)
 {
-   bool bExist = false;
 
-#if 0
    for(auto &Pack : m_vPackets)
    {
-      if(Pack.nTimeStamp == pPacket.nTimeStamp)
+      if(Pack == pPacket)
       {
-         if(Pack.nPacketID == pPacket.nPacketID&&Pack.vData.size() == pPacket.vData.size() && pPacket.bIsEndian == Pack.bIsEndian)
-         {
-            if(!memcmp(Pack.vData.data(), pPacket.vData.data(), pPacket.vData.size()))
-            {
-               bExist = true;
-               break;
-            }
-         }
-
+         return false;
       }
    }
-#endif
-   if(!bExist)
-   {
-      m_vPackets.push_back(pPacket);
-      return true;
-   }
-   return false;
+
+   m_vPackets.push_back(pPacket);
+   return true;
 
 }
 
 void CReceiverFile::RecvThread()
 {
-  
-}
 
 
-
-bool vPacketIsEndian(const vPacket &p)
-{
-   if(p.size() < sizeof(CommPacket_t))
+   size_t nCurEvID = 0;
+   do
    {
-      return 0;
+      if(nCurEvID >= m_vPackets.size())
+      {
+         continue;
+      }
+      else
+      {
+         ProcessPacket(m_vPackets[nCurEvID]);
+         nCurEvID++;
+      }
+        
+
    }
-   const CommPacket_t *pComm = reinterpret_cast<const CommPacket_t*>(p.data());
-   uint64_t nData = pComm->NanoTime;
+   while(!IsStopped());
 }
 
 
 
-uint64_t GetTimeFixed(const vPacket &p)
-{
-   if(p.size() < sizeof(CommPacket_t))
-   {
-      return 0;
-   }
-   const CommPacket_t *pComm = reinterpret_cast<const CommPacket_t*>(p.data());
-   uint64_t nData = pComm->NanoTime;
-   
-
-}

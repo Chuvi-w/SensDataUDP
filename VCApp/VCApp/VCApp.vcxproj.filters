@@ -33,9 +33,6 @@
     <ClCompile Include="CDataReceiver.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
-    <ClCompile Include="CIMUSensor.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
     <ClCompile Include="MathLib\MathUtils.cpp">
       <Filter>Файлы исходного кода\MathLib</Filter>
     </ClCompile>
@@ -72,9 +69,6 @@
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="CDataReceiver.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="CIMUSensor.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="MathLib\MathUtils.h">

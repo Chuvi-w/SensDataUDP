@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EvCommon.h"
-#include "CIMUSensor.h"
+
 
 typedef struct ComSensorsHdr_s
 {
@@ -29,7 +29,5 @@ class CSensorEvent: public IEventReceiverT<0xBB00>
    virtual std::shared_ptr<IEventReceiver> GetEvShared() override;
 
  private:
-   CACCSensor  m_Acc;
-   CGyroSensor m_Gyr;
-   CMagSensor  m_Mag;
+
 };

@@ -29,10 +29,10 @@ bool CSensorEvent::ParseEvent(CDataPacket &pPacket)
    
    CTimeStampNS TS = SensHDR.nTimeStamp;
    double Sec1 = TS.GetSeconds();
-   double Sec2 = pPacket.GetTimeStamp().GetSeconds();
-
+   double Sec2 = pPacket.GetNanoTime().GetSeconds();
+   double Sec3 = pPacket.GetRealTime().GetSeconds();
    
-   printf("%.3f %.3f %.3f\n", Sec1,Sec2,Sec1-Sec2);
+   printf("%.3f %.3f %.3f  %.3f %.3f %.3f \n", Sec1,Sec2,Sec3, Sec1-Sec2,Sec1-Sec3, Sec3-Sec2);
    FlValue=new float[SensHDR.nSize];
    for(jlong i = 0; i < SensHDR.nSize; i++)
    {

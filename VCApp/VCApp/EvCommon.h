@@ -6,10 +6,11 @@
 #include <memory>
 typedef struct CommPacket_s
 {
-   jlong IsEndian;
+   jint IsEndian;
+   jint PacketID;
    jlong NanoTime;
-   jlong PacketID;
-   jlong DataSize;
+   jlong elapsedRealtimeNanos;
+   jint DataSize;
 } CommPacket_t;
 
 #define __builtin_bswap16 _byteswap_ushort

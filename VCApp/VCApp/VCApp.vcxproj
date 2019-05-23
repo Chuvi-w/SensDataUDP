@@ -167,7 +167,6 @@
     <ClCompile Include="CDataPacket.cpp" />
     <ClCompile Include="CDataReceiver.cpp" />
     <ClCompile Include="CIMUBase.cpp" />
-    <ClCompile Include="CIMUSensor.cpp" />
     <ClCompile Include="CSensorEvent.cpp" />
     <ClCompile Include="CTimeStamp.cpp" />
     <ClCompile Include="CTouchEvent.cpp" />
@@ -183,7 +182,6 @@
     <ClInclude Include="CDataPacket.h" />
     <ClInclude Include="CDataReceiver.h" />
     <ClInclude Include="CIMUBase.h" />
-    <ClInclude Include="CIMUSensor.h" />
     <ClInclude Include="CSensorEvent.h" />
     <ClInclude Include="CTimeStamp.h" />
     <ClInclude Include="CTouchEvent.h" />
