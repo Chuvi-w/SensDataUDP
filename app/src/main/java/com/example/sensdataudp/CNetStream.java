@@ -1,4 +1,6 @@
 package com.example.sensdataudp;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
@@ -8,7 +10,17 @@ import java.net.UnknownHostException;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 
+import android.os.Environment;
+import android.util.Log;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class CNetStream {
+
+    //private
+    private File OutFile;
+    private FileOutputStream fOutStream;
 
     public static DatagramSocket mSocket = null;
     //public static DatagramPacket mPacket = null;
@@ -16,6 +28,28 @@ public class CNetStream {
 
     public boolean start_UDP_Stream()
     {
+        File DataDir=new File(Environment.getExternalStorageDirectory(), "SensDataUdp");
+      boolean dd1= DataDir.mkdirs();
+      boolean dd2=  DataDir.mkdir();
+
+        final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
+        OutFile = new File(DataDir.getAbsolutePath(), dateFormat.format(new Date(System.currentTimeMillis()))+".bin");
+        //OutFile.mkdirs();
+        try {
+            OutFile.createNewFile();
+        }catch (java.io.IOException e)
+        {
+            fOutStream=null;
+            OutFile=null;
+        }
+
+        try {
+            fOutStream = new FileOutputStream(OutFile);
+        }catch (java.io.FileNotFoundException e)
+        {
+            fOutStream=null;
+            OutFile=null;
+        }
 		/*
 		boolean isOnWifi = isOnWifi();
     	if(isOnWifi == false)
@@ -24,6 +58,7 @@ public class CNetStream {
     		return false;
     	}
     	*/
+
 
 
         try
@@ -60,6 +95,14 @@ public class CNetStream {
         }
         mSocket = null;
         mClientAdr = null;
+        try {
+            fOutStream.close();
+        }catch (IOException e)
+        {
+            fOutStream=null;
+        }
+        OutFile = null;
+
     }
 
     public void SendPacket(long PacketID, ArrayStream Pack)
@@ -67,6 +110,7 @@ public class CNetStream {
 
         ArrayStream OutPacket=new ArrayStream();
         OutPacket.write(Long.valueOf(0x1));
+        OutPacket.write(Long.valueOf(System.nanoTime()));
         OutPacket.write(PacketID);
         OutPacket.write(Long.valueOf(Pack.size()));
         try {
@@ -81,6 +125,13 @@ public class CNetStream {
         }
         byte OutPacketArray[]=OutPacket.toByteArray();
 
+
+        try {
+            fOutStream.write(OutPacketArray);
+        }catch (IOException e)
+        {
+            fOutStream=null;
+        }
         if(mSocket!=null&&mClientAdr!=null)
         {
             try {
