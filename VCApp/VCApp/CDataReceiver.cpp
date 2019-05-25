@@ -114,7 +114,8 @@ CReceiverFile::CReceiverFile()
 
 CReceiverFile::~CReceiverFile()
 {
-
+   
+   m_vPackets.clear();
 }
 
 void CReceiverFile::ResetPackets()
@@ -129,67 +130,6 @@ void CReceiverFile::SortPackets()
       return p1.GetNanoTime() < p2.GetNanoTime();
    });
 }
-#if 0
-bool CReceiverFile::LoadFile(const std::string &sFileName)
-{
-   FILE *fIN = fopen(sFileName.c_str(), "rb");
- 
-   std::vector<uint8_t> PackData;
-   const CommPacket_t *CommHdr=nullptr;
-   size_t FileSz = 0;
-
-   if(!fIN)
-   {
-      return false;
-   }
-
-   fseek(fIN, 0, SEEK_END);
-   FileSz = ftell(fIN);
-   fseek(fIN, 0, SEEK_SET);
-   size_t ReadSz;
-   size_t DataSz = 0;
-
-   do 
-   {
-      PackData.clear();
-      PackData.resize(sizeof(CommHdr));
-      CommHdr = reinterpret_cast<const CommPacket_t*>(PackData.data());
-      ReadSz = fread(&CommHdr, 1, sizeof(CommHdr), fIN);
-      if(ReadSz != sizeof(CommHdr))
-      {
-         break;
-      }
-      else
-      {
-         DataSz = CommHdr->DataSize;
-         if(CommHdr->IsEndian!=1)
-         {
-            bswap(DataSz);
-         }
-         if(FileSz - ftell(fIN) < DataSz)
-         {
-            break;
-         }
-         else
-         {
-            PackData.resize(sizeof(CommHdr)+DataSz);
-
-            ReadSz= fread(reinterpret_cast<void*>((size_t)PackData.data()+sizeof(CommHdr)), 1, DataSz, fIN);
-           
-            AddPacket(PackData);
-         }
-      }
-
-
-   } while (ftell(fIN)<FileSz);
-   fclose(fIN);
-
-   SortPackets();
-   return true;
-
-}
-
-#endif
 
 bool CReceiverFile::LoadFile(const std::string &sFileName)
 {
@@ -232,13 +172,13 @@ bool CReceiverFile::LoadFile(const std::string &sFileName)
 bool CReceiverFile::AddPacket(CDataPacket &pPacket)
 {
 
-   for(auto &Pack : m_vPackets)
+   /*for(auto &Pack : m_vPackets)
    {
       if(Pack == pPacket)
       {
          return false;
       }
-   }
+   }*/
 
    m_vPackets.push_back(pPacket);
    return true;
@@ -265,6 +205,9 @@ void CReceiverFile::RecvThread()
 
    }
    while(!IsStopped());
+
+
+   printf("");
 }
 
 

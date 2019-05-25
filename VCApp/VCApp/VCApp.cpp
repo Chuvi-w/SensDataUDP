@@ -24,10 +24,11 @@ void RunReceiver(CDataReceiver &pReceiver)
       }
    }
    while(true);
+   pReceiver.StopThread();
 }
 
-
 void RunUDP()
+
 {
    CReceiverUDP Recv(4452);
    RunReceiver(Recv);
@@ -37,16 +38,18 @@ void RunUDP()
 void RunFRead()
 {
    CReceiverFile RF;
-   RF.LoadFile(R"(D:\AnDroid\2019_05_23-13_07_18.bin)");
+   printf("Loading...");
+   RF.LoadFile(R"(D:\AnDroid\2019_05_25-10_10_44.bin)");
+   printf("OK");
 
    RunReceiver(RF);
 }
 int main()
 {
 
- 
+   RunFRead();
   
-   RunUDP();
+  // RunUDP();
    
    return 1;
 }

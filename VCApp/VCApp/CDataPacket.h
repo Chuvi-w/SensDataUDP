@@ -14,11 +14,11 @@ public:
 
    template<typename T> bool GetData(T &Data)
    {
-      if(m_nReadPos + sizeof(T) > m_nRecvSize)
+      if(!m_nData||m_nReadPos + sizeof(T) > m_nData->size())
       {
          return false;
       }
-      memcpy(&Data, reinterpret_cast<void*>((size_t)m_nData + m_nReadPos), sizeof(T));
+      memcpy(&Data, reinterpret_cast<void*>((size_t)m_nData->data() + m_nReadPos), sizeof(T));
 
       if(!m_bEndian)
       {
@@ -37,11 +37,12 @@ public:
 
    bool operator == (const CDataPacket &pOther) const;
 private:
-   void *m_nData;
+  // void *m_nData;
+   std::shared_ptr<std::vector<uint8_t>> m_nData;
    size_t m_nReadPos;
    bool m_bEndian;
    CTimeStampNS m_nNanoTime;
    CTimeStampNS m_nRealtimeNanos;
    uint64_t m_nPacketID;
-   uint64_t m_nRecvSize;
+   //uint64_t m_nRecvSize;
 };

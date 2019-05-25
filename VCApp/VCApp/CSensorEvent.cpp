@@ -2,7 +2,7 @@
 #include <inttypes.h>
 #include "CDataPacket.h"
 
-CSensorEvent::CSensorEvent() {}
+CSensorEvent::CSensorEvent():IEventReceiver(SENSOR_EV_ID) {}
 
 CSensorEvent::~CSensorEvent() {}
 

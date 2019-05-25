@@ -12,7 +12,7 @@ typedef struct ComSensorsHdr_s
    jfloat flMaxRange;
 } ComSensorsHdr_t;
 
-class CSensorEvent: public IEventReceiverT<0xBB00>
+class CSensorEvent: public IEventReceiver
 {
  private:
    CSensorEvent();

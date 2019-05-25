@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "CDataPacket.h"
 
-CTouchEvent::CTouchEvent() {}
+CTouchEvent::CTouchEvent():IEventReceiver(TOUCH_EV_ID) {}
 
 CTouchEvent::~CTouchEvent() {}
 

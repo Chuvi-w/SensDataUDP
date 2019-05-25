@@ -3,7 +3,7 @@
 #include "TouchEvData.h"
 #include "gestureDetector.h"
 
-class CTouchEvent: public IEventReceiverT<0xAA00>
+class CTouchEvent: public IEventReceiver
 {
  private:
    CTouchEvent();

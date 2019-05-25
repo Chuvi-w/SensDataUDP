@@ -4,6 +4,13 @@
 #include <intrin.h>
 #include <vector>
 #include <memory>
+
+
+#define TOUCH_EV_ID (0xAA00)
+#define SENSOR_EV_ID (0xBB00)
+
+
+#pragma pack(push, 1)
 typedef struct CommPacket_s
 {
    jint IsEndian;
@@ -12,7 +19,7 @@ typedef struct CommPacket_s
    jlong elapsedRealtimeNanos;
    jint DataSize;
 } CommPacket_t;
-
+#pragma pack(pop)
 #define __builtin_bswap16 _byteswap_ushort
 #define __builtin_bswap32 _byteswap_ulong
 #define __builtin_bswap64 _byteswap_uint64
@@ -49,22 +56,18 @@ class CDataPacket;
 class IEventReceiver : public std::enable_shared_from_this<IEventReceiver>
 {
  public:
+    IEventReceiver(uint32_t nEvID):m_EvID(nEvID){}
+    IEventReceiver(const IEventReceiver &pEv):m_EvID(pEv.m_EvID){ }
    ~IEventReceiver() {}
    virtual bool                            ParseEvent(CDataPacket &pPacket) = 0;
-   virtual uint32_t                        GetEventID() const = 0;
+   
    virtual std::shared_ptr<IEventReceiver> GetEvShared()                                                 = 0;
+   uint32_t                                GetEventID() const
+   {
+      return m_EvID;
+   }
 
+private:
+   uint32_t m_EvID;
 };
 
-template<uint64_t EvID>
-class IEventReceiverT: public IEventReceiver
-{
-public:
-   ~IEventReceiverT()
-   {
-   }
-   uint32_t GetEventID() const override
-   {
-      return EvID;
-   }
-};
