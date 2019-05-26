@@ -4,9 +4,8 @@
 
 #define MATH_PI (MATHLIB3D::MathUtils::PI)
 using Vec3D = MATHLIB3D::Vector3D;
-
 const Vec3D NullVec3D = Vec3D(0.0, 0.0, 0.0);
-
+using Vec2 = MATHLIB3D::Vector2D;
 
 inline Vec3D DEG2RAD(Vec3D val)
 {

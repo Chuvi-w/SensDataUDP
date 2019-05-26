@@ -19,9 +19,8 @@
 //--------------------------------------------------------------------------------
 #ifndef GESTUREDETECTOR_H_
 #define GESTUREDETECTOR_H_
-
+#if 0
 #include <vector>
-#include "vecmath.h"
 #include "AndroidHelperFuncs.h"
 
 namespace ndk_helper
@@ -61,7 +60,7 @@ class GestureDetector
    virtual ~GestureDetector() {}
    virtual void SetConfiguration(AConfiguration* config);
 
-   virtual GESTURE_STATE Detect(const AInputEvent* motion_event) = 0;
+   virtual GESTURE_STATE Detect(const AInputEvent& motion_event) = 0;
 };
 
 /******************************************************************
@@ -79,7 +78,7 @@ class TapDetector : public GestureDetector
  public:
    TapDetector() {}
    virtual ~TapDetector() {}
-   virtual GESTURE_STATE Detect(const AInputEvent* motion_event);
+   virtual GESTURE_STATE Detect(const AInputEvent& motion_event);
 };
 
 /******************************************************************
@@ -98,7 +97,7 @@ class DoubletapDetector : public GestureDetector
  public:
    DoubletapDetector() {}
    virtual ~DoubletapDetector() {}
-   virtual GESTURE_STATE Detect(const AInputEvent* motion_event);
+   virtual GESTURE_STATE Detect(const AInputEvent& motion_event);
    virtual void          SetConfiguration(AConfiguration* config);
 };
 
@@ -112,14 +111,14 @@ class DoubletapDetector : public GestureDetector
 class PinchDetector : public GestureDetector
 {
  private:
-   int32_t              FindIndex(const AInputEvent* event, int32_t id);
-   const AInputEvent*   event_;
+   int32_t              FindIndex(const AInputEvent& event, int32_t id);
+   const AInputEvent&   event_;
    std::vector<int32_t> vec_pointers_;
 
  public:
    PinchDetector() {}
    virtual ~PinchDetector() {}
-   virtual GESTURE_STATE Detect(const AInputEvent* event);
+   virtual GESTURE_STATE Detect(const AInputEvent& event);
    bool                  GetPointers(Vec2& v1, Vec2& v2);
 };
 
@@ -131,16 +130,17 @@ class PinchDetector : public GestureDetector
 class DragDetector : public GestureDetector
 {
  private:
-   int32_t              FindIndex(const AInputEvent* event, int32_t id);
-   const AInputEvent*   event_;
+   int32_t              FindIndex(const AInputEvent& event, int32_t id);
+   const AInputEvent&   event_;
    std::vector<int32_t> vec_pointers_;
 
  public:
    DragDetector() {}
    virtual ~DragDetector() {}
-   virtual GESTURE_STATE Detect(const AInputEvent* event);
+   virtual GESTURE_STATE Detect(const AInputEvent& event);
    bool                  GetPointer(Vec2& v);
 };
 
 } // namespace ndk_helper
+#endif
 #endif /* GESTUREDETECTOR_H_ */

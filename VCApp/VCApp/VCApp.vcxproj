@@ -172,8 +172,8 @@
     <ClCompile Include="CTouchEvent.cpp" />
     <ClCompile Include="gestureDetector.cpp" />
     <ClCompile Include="MathLib\MathUtils.cpp" />
+    <ClCompile Include="TouchEvData.cpp" />
     <ClCompile Include="VCApp.cpp" />
-    <ClCompile Include="vecmath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AndroidHelperFuncs.h" />
@@ -196,7 +196,6 @@
     <ClInclude Include="MathLib\Vector3D.h" />
     <ClInclude Include="MathLib\Vector4D.h" />
     <ClInclude Include="TouchEvData.h" />
-    <ClInclude Include="vecmath.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

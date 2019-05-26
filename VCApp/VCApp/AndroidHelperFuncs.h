@@ -2,7 +2,7 @@
 #define AndroidHelperFuncs_h__
 
 #include <vector>
-#include "vecmath.h"
+#include "MatConv.h"
 #include "TouchEvData.h"
 class AConfiguration;
 typedef TouchEvent_t AInputEvent;

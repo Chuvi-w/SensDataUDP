@@ -27,21 +27,7 @@ bool CSensorEvent::ParseEvent(CDataPacket &pPacket)
       return false;
    }
    
-   CTimeStampNS TS = SensHDR.nTimeStamp;
-   double Sec1 = TS.GetSeconds();
-   double Sec2 = pPacket.GetNanoTime().GetSeconds();
-   double Sec3 = pPacket.GetRealTime().GetSeconds();
    
-   printf("%.3f %.3f %.3f  %.3f %.3f %.3f \n", Sec1,Sec2,Sec3, Sec1-Sec2,Sec1-Sec3, Sec3-Sec2);
-   FlValue=new float[SensHDR.nSize];
-   for(jlong i = 0; i < SensHDR.nSize; i++)
-   {
-      if(!pPacket.GetData(FlValue[i]))
-      {
-         bReadOK = false;
-      }
-   }
-
 #if 0
 
    if(m_Acc.CheckSensorType((SensTypes)pHdr->nType))

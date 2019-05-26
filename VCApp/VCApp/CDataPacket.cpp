@@ -7,7 +7,6 @@ m_nData(nullptr),
 m_nReadPos(0),
 m_bEndian(false),
 m_nNanoTime(0),
-m_nRealtimeNanos(0),
 m_nPacketID(0)
 //m_nRecvSize(0)
 {
@@ -19,7 +18,6 @@ m_nData(pOther.m_nData),
 m_nReadPos(pOther.m_nReadPos),
 m_bEndian(pOther.m_bEndian),
 m_nNanoTime(pOther.m_nNanoTime),
-m_nRealtimeNanos(pOther.m_nRealtimeNanos),
 m_nPacketID(pOther.m_nPacketID)
 //m_nRecvSize(pOther.m_nRecvSize)
 {
@@ -50,7 +48,6 @@ int32_t CDataPacket::LoadData(void *pData, size_t nDataSize, const std::string &
 
    CommPacket_t CommHdr;
    uint64_t nTimeStamp;
-   uint64_t nRealtimeNanos;
    memcpy(&CommHdr, pData, sizeof(CommHdr));
    if(CommHdr.IsEndian == 1)
    {
@@ -66,20 +63,17 @@ int32_t CDataPacket::LoadData(void *pData, size_t nDataSize, const std::string &
    }
 
    nTimeStamp = CommHdr.NanoTime;
-   nRealtimeNanos = CommHdr.elapsedRealtimeNanos;
    m_nPacketID = CommHdr.PacketID;
    nRecvSize = CommHdr.DataSize;
 
    if(!m_bEndian)
    {
       bswap(nTimeStamp);
-      bswap(nRealtimeNanos);
       bswap(m_nPacketID);
       bswap(nRecvSize);
    }
 
    m_nNanoTime = CTimeStampNS(nTimeStamp);
-   m_nRealtimeNanos = CTimeStampNS(nTimeStamp);
    if(nDataSize < sizeof(CommPacket_t) + nRecvSize)
    {
       return -1;
@@ -120,10 +114,6 @@ CTimeStampNS CDataPacket::GetNanoTime() const
    return m_nNanoTime;
 }
 
-CTimeStampNS CDataPacket::GetRealTime() const
-{
-   return m_nRealtimeNanos;
-}
 
 uint64_t CDataPacket::GetPacketID() const
 {

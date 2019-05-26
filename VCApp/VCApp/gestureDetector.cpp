@@ -16,13 +16,14 @@
 
 #include "gestureDetector.h"
 #include "AndroidInput.h"
-#if 1
+#if 0
 //--------------------------------------------------------------------------------
 // gestureDetector.cpp
 //--------------------------------------------------------------------------------
 namespace ndk_helper
 {
 
+#define LOGI(...) {}
 //--------------------------------------------------------------------------------
 // includes
 //--------------------------------------------------------------------------------
@@ -40,7 +41,7 @@ void GestureDetector::SetConfiguration(AConfiguration* config)
 //--------------------------------------------------------------------------------
 // TapDetector
 //--------------------------------------------------------------------------------
-GESTURE_STATE TapDetector::Detect(const AInputEvent* motion_event)
+GESTURE_STATE TapDetector::Detect(const AInputEvent& motion_event)
 {
    if(AMotionEvent_getPointerCount(motion_event) > 1)
    {
@@ -83,7 +84,7 @@ GESTURE_STATE TapDetector::Detect(const AInputEvent* motion_event)
 //--------------------------------------------------------------------------------
 // DoubletapDetector
 //--------------------------------------------------------------------------------
-GESTURE_STATE DoubletapDetector::Detect(const AInputEvent* motion_event)
+GESTURE_STATE DoubletapDetector::Detect(const AInputEvent& motion_event)
 {
    if(AMotionEvent_getPointerCount(motion_event) > 1)
    {
@@ -137,7 +138,7 @@ void DoubletapDetector::SetConfiguration(AConfiguration* config)
 // PinchDetector
 //--------------------------------------------------------------------------------
 
-int32_t PinchDetector::FindIndex(const AInputEvent* event, int32_t id)
+int32_t PinchDetector::FindIndex(const AInputEvent& event, int32_t id)
 {
    int32_t count = AMotionEvent_getPointerCount(event);
    for(uint32_t i = 0; i < count; ++i)
@@ -147,7 +148,7 @@ int32_t PinchDetector::FindIndex(const AInputEvent* event, int32_t id)
    return -1;
 }
 
-GESTURE_STATE PinchDetector::Detect(const AInputEvent* event)
+GESTURE_STATE PinchDetector::Detect(const AInputEvent& event)
 {
    GESTURE_STATE ret    = GESTURE_STATE_NONE;
    int32_t       action = AMotionEvent_getAction(event);
@@ -172,7 +173,7 @@ GESTURE_STATE PinchDetector::Detect(const AInputEvent* event)
          }
       }
       break;
-      case AMOTION_EVENT_ACTION_UP: vec_pointers_.pop_back(); break;
+      case AMOTION_EVENT_ACTION_UP: if(!vec_pointers_.empty()){vec_pointers_.pop_back();} break;
       case AMOTION_EVENT_ACTION_POINTER_UP:
       {
          int32_t index               = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
@@ -243,7 +244,7 @@ bool PinchDetector::GetPointers(Vec2& v1, Vec2& v2)
 // DragDetector
 //--------------------------------------------------------------------------------
 
-int32_t DragDetector::FindIndex(const AInputEvent* event, int32_t id)
+int32_t DragDetector::FindIndex(const AInputEvent& event, int32_t id)
 {
    int32_t count = AMotionEvent_getPointerCount(event);
    for(uint32_t i = 0; i < count; ++i)
@@ -253,7 +254,7 @@ int32_t DragDetector::FindIndex(const AInputEvent* event, int32_t id)
    return -1;
 }
 
-GESTURE_STATE DragDetector::Detect(const AInputEvent* event)
+GESTURE_STATE DragDetector::Detect(const AInputEvent& event)
 {
    GESTURE_STATE ret    = GESTURE_STATE_NONE;
    int32_t       action = AMotionEvent_getAction(event);
@@ -270,7 +271,10 @@ GESTURE_STATE DragDetector::Detect(const AInputEvent* event)
          break;
       case AMOTION_EVENT_ACTION_POINTER_DOWN: vec_pointers_.push_back(AMotionEvent_getPointerId(event, index)); break;
       case AMOTION_EVENT_ACTION_UP:
-         vec_pointers_.pop_back();
+         if (!vec_pointers_.empty())
+         {
+            vec_pointers_.pop_back();
+         }
          ret = GESTURE_STATE_END;
          break;
       case AMOTION_EVENT_ACTION_POINTER_UP:

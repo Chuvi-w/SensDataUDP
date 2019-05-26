@@ -16,8 +16,8 @@ class CTouchEvent: public IEventReceiver
    virtual std::shared_ptr<IEventReceiver> GetEvShared() override;
 
  private:
-   ndk_helper::TapDetector       m_TapDetector;
-   ndk_helper::DoubletapDetector m_DoubletapDetector;
-   ndk_helper::PinchDetector     m_PinchDetector;
-   ndk_helper::DragDetector      m_DragDetector;
+//    ndk_helper::TapDetector       m_TapDetector;
+//    ndk_helper::DoubletapDetector m_DoubletapDetector;
+//    ndk_helper::PinchDetector     m_PinchDetector;
+//    ndk_helper::DragDetector      m_DragDetector;
 };

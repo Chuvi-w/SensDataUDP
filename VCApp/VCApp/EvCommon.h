@@ -16,7 +16,6 @@ typedef struct CommPacket_s
    jint IsEndian;
    jint PacketID;
    jlong NanoTime;
-   jlong elapsedRealtimeNanos;
    jint DataSize;
 } CommPacket_t;
 #pragma pack(pop)

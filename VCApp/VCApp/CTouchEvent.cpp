@@ -13,32 +13,38 @@ bool CTouchEvent::ParseEvent(CDataPacket &pPacket)
    {
       return false;
    }
-   TouchEvent_t         TEv;
+   
+   std::shared_ptr<CMotionEvent> MotEvPtr;
+   //TouchEvent_t         TEv;
+   MotionEvent_t MotEv;
    PointerData_t PtrData;
    if(
-      !pPacket.GetData(TEv.MotEv.EventTime) ||
-      !pPacket.GetData(TEv.MotEv.DownTime) ||
-      !pPacket.GetData(TEv.MotEv.Action) ||
-      !pPacket.GetData(TEv.MotEv.ActionMasked) ||
-      !pPacket.GetData(TEv.MotEv.XPrecision) ||
-      !pPacket.GetData(TEv.MotEv.YPrecision) ||
-      !pPacket.GetData(TEv.MotEv.RawX) ||
-      !pPacket.GetData(TEv.MotEv.RawY) ||
-      !pPacket.GetData(TEv.MotEv.ActionIndex) ||
-      !pPacket.GetData(TEv.MotEv.PointerCount)
+      !pPacket.GetData(MotEv.EventTime) ||
+      !pPacket.GetData(MotEv.DownTime) ||
+      !pPacket.GetData(MotEv.Action) ||
+      !pPacket.GetData(MotEv.ActionMasked) ||
+      !pPacket.GetData(MotEv.XPrecision) ||
+      !pPacket.GetData(MotEv.YPrecision) ||
+      !pPacket.GetData(MotEv.RawX) ||
+      !pPacket.GetData(MotEv.RawY) ||
+      !pPacket.GetData(MotEv.ActionIndex) ||
+      !pPacket.GetData(MotEv.PointerCount)||
+      !pPacket.GetData(MotEv.ViewW)||
+      !pPacket.GetData(MotEv.ViewH)
       )
    {
       return false;
    }
 
-
-   if(pPacket.GetRemainDataSize() < TEv.MotEv.PointerCount * sizeof(PointerData_t))
+   
+   if(pPacket.GetRemainDataSize() < MotEv.PointerCount * sizeof(PointerData_t))
    {
       printf("Wrong DataSize\n");
       return false;
    }
-  
-   for(int i = 0; i < TEv.MotEv.PointerCount; i++)
+   MotEvPtr = std::make_shared<CMotionEvent>(MotEv);
+
+   for(int i = 0; i < MotEv.PointerCount; i++)
    {
       if(
          !pPacket.GetData(PtrData.nID) ||
@@ -57,10 +63,13 @@ bool CTouchEvent::ParseEvent(CDataPacket &pPacket)
       {
          return false;
       }
-      //  printf("%i %i %.4f %.4f\n", PtrData.nID, PtrData.PointerId, PtrData.X, PtrData.Y);
-      TEv.vPtr.push_back(PtrData);
+      MotEvPtr->AddPointer(std::make_shared<CTouchPointer>(PtrData));
    }
-
+   if (!MotEvPtr->IsValidPtrCount())
+   {
+      return false;
+   }
+#if 0
    auto PringGestState = [](const std::string& sName, ndk_helper::GESTURE_STATE nState) {
       switch(nState)
       {
@@ -77,7 +86,7 @@ bool CTouchEvent::ParseEvent(CDataPacket &pPacket)
    auto             DoubleTapState = m_DoubletapDetector.Detect(&TEv);
    auto             PinchState     = m_PinchDetector.Detect(&TEv);
    auto             DragState      = m_DragDetector.Detect(&TEv);
-   ndk_helper::Vec2 p1, p2;
+   Vec2 p1, p2;
    if(TapState != ndk_helper::GESTURE_STATE_NONE)
    {
       PringGestState("TapState", TapState);
@@ -94,8 +103,8 @@ bool CTouchEvent::ParseEvent(CDataPacket &pPacket)
    {
       PringGestState("PinchState", PinchState);
       m_PinchDetector.GetPointers(p1, p2);
-      printf("{%.3f %.3f}", p1.x_, p1.y_);
-      printf("{%.3f %.3f}", p2.x_, p2.y_);
+      printf("{%.3f %.3f}", p1.x, p1.y);
+      printf("{%.3f %.3f}", p2.x, p2.y);
       printf("\n");
    }
 
@@ -103,9 +112,13 @@ bool CTouchEvent::ParseEvent(CDataPacket &pPacket)
    {
       PringGestState("DragState", DragState);
       m_DragDetector.GetPointer(p1);
-      printf("{%.3f %.3f}", p1.x_, p1.y_);
+      printf("{%.3f %.3f}", p1.x, p1.y);
+
+      printf("{%i %i}", TEv.MotEv.ViewW,TEv.MotEv.ViewH);
       printf("\n");
    }
+
+#endif
    return true;
 }
 
