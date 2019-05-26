@@ -50,3 +50,12 @@ std::shared_ptr<CTouchPointer> CMotionEvent::FindPtrID(int nID) const
    }
    return nullptr;
 }
+
+std::shared_ptr<CTouchPointer> CMotionEvent::GetPtr(int nID) const
+{
+   if (nID >= m_Ptr.size())
+   {
+      return nullptr;
+   }
+   return m_Ptr[nID];
+}

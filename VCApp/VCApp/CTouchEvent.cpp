@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "CDataPacket.h"
+#include "AndroidInput.h"
 
 CTouchEvent::CTouchEvent():IEventReceiver(TOUCH_EV_ID) {}
 
@@ -69,37 +70,37 @@ bool CTouchEvent::ParseEvent(CDataPacket &pPacket)
    {
       return false;
    }
-#if 0
-   auto PringGestState = [](const std::string& sName, ndk_helper::GESTURE_STATE nState) {
+#if 1
+   auto PringGestState = [](const std::string& sName, GESTURE_STATE nState) {
       switch(nState)
       {
-         case ndk_helper::GESTURE_STATE_NONE: printf("%s: GESTURE_STATE_NONE", sName.c_str()); break;
-         case ndk_helper::GESTURE_STATE_START: printf("%s: GESTURE_STATE_START", sName.c_str()); break;
-         case ndk_helper::GESTURE_STATE_MOVE: printf("%s: GESTURE_STATE_MOVE", sName.c_str()); break;
-         case ndk_helper::GESTURE_STATE_END: printf("%s: GESTURE_STATE_END", sName.c_str()); break;
-         case ndk_helper::GESTURE_STATE_ACTION: printf("%s: GESTURE_STATE_ACTION", sName.c_str()); break;
+         case GESTURE_STATE_NONE: printf("%s: GESTURE_STATE_NONE", sName.c_str()); break;
+         case GESTURE_STATE_START: printf("%s: GESTURE_STATE_START", sName.c_str()); break;
+         case GESTURE_STATE_MOVE: printf("%s: GESTURE_STATE_MOVE", sName.c_str()); break;
+         case GESTURE_STATE_END: printf("%s: GESTURE_STATE_END", sName.c_str()); break;
+         case GESTURE_STATE_ACTION: printf("%s: GESTURE_STATE_ACTION", sName.c_str()); break;
          default: break;
       }
    };
 
-   auto             TapState       = m_TapDetector.Detect(&TEv);
-   auto             DoubleTapState = m_DoubletapDetector.Detect(&TEv);
-   auto             PinchState     = m_PinchDetector.Detect(&TEv);
-   auto             DragState      = m_DragDetector.Detect(&TEv);
+   auto             TapState = m_TapDetector.Detect(MotEvPtr);
+   auto             DoubleTapState = m_DoubletapDetector.Detect(MotEvPtr);
+   auto             PinchState = m_PinchDetector.Detect(MotEvPtr);
+   auto             DragState = m_DragDetector.Detect(MotEvPtr);
    Vec2 p1, p2;
-   if(TapState != ndk_helper::GESTURE_STATE_NONE)
+   if(TapState != GESTURE_STATE_NONE)
    {
       PringGestState("TapState", TapState);
       printf("\n");
    }
 
-   if(DoubleTapState != ndk_helper::GESTURE_STATE_NONE)
+   if(DoubleTapState != GESTURE_STATE_NONE)
    {
       PringGestState("DoubleTapState", DoubleTapState);
       printf("\n");
    }
 
-   if(PinchState != ndk_helper::GESTURE_STATE_NONE)
+   if(PinchState != GESTURE_STATE_NONE)
    {
       PringGestState("PinchState", PinchState);
       m_PinchDetector.GetPointers(p1, p2);
@@ -108,16 +109,21 @@ bool CTouchEvent::ParseEvent(CDataPacket &pPacket)
       printf("\n");
    }
 
-   if(DragState != ndk_helper::GESTURE_STATE_NONE)
+   if(DragState != GESTURE_STATE_NONE)
    {
       PringGestState("DragState", DragState);
       m_DragDetector.GetPointer(p1);
       printf("{%.3f %.3f}", p1.x, p1.y);
 
-      printf("{%i %i}", TEv.MotEv.ViewW,TEv.MotEv.ViewH);
+      printf("{%i %i}", MotEvPtr->GetViewW(),MotEvPtr->GetViewH());
       printf("\n");
    }
 
+   int32_t      action = MotEvPtr->GetAction();
+   unsigned int flags = action & AMOTION_EVENT_ACTION_MASK;
+   auto aMask = MotEvPtr->GetActionMasked();
+
+   printf("%i %i\n", flags, aMask);
 #endif
    return true;
 }

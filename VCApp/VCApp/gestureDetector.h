@@ -19,29 +19,30 @@
 //--------------------------------------------------------------------------------
 #ifndef GESTUREDETECTOR_H_
 #define GESTUREDETECTOR_H_
-#if 0
-#include <vector>
-#include "AndroidHelperFuncs.h"
 
-namespace ndk_helper
-{
-//--------------------------------------------------------------------------------
-// Constants
-//--------------------------------------------------------------------------------
+#include <vector>
+#include <stdint.h>
+#include <memory>
+#include "TouchEvData.h"
+#include "MatConv.h"
+
+
+typedef std::shared_ptr<CMotionEvent> AInputEvent;
 const int32_t DOUBLE_TAP_TIMEOUT = 300 * 1000000;
 const int32_t TAP_TIMEOUT        = 180 * 1000000;
 const int32_t DOUBLE_TAP_SLOP    = 100;
 const int32_t TOUCH_SLOP         = 8;
 
-enum
+typedef enum GESTURE_STATE_e
 {
    GESTURE_STATE_NONE   = 0,
    GESTURE_STATE_START  = 1,
    GESTURE_STATE_MOVE   = 2,
    GESTURE_STATE_END    = 4,
    GESTURE_STATE_ACTION = (GESTURE_STATE_START | GESTURE_STATE_END),
-};
-typedef int32_t GESTURE_STATE;
+}GESTURE_STATE;
+
+
 
 /******************************************************************
  * Base class of Gesture Detectors
@@ -58,9 +59,9 @@ class GestureDetector
  public:
    GestureDetector();
    virtual ~GestureDetector() {}
-   virtual void SetConfiguration(AConfiguration* config);
+   virtual void SetConfiguration();
 
-   virtual GESTURE_STATE Detect(const AInputEvent& motion_event) = 0;
+   virtual GESTURE_STATE Detect(const AInputEvent motion_event) = 0;
 };
 
 /******************************************************************
@@ -78,7 +79,7 @@ class TapDetector : public GestureDetector
  public:
    TapDetector() {}
    virtual ~TapDetector() {}
-   virtual GESTURE_STATE Detect(const AInputEvent& motion_event);
+   virtual GESTURE_STATE Detect(const AInputEvent motion_event);
 };
 
 /******************************************************************
@@ -90,15 +91,15 @@ class DoubletapDetector : public GestureDetector
 {
  private:
    TapDetector tap_detector_;
-   int64_t     last_tap_time_;
+   CTimeStampNS     last_tap_time_;
    float       last_tap_x_;
    float       last_tap_y_;
 
  public:
    DoubletapDetector() {}
    virtual ~DoubletapDetector() {}
-   virtual GESTURE_STATE Detect(const AInputEvent& motion_event);
-   virtual void          SetConfiguration(AConfiguration* config);
+   virtual GESTURE_STATE Detect(const AInputEvent motion_event);
+   virtual void          SetConfiguration();
 };
 
 /******************************************************************
@@ -111,14 +112,14 @@ class DoubletapDetector : public GestureDetector
 class PinchDetector : public GestureDetector
 {
  private:
-   int32_t              FindIndex(const AInputEvent& event, int32_t id);
-   const AInputEvent&   event_;
+    std::shared_ptr<CTouchPointer>              FindIndex(const AInputEvent event, int32_t id);
+   AInputEvent   event_;
    std::vector<int32_t> vec_pointers_;
 
  public:
    PinchDetector() {}
    virtual ~PinchDetector() {}
-   virtual GESTURE_STATE Detect(const AInputEvent& event);
+   virtual GESTURE_STATE Detect(const AInputEvent event);
    bool                  GetPointers(Vec2& v1, Vec2& v2);
 };
 
@@ -130,17 +131,15 @@ class PinchDetector : public GestureDetector
 class DragDetector : public GestureDetector
 {
  private:
-   int32_t              FindIndex(const AInputEvent& event, int32_t id);
-   const AInputEvent&   event_;
+    std::shared_ptr<CTouchPointer>              FindIndex(const AInputEvent event, int32_t id);
+   AInputEvent   event_;
    std::vector<int32_t> vec_pointers_;
 
  public:
    DragDetector() {}
    virtual ~DragDetector() {}
-   virtual GESTURE_STATE Detect(const AInputEvent& event);
+   virtual GESTURE_STATE Detect(const AInputEvent event);
    bool                  GetPointer(Vec2& v);
 };
 
-} // namespace ndk_helper
-#endif
 #endif /* GESTUREDETECTOR_H_ */

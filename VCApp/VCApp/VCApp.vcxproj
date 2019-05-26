@@ -163,7 +163,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AndroidHelperFuncs.cpp" />
     <ClCompile Include="CDataPacket.cpp" />
     <ClCompile Include="CDataReceiver.cpp" />
     <ClCompile Include="CIMUBase.cpp" />
@@ -176,7 +175,6 @@
     <ClCompile Include="VCApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AndroidHelperFuncs.h" />
     <ClInclude Include="AndroidInput.h" />
     <ClInclude Include="android\ndk_helper\AndroidInput.h" />
     <ClInclude Include="CDataPacket.h" />

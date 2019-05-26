@@ -2,6 +2,7 @@
 #include "EvCommon.h"
 #include <map>
 #include <memory>
+#include "CTimeStamp.h"
 typedef struct PointerData_s
 {
    jint   nID;
@@ -111,6 +112,60 @@ public:
 
    bool AddPointer(const std::shared_ptr<CTouchPointer> TouchPtr);
    std::shared_ptr<CTouchPointer> FindPtrID(int nID) const;
+   std::shared_ptr<CTouchPointer> GetPtr(int nID) const;
+   bool IsValidPtrCount() const
+   {
+      return m_Ptr.size() == m_Ev.PointerCount;
+   }
+   CTimeStampNS GetEventTime() const
+   {
+      return m_Ev.EventTime;
+   }
+   CTimeStampNS GetDownTime() const
+   {
+      return m_Ev.DownTime;
+   }
+   int GetAction() const
+   {
+      return m_Ev.Action;
+   }
+   int GetActionMasked() const
+   {
+      return m_Ev.ActionMasked;
+   }
+   float GetXPrecision() const
+   {
+      return m_Ev.XPrecision;
+   }
+   float GetYPrecision() const
+   {
+      return m_Ev.YPrecision;
+   }
+   float GetRawX() const
+   {
+      return m_Ev.RawX;
+   }
+   float GetRawY() const
+   {
+      return m_Ev.RawY;
+   }
+   int GetActionIndex() const
+   {
+      return m_Ev.ActionIndex;
+   }
+   int GetPointerCount() const
+   {
+      return m_Ev.PointerCount;
+   }
+   int GetViewW() const
+   {
+      return m_Ev.ViewW;
+   }
+   int GetViewH() const
+   {
+      return m_Ev.ViewH;
+   }
+
 private:
    MotionEvent_t m_Ev;
    std::vector<std::shared_ptr<CTouchPointer>> m_Ptr;

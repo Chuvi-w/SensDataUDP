@@ -1,12 +1,17 @@
 #include "CTimeStamp.h"
 
 
-CTimeStampNS::CTimeStampNS(uint64_t Ts): m_TS(Ts)
+CTimeStampNS::CTimeStampNS(int64_t Ts): m_TS(Ts)
 {
 
 }
 
 CTimeStampNS::CTimeStampNS(const CTimeStampNS &pOther) : m_TS(pOther.m_TS)
+{
+
+}
+
+CTimeStampNS::CTimeStampNS() : m_TS(0)
 {
 
 }
