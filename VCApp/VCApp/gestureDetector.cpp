@@ -252,9 +252,8 @@ std::shared_ptr<CTouchPointer>  DragDetector::FindIndex(const AInputEvent event,
 GESTURE_STATE DragDetector::Detect(const AInputEvent event)
 {
    GESTURE_STATE ret    = GESTURE_STATE_NONE;
-   int32_t       action = event->GetAction();
-   int32_t       index  = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
-   uint32_t      flags  = action & AMOTION_EVENT_ACTION_MASK;
+  
+   int32_t       index = event->GetActionIndex();
    event_               = event;
 
    int32_t count = event->GetPointerCount();
