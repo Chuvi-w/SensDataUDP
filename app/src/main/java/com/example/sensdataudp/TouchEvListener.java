@@ -14,6 +14,8 @@ public class TouchEvListener implements View.OnTouchListener {
         int pointerCount = event.getPointerCount();
         //m_Touch.write(Long.valueOf(0x1));
         //m_Touch.write(Long.valueOf(0xAA00));
+        int ViewW=view.getWidth();
+        int ViewH=view.getHeight();
         m_Touch.write(event.getEventTime());
         m_Touch.write(event.getDownTime());
         m_Touch.write(event.getAction());
@@ -25,6 +27,8 @@ public class TouchEvListener implements View.OnTouchListener {
         m_Touch.write(event.getRawY());
         m_Touch.write(event.getActionIndex());
         m_Touch.write(pointerCount);
+        m_Touch.write(ViewW);
+        m_Touch.write(ViewH);
         for (int i = 0; i < pointerCount; i++) {
 
             m_Touch.write(i);

@@ -1,6 +1,8 @@
 package com.example.sensdataudp;
 
+import android.Manifest;
 import android.hardware.Sensor;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -12,9 +14,9 @@ import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.hardware.SensorManager;
 import android.location.LocationManager;
-
-
-
+import android.os.Build;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 public class MainActivity extends AppCompatActivity  {
 
     // Used to load the 'native-lib' library on application startup.
@@ -49,6 +51,8 @@ public class MainActivity extends AppCompatActivity  {
         //m_Touch.Init();
         mSensor_Stream = (SensorManager) getSystemService(SENSOR_SERVICE);
         mLocationmanager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        CheckPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        CheckPermission(android.Manifest.permission.INTERNET);
     }
 
     @Override
@@ -75,6 +79,18 @@ public class MainActivity extends AppCompatActivity  {
 
     }
 
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Log.d("ZZZZZ", "ORIENTATION_LANDSCAPE");
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            Log.d("ZZZZZ", "ORIENTATION_PORTRAIT");
+        }
+    }
+
+
     public static void SendData(int PacketID, ArrayStream Pack)
     {
         if(bStreamEnable)
@@ -83,6 +99,25 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
+    public  boolean CheckPermission(String permission)
+    {
+        if (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED)
+        {
+            Log.d("ZZZZZ", "Permission is granted");
+            return  true;
+        }
+        else
+        {
+            Log.d("ZZZZZ", "Permission is revoked");
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{permission}, 1);
+            if (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED)
+            {
+                Log.d("ZZZZZ", "Permission is granted");
+                return  true;
+            }
+        }
+        return  false;
+    }
 
     public boolean StartSensors()
     {

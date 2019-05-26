@@ -63,8 +63,8 @@ public class CNetStream {
 
         try
         {
-           // mClientAdr = InetAddress.getByName("192.168.1.10");
-            mClientAdr = InetAddress.getByName("192.168.42.255");
+            mClientAdr = InetAddress.getByName("192.168.1.10");
+           // mClientAdr = InetAddress.getByName("192.168.42.255");
         }
         catch (UnknownHostException e)
         {
@@ -112,7 +112,7 @@ public class CNetStream {
         OutPacket.write(Integer.valueOf(0x1));
         OutPacket.write(Integer.valueOf(PacketID));
         OutPacket.write(Long.valueOf(System.nanoTime()));
-        OutPacket.write(Long.valueOf(SystemClock.elapsedRealtimeNanos()));
+       // OutPacket.write(Long.valueOf(SystemClock.elapsedRealtimeNanos()));
         OutPacket.write(Integer.valueOf(Pack.size()));
         try {
             OutPacket.write(Pack.toByteArray());
