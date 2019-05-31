@@ -3,7 +3,7 @@ package com.example.sensdataudp;
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
+import java.io.IOException;
 class ArrayStream extends ByteArrayOutputStream
 {
     private ByteBuffer m_Buff=ByteBuffer.allocate(32);
@@ -54,4 +54,13 @@ class ArrayStream extends ByteArrayOutputStream
         //ByteBuffer.wrap(bytes).putInt(value);
         //write(bytes,0,Integer.BYTES);
     }
+
+    public void write(String nString)throws IOException  {
+        write(nString.length());
+        write(nString.getBytes());
+        //byte[] bytes = new byte[Integer.BYTES];
+        //ByteBuffer.wrap(bytes).putInt(value);
+        //write(bytes,0,Integer.BYTES);
+    }
+
 }

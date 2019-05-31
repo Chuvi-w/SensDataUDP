@@ -21,7 +21,8 @@ public class CNetStream {
     //private
     private File OutFile;
     private FileOutputStream fOutStream;
-
+    //private String mReceiverIP="192.168.1.10";
+    private String mReceiverIP="192.168.42.255";
     public static DatagramSocket mSocket = null;
     //public static DatagramPacket mPacket = null;
     public static InetAddress mClientAdr=null;
@@ -63,8 +64,7 @@ public class CNetStream {
 
         try
         {
-            mClientAdr = InetAddress.getByName("192.168.1.10");
-           // mClientAdr = InetAddress.getByName("192.168.42.255");
+            mClientAdr = InetAddress.getByName(mReceiverIP);
         }
         catch (UnknownHostException e)
         {

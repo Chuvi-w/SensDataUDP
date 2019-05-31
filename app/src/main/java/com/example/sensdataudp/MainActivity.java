@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity  {
     public static SensorManager mSensor_Stream;
     public static LocationManager mLocationmanager;
     private static int mDelay = SensorManager.SENSOR_DELAY_FASTEST;
-
+    private  GNSSDataListener m_GNSSData=null;
     SensorListener SensListener=new SensorListener();
     /** Called when the activity is first created. */
     @Override
@@ -53,32 +53,50 @@ public class MainActivity extends AppCompatActivity  {
         mLocationmanager = (LocationManager) getSystemService(LOCATION_SERVICE);
         CheckPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         CheckPermission(android.Manifest.permission.INTERNET);
-    }
+        CheckPermission(Manifest.permission.ACCESS_NETWORK_STATE);
+        CheckPermission(Manifest.permission.ACCESS_WIFI_STATE);
+        CheckPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+        CheckPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+
         if(bStreamEnable==false)
         {
             bStreamEnable=NetStream.start_UDP_Stream();
         }
 
         StartSensors();
+
+        m_GNSSData=new GNSSDataListener(mLocationmanager);
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
     }
 
     @Override
     protected void onStop()
     {
         super.onStop();
-       if(bStreamEnable)
-       {
-           NetStream.stop_UDP_Stream();
-           bStreamEnable=false;
-       }
-       StopSensors();
+
 
     }
 
+    @Override
+    protected  void onDestroy()
+    {
+        super.onDestroy();
+        if(bStreamEnable)
+        {
+            NetStream.stop_UDP_Stream();
+            bStreamEnable=false;
+        }
+        StopSensors();
+        m_GNSSData.OnDestroy();
+    }
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
