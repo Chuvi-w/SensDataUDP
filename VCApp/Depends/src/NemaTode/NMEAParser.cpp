@@ -287,6 +287,21 @@ void NMEAParser::readSentence(std::string cmd)
 
    // Call event handlers based on map entries
    function<void(const NMEASentence&)> handler = eventTable[nmea.name];
+   if(!handler)
+   {
+      if(nmea.name.length() == 5)
+      {
+         auto sMsgType = nmea.name.substr(2, nmea.name.length());
+         for(const auto &Event : eventTable)
+         {
+            if(Event.first.length() == 5 && Event.first.find(sMsgType) == 2)
+            {
+               handler = Event.second;
+               break;
+            }
+         }
+      }
+   }
    if(handler)
    {
       onInfo(nmea, string("Calling specific handler for sentence named \"") + nmea.name + "\"");

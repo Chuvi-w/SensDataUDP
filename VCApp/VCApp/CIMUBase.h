@@ -1,12 +1,9 @@
 #pragma once
 #include "CTimeStamp.h"
 
-
-
 class CSensorFrame
 {
 
-private:
-   
+ private:
    CTimeStampNS m_nTimeStamp;
 };

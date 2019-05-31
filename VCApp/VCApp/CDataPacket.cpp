@@ -1,38 +1,22 @@
 #include "CDataPacket.h"
 
+CDataPacket::CDataPacket() : m_nData(nullptr), m_nReadPos(0), m_bEndian(false), m_nNanoTime(0), m_nPacketID(0)
+// m_nRecvSize(0)
+{}
 
-
-CDataPacket::CDataPacket():
-m_nData(nullptr),
-m_nReadPos(0),
-m_bEndian(false),
-m_nNanoTime(0),
-m_nPacketID(0)
-//m_nRecvSize(0)
-{
-
-}
-
-CDataPacket::CDataPacket(const CDataPacket &pOther):
-m_nData(pOther.m_nData),
-m_nReadPos(pOther.m_nReadPos),
-m_bEndian(pOther.m_bEndian),
-m_nNanoTime(pOther.m_nNanoTime),
-m_nPacketID(pOther.m_nPacketID)
-//m_nRecvSize(pOther.m_nRecvSize)
-{
-
-}
+CDataPacket::CDataPacket(const CDataPacket& pOther) : m_nData(pOther.m_nData), m_nReadPos(pOther.m_nReadPos), m_bEndian(pOther.m_bEndian), m_nNanoTime(pOther.m_nNanoTime), m_nPacketID(pOther.m_nPacketID)
+// m_nRecvSize(pOther.m_nRecvSize)
+{}
 
 CDataPacket::~CDataPacket()
 {
-  /* if(m_nData)
-   {     
-      m_nData = nullptr;
-   }*/
+   /* if(m_nData)
+    {
+       m_nData = nullptr;
+    }*/
 }
 
-int32_t CDataPacket::LoadData(void *pData, size_t nDataSize, const std::string &sSourceName)
+int32_t CDataPacket::LoadData(void* pData, size_t nDataSize, const std::string& sSourceName)
 {
    if(nDataSize < sizeof(CommPacket_t))
    {
@@ -47,7 +31,7 @@ int32_t CDataPacket::LoadData(void *pData, size_t nDataSize, const std::string &
    }
 
    CommPacket_t CommHdr;
-   uint64_t nTimeStamp;
+   uint64_t     nTimeStamp;
    memcpy(&CommHdr, pData, sizeof(CommHdr));
    if(CommHdr.IsEndian == 1)
    {
@@ -62,9 +46,9 @@ int32_t CDataPacket::LoadData(void *pData, size_t nDataSize, const std::string &
       return -1;
    }
 
-   nTimeStamp = CommHdr.NanoTime;
+   nTimeStamp  = CommHdr.NanoTime;
    m_nPacketID = CommHdr.PacketID;
-   nRecvSize = CommHdr.DataSize;
+   nRecvSize   = CommHdr.DataSize;
 
    if(!m_bEndian)
    {
@@ -83,12 +67,11 @@ int32_t CDataPacket::LoadData(void *pData, size_t nDataSize, const std::string &
    memcpy(m_nData->data(), reinterpret_cast<void*>((size_t)pData + sizeof(CommPacket_t)), nRecvSize);
    m_nReadPos = 0;
    return sizeof(CommPacket_t) + nRecvSize;
-
 }
 
 size_t CDataPacket::GetRemainDataSize() const
 {
-   if(!m_nData||m_nReadPos > m_nData->size())
+   if(!m_nData || m_nReadPos > m_nData->size())
    {
       return 0;
    }
@@ -104,34 +87,23 @@ size_t CDataPacket::GetDataSize() const
    return m_nData->size();
 }
 
-bool CDataPacket::IsValid() const
-{
-   return m_nData != 0 && !m_nData->empty();
-}
+bool CDataPacket::IsValid() const { return m_nData != 0 && !m_nData->empty(); }
 
-CTimeStampNS CDataPacket::GetNanoTime() const
-{
-   return m_nNanoTime;
-}
+CTimeStampNS CDataPacket::GetNanoTime() const { return m_nNanoTime; }
 
+uint64_t CDataPacket::GetPacketID() const { return m_nPacketID; }
 
-uint64_t CDataPacket::GetPacketID() const
-{
-   return m_nPacketID;
-}
-
-bool CDataPacket::operator==(const CDataPacket &pOther) const
+bool CDataPacket::operator==(const CDataPacket& pOther) const
 {
    if(GetNanoTime() == pOther.GetNanoTime())
    {
-      if(GetPacketID() == pOther.GetPacketID()&&GetDataSize() == pOther.GetDataSize() && m_bEndian==pOther.m_bEndian)
+      if(GetPacketID() == pOther.GetPacketID() && GetDataSize() == pOther.GetDataSize() && m_bEndian == pOther.m_bEndian)
       {
          if(!memcmp(m_nData->data(), pOther.m_nData->data(), GetDataSize()))
          {
             return true;
          }
       }
-
    }
    return false;
 }

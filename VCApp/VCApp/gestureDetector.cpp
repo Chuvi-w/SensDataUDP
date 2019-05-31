@@ -21,7 +21,8 @@
 // gestureDetector.cpp
 //--------------------------------------------------------------------------------
 
-#define LOGI(...) {}
+#define LOGI(...) \
+   {}
 //--------------------------------------------------------------------------------
 // includes
 //--------------------------------------------------------------------------------
@@ -41,26 +42,26 @@ void GestureDetector::SetConfiguration()
 //--------------------------------------------------------------------------------
 GESTURE_STATE TapDetector::Detect(const AInputEvent motion_event)
 {
-   if(!motion_event||motion_event->GetPointerCount()> 1)
+   if(!motion_event || motion_event->GetPointerCount() > 1)
    {
       // Only support single touch
       return GESTURE_STATE_NONE;
    }
    std::shared_ptr<CTouchPointer> TouchPtr = motion_event->GetPtr(0);
-   switch (motion_event->GetActionMasked())
+   switch(motion_event->GetActionMasked())
    {
-      case AMOTION_EVENT_ACTION_DOWN:     
-         if (TouchPtr)
+      case AMOTION_EVENT_ACTION_DOWN:
+         if(TouchPtr)
          {
             down_pointer_id_ = TouchPtr->GetPointerId();
-            down_x_ = TouchPtr->GetX();
-            down_y_ = TouchPtr->GetY();
+            down_x_          = TouchPtr->GetX();
+            down_y_          = TouchPtr->GetY();
          }
          break;
       case AMOTION_EVENT_ACTION_UP:
       {
          auto eventTime = motion_event->GetEventTime();
-         auto downTime = motion_event->GetDownTime();
+         auto downTime  = motion_event->GetDownTime();
          if(eventTime - downTime <= TAP_TIMEOUT)
          {
             if(down_pointer_id_ == TouchPtr->GetID())
@@ -91,25 +92,25 @@ GESTURE_STATE DoubletapDetector::Detect(const AInputEvent motion_event)
       return GESTURE_STATE_NONE;
    }
 
-   bool tap_detected = tap_detector_.Detect(motion_event);
-   std::shared_ptr<CTouchPointer> TouchPtr = motion_event->GetPtr(0);
-   switch (motion_event->GetActionMasked())
+   bool                           tap_detected = tap_detector_.Detect(motion_event);
+   std::shared_ptr<CTouchPointer> TouchPtr     = motion_event->GetPtr(0);
+   switch(motion_event->GetActionMasked())
    {
       case AMOTION_EVENT_ACTION_DOWN:
       {
          auto eventTime = motion_event->GetEventTime();
          if(eventTime - last_tap_time_ <= DOUBLE_TAP_TIMEOUT)
          {
-            if (TouchPtr)
+            if(TouchPtr)
             {
                float x = TouchPtr->GetX() - last_tap_x_;
                float y = TouchPtr->GetY() - last_tap_y_;
-               if (x * x + y * y < DOUBLE_TAP_SLOP * DOUBLE_TAP_SLOP * dp_factor_)
+               if(x * x + y * y < DOUBLE_TAP_SLOP * DOUBLE_TAP_SLOP * dp_factor_)
                {
                   LOGI("DoubletapDetector: Doubletap detected");
                   last_tap_time_ = 0;
-                  last_tap_x_ = -100;
-                  last_tap_y_ = -100;
+                  last_tap_x_    = -100;
+                  last_tap_y_    = -100;
                   return GESTURE_STATE_ACTION;
                }
             }
@@ -120,12 +121,11 @@ GESTURE_STATE DoubletapDetector::Detect(const AInputEvent motion_event)
          if(tap_detected)
          {
             last_tap_time_ = motion_event->GetEventTime();
-            if (TouchPtr)
+            if(TouchPtr)
             {
                last_tap_x_ = TouchPtr->GetX();
                last_tap_y_ = TouchPtr->GetY();
             }
-               
          }
          break;
    }
@@ -142,29 +142,25 @@ void DoubletapDetector::SetConfiguration()
 // PinchDetector
 //--------------------------------------------------------------------------------
 
-std::shared_ptr<CTouchPointer> PinchDetector::FindIndex(const AInputEvent event, int32_t id)
-{
-   return event ? event->FindPtrID(id) : nullptr;
-
-}
+std::shared_ptr<CTouchPointer> PinchDetector::FindIndex(const AInputEvent event, int32_t id) { return event ? event->FindPtrID(id) : nullptr; }
 
 GESTURE_STATE PinchDetector::Detect(const AInputEvent event)
 {
-   GESTURE_STATE ret    = GESTURE_STATE_NONE;
-   event_               = event;
-   int32_t pID = 0;
-   int32_t count = event->GetPointerCount();
-   switch (event->GetActionMasked())
+   GESTURE_STATE ret = GESTURE_STATE_NONE;
+   event_            = event;
+   int32_t pID       = 0;
+   int32_t count     = event->GetPointerCount();
+   switch(event->GetActionMasked())
    {
       case AMOTION_EVENT_ACTION_DOWN:
-        
+
          pID = event->GetPtr(0)->GetPointerId();
          vec_pointers_.push_back(pID);
          break;
       case AMOTION_EVENT_ACTION_POINTER_DOWN:
       {
          int32_t iIndex = event->GetActionIndex();
-         pID = event->GetPtr(iIndex)->GetPointerId();
+         pID            = event->GetPtr(iIndex)->GetPointerId();
          vec_pointers_.push_back(pID);
          if(count == 2)
          {
@@ -173,10 +169,15 @@ GESTURE_STATE PinchDetector::Detect(const AInputEvent event)
          }
       }
       break;
-      case AMOTION_EVENT_ACTION_UP: if(!vec_pointers_.empty()){vec_pointers_.pop_back();} break;
+      case AMOTION_EVENT_ACTION_UP:
+         if(!vec_pointers_.empty())
+         {
+            vec_pointers_.pop_back();
+         }
+         break;
       case AMOTION_EVENT_ACTION_POINTER_UP:
       {
-         int32_t index = event->GetActionIndex();
+         int32_t index               = event->GetActionIndex();
          int32_t released_pointer_id = event->GetPtr(index)->GetPointerId();
 
          std::vector<int32_t>::iterator it     = vec_pointers_.begin();
@@ -222,17 +223,17 @@ bool PinchDetector::GetPointers(Vec2& v1, Vec2& v2)
 {
    if(vec_pointers_.size() < 2) return false;
 
-  auto IdxPtr = FindIndex(event_, vec_pointers_[0]);
-  if (!IdxPtr) return false;
+   auto IdxPtr = FindIndex(event_, vec_pointers_[0]);
+   if(!IdxPtr) return false;
 
-  float x = IdxPtr->GetX();
-  float y = IdxPtr->GetY();
+   float x = IdxPtr->GetX();
+   float y = IdxPtr->GetY();
 
-  IdxPtr = FindIndex(event_, vec_pointers_[1]);
-  if (!IdxPtr) return false; 
+   IdxPtr = FindIndex(event_, vec_pointers_[1]);
+   if(!IdxPtr) return false;
 
-  float x2 = IdxPtr->GetX();
-  float y2 = IdxPtr->GetY();
+   float x2 = IdxPtr->GetX();
+   float y2 = IdxPtr->GetY();
 
    v1 = Vec2(x, y);
    v2 = Vec2(x2, y2);
@@ -244,29 +245,26 @@ bool PinchDetector::GetPointers(Vec2& v1, Vec2& v2)
 // DragDetector
 //--------------------------------------------------------------------------------
 
-std::shared_ptr<CTouchPointer>  DragDetector::FindIndex(const AInputEvent event, int32_t id)
-{
-   return event ? event->FindPtrID(id) : nullptr;
-}
+std::shared_ptr<CTouchPointer> DragDetector::FindIndex(const AInputEvent event, int32_t id) { return event ? event->FindPtrID(id) : nullptr; }
 
 GESTURE_STATE DragDetector::Detect(const AInputEvent event)
 {
-   GESTURE_STATE ret    = GESTURE_STATE_NONE;
-  
-   int32_t       index = event->GetActionIndex();
-   event_               = event;
+   GESTURE_STATE ret = GESTURE_STATE_NONE;
+
+   int32_t index = event->GetActionIndex();
+   event_        = event;
 
    int32_t count = event->GetPointerCount();
-   switch (event->GetActionMasked())
+   switch(event->GetActionMasked())
    {
       case AMOTION_EVENT_ACTION_DOWN:
-         
+
          vec_pointers_.push_back(event->GetPtr(0)->GetPointerId());
          ret = GESTURE_STATE_START;
          break;
       case AMOTION_EVENT_ACTION_POINTER_DOWN: vec_pointers_.push_back(event->GetPtr(index)->GetPointerId()); break;
       case AMOTION_EVENT_ACTION_UP:
-         if (!vec_pointers_.empty())
+         if(!vec_pointers_.empty())
          {
             vec_pointers_.pop_back();
          }
@@ -328,6 +326,5 @@ bool DragDetector::GetPointer(Vec2& v)
 
    return true;
 }
-
 
 #endif

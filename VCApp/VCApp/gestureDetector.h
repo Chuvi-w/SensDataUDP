@@ -26,12 +26,11 @@
 #include "TouchEvData.h"
 #include "MatConv.h"
 
-
 typedef std::shared_ptr<CMotionEvent> AInputEvent;
-const int32_t DOUBLE_TAP_TIMEOUT = 300 * 1000000;
-const int32_t TAP_TIMEOUT        = 180 * 1000000;
-const int32_t DOUBLE_TAP_SLOP    = 100;
-const int32_t TOUCH_SLOP         = 8;
+const int32_t                         DOUBLE_TAP_TIMEOUT = 300 * 1000000;
+const int32_t                         TAP_TIMEOUT        = 180 * 1000000;
+const int32_t                         DOUBLE_TAP_SLOP    = 100;
+const int32_t                         TOUCH_SLOP         = 8;
 
 typedef enum GESTURE_STATE_e
 {
@@ -40,9 +39,7 @@ typedef enum GESTURE_STATE_e
    GESTURE_STATE_MOVE   = 2,
    GESTURE_STATE_END    = 4,
    GESTURE_STATE_ACTION = (GESTURE_STATE_START | GESTURE_STATE_END),
-}GESTURE_STATE;
-
-
+} GESTURE_STATE;
 
 /******************************************************************
  * Base class of Gesture Detectors
@@ -90,10 +87,10 @@ class TapDetector : public GestureDetector
 class DoubletapDetector : public GestureDetector
 {
  private:
-   TapDetector tap_detector_;
-   CTimeStampNS     last_tap_time_;
-   float       last_tap_x_;
-   float       last_tap_y_;
+   TapDetector  tap_detector_;
+   CTimeStampNS last_tap_time_;
+   float        last_tap_x_;
+   float        last_tap_y_;
 
  public:
    DoubletapDetector() {}
@@ -112,9 +109,9 @@ class DoubletapDetector : public GestureDetector
 class PinchDetector : public GestureDetector
 {
  private:
-    std::shared_ptr<CTouchPointer>              FindIndex(const AInputEvent event, int32_t id);
-   AInputEvent   event_;
-   std::vector<int32_t> vec_pointers_;
+   std::shared_ptr<CTouchPointer> FindIndex(const AInputEvent event, int32_t id);
+   AInputEvent                    event_;
+   std::vector<int32_t>           vec_pointers_;
 
  public:
    PinchDetector() {}
@@ -131,9 +128,9 @@ class PinchDetector : public GestureDetector
 class DragDetector : public GestureDetector
 {
  private:
-    std::shared_ptr<CTouchPointer>              FindIndex(const AInputEvent event, int32_t id);
-   AInputEvent   event_;
-   std::vector<int32_t> vec_pointers_;
+   std::shared_ptr<CTouchPointer> FindIndex(const AInputEvent event, int32_t id);
+   AInputEvent                    event_;
+   std::vector<int32_t>           vec_pointers_;
 
  public:
    DragDetector() {}

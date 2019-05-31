@@ -2,7 +2,6 @@
 
 #include "EvCommon.h"
 
-
 typedef struct ComSensorsHdr_s
 {
    jlong  nType;
@@ -12,7 +11,7 @@ typedef struct ComSensorsHdr_s
    jfloat flMaxRange;
 } ComSensorsHdr_t;
 
-class CSensorEvent: public IEventReceiver
+class CSensorEvent : public IEventReceiver
 {
  private:
    CSensorEvent();
@@ -23,11 +22,9 @@ class CSensorEvent: public IEventReceiver
 
    ~CSensorEvent();
 
-   virtual bool ParseEvent(CDataPacket &pPacket) override;
-
+   virtual bool ParseEvent(CDataPacket& pPacket) override;
 
    virtual std::shared_ptr<IEventReceiver> GetEvShared() override;
 
  private:
-
 };

@@ -21,7 +21,8 @@ class CDataReceiver
    std::atomic_bool IsStopped() const;
 
    bool ProcessPacket(const std::string& RecvName, const void* pPacket, size_t nDataSize);
-   bool ProcessPacket(CDataPacket &Packet);
+   bool ProcessPacket(CDataPacket& Packet);
+
  public:
    CDataReceiver();
    bool AddListener(std::shared_ptr<IEventReceiver> pListener);
@@ -51,33 +52,29 @@ class CReceiverUDP : public CDataReceiver
    sf::UdpSocket m_Socket;
 };
 
-
-class CReceiverFile: public CDataReceiver
+class CReceiverFile : public CDataReceiver
 {
 
-  /* typedef struct FilePacket_s
-   {
-      bool bIsEndian;
-      uint64_t nTimeStamp;
-      uint64_t nPacketID;
-      std::vector<uint8_t> vData;
+   /* typedef struct FilePacket_s
+    {
+       bool bIsEndian;
+       uint64_t nTimeStamp;
+       uint64_t nPacketID;
+       std::vector<uint8_t> vData;
 
-   }FilePacket_t;*/
-public:
+    }FilePacket_t;*/
+ public:
    CReceiverFile();
    ~CReceiverFile();
 
    void ResetPackets();
    void SortPackets();
-   bool LoadFile(const std::string &sFileName);
+   bool LoadFile(const std::string& sFileName);
 
+ private:
+   bool AddPacket(CDataPacket& pPacket);
 
-
-private:
-
-   
-   bool AddPacket(CDataPacket &pPacket);
-protected:
+ protected:
    virtual void RecvThread() override;
 
    std::vector<CDataPacket> m_vPackets;

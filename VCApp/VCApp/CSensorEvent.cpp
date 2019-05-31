@@ -2,32 +2,24 @@
 #include <inttypes.h>
 #include "CDataPacket.h"
 
-CSensorEvent::CSensorEvent():IEventReceiver(SENSOR_EV_ID) {}
+CSensorEvent::CSensorEvent() : IEventReceiver(SENSOR_EV_ID) {}
 
 CSensorEvent::~CSensorEvent() {}
 
-bool CSensorEvent::ParseEvent(CDataPacket &pPacket)
+bool CSensorEvent::ParseEvent(CDataPacket& pPacket)
 {
    ComSensorsHdr_t SensHDR;
-   float *FlValue = nullptr;
-   bool bReadOK = true;
+   float*          FlValue = nullptr;
+   bool            bReadOK = true;
    if(pPacket.GetDataSize() < sizeof(ComSensorsHdr_t))
    {
       return false;
    }
-   if(
-      !pPacket.GetData(SensHDR.nType) ||
-      !pPacket.GetData(SensHDR.nTimeStamp) ||
-      !pPacket.GetData(SensHDR.nSize) ||
-      !pPacket.GetData(SensHDR.flRes) ||
-      !pPacket.GetData(SensHDR.flMaxRange) ||
-      pPacket.GetRemainDataSize() < SensHDR.nSize*sizeof(float)
-      )
+   if(!pPacket.GetData(SensHDR.nType) || !pPacket.GetData(SensHDR.nTimeStamp) || !pPacket.GetData(SensHDR.nSize) || !pPacket.GetData(SensHDR.flRes) || !pPacket.GetData(SensHDR.flMaxRange) || pPacket.GetRemainDataSize() < SensHDR.nSize * sizeof(float))
    {
       return false;
    }
-   
-   
+
 #if 0
 
    if(m_Acc.CheckSensorType((SensTypes)pHdr->nType))
@@ -53,7 +45,4 @@ bool CSensorEvent::ParseEvent(CDataPacket &pPacket)
    return true;
 }
 
-std::shared_ptr<IEventReceiver> CSensorEvent::GetEvShared()
-{
-   return shared_from_this();
-}
+std::shared_ptr<IEventReceiver> CSensorEvent::GetEvShared() { return shared_from_this(); }

@@ -1,10 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCApp", "VCApp\VCApp.vcxproj", "{C2588C9C-E420-43CA-8A9F-43B7D6497EA1}"
 	ProjectSection(ProjectDependencies) = postProject
+		{7B10F911-DC46-4F70-AE5B-5B3A02488818} = {7B10F911-DC46-4F70-AE5B-5B3A02488818}
 		{4559D574-61C1-462B-B0C2-D733D2D30ED1} = {4559D574-61C1-462B-B0C2-D733D2D30ED1}
 		{643311F3-4965-4C92-90AA-D0693EAA5E78} = {643311F3-4965-4C92-90AA-D0693EAA5E78}
 	EndProjectSection
@@ -12,6 +13,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Network", "Depends\src\SFML\Network\Network.vcxproj", "{4559D574-61C1-462B-B0C2-D733D2D30ED1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "System", "Depends\src\SFML\System\System.vcxproj", "{643311F3-4965-4C92-90AA-D0693EAA5E78}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NemaTode", "Depends\src\NemaTode\NemaTode.vcxproj", "{7B10F911-DC46-4F70-AE5B-5B3A02488818}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +48,14 @@ Global
 		{643311F3-4965-4C92-90AA-D0693EAA5E78}.Release|Win32.Build.0 = Release|Win32
 		{643311F3-4965-4C92-90AA-D0693EAA5E78}.Release|x64.ActiveCfg = Release|x64
 		{643311F3-4965-4C92-90AA-D0693EAA5E78}.Release|x64.Build.0 = Release|x64
+		{7B10F911-DC46-4F70-AE5B-5B3A02488818}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7B10F911-DC46-4F70-AE5B-5B3A02488818}.Debug|Win32.Build.0 = Debug|Win32
+		{7B10F911-DC46-4F70-AE5B-5B3A02488818}.Debug|x64.ActiveCfg = Debug|x64
+		{7B10F911-DC46-4F70-AE5B-5B3A02488818}.Debug|x64.Build.0 = Debug|x64
+		{7B10F911-DC46-4F70-AE5B-5B3A02488818}.Release|Win32.ActiveCfg = Release|Win32
+		{7B10F911-DC46-4F70-AE5B-5B3A02488818}.Release|Win32.Build.0 = Release|Win32
+		{7B10F911-DC46-4F70-AE5B-5B3A02488818}.Release|x64.ActiveCfg = Release|x64
+		{7B10F911-DC46-4F70-AE5B-5B3A02488818}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

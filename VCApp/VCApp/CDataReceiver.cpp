@@ -5,11 +5,9 @@
 #include "CSensorEvent.h"
 #include "CDataPacket.h"
 
-CReceiverUDP::CReceiverUDP(uint16_t nPort) : m_nPort(nPort) { }
+CReceiverUDP::CReceiverUDP(uint16_t nPort) : m_nPort(nPort) {}
 
 CReceiverUDP::~CReceiverUDP() { StopThread(); }
-
-
 
 void CReceiverUDP::RecvThread()
 {
@@ -46,8 +44,7 @@ CDataReceiver::~CDataReceiver() {}
 
 std::atomic_bool CDataReceiver::IsStopped() const { return m_bStopThread; }
 
-
-bool CDataReceiver::ProcessPacket(CDataPacket &Packet)
+bool CDataReceiver::ProcessPacket(CDataPacket& Packet)
 {
    if(!Packet.IsValid())
    {
@@ -107,39 +104,26 @@ void CDataReceiver::StartThread()
 
 void CDataReceiver::SetLogging(bool bLogging /*= true*/) { m_bLogging = bLogging; }
 
-CReceiverFile::CReceiverFile()
-{
+CReceiverFile::CReceiverFile() {}
 
-}
+CReceiverFile::~CReceiverFile() { m_vPackets.clear(); }
 
-CReceiverFile::~CReceiverFile()
-{
-   
-   m_vPackets.clear();
-}
-
-void CReceiverFile::ResetPackets()
-{
-   m_vPackets.clear();
-}
+void CReceiverFile::ResetPackets() { m_vPackets.clear(); }
 
 void CReceiverFile::SortPackets()
 {
-   std::sort(m_vPackets.begin(), m_vPackets.end(), [](const CDataPacket &p1, const CDataPacket &p2)
-   {
-      return p1.GetNanoTime() < p2.GetNanoTime();
-   });
+   std::sort(m_vPackets.begin(), m_vPackets.end(), [](const CDataPacket& p1, const CDataPacket& p2) { return p1.GetNanoTime() < p2.GetNanoTime(); });
 }
 
-bool CReceiverFile::LoadFile(const std::string &sFileName)
+bool CReceiverFile::LoadFile(const std::string& sFileName)
 {
-   FILE *fIN = fopen(sFileName.c_str(), "rb");
-   size_t FileSz = 0;
-   size_t ReadOffset = 0;
-   int32_t CurRead = 0;
+   FILE*   fIN        = fopen(sFileName.c_str(), "rb");
+   size_t  FileSz     = 0;
+   size_t  ReadOffset = 0;
+   int32_t CurRead    = 0;
 
    CDataPacket DataPack;
-   void *pFileData = nullptr;
+   void*       pFileData = nullptr;
 
    if(!fIN)
    {
@@ -153,23 +137,23 @@ bool CReceiverFile::LoadFile(const std::string &sFileName)
    fread(pFileData, FileSz, 1, fIN);
    fclose(fIN);
 
-   do 
+   do
    {
       CurRead = DataPack.LoadData(reinterpret_cast<void*>((size_t)pFileData + ReadOffset), FileSz - ReadOffset, "Data");
       if(CurRead > 0)
       {
-       
+
          AddPacket(DataPack);
          ReadOffset += CurRead;
       }
-   } while (CurRead>0&&ReadOffset<FileSz);
-  
+   } while(CurRead > 0 && ReadOffset < FileSz);
+
    printf("sz=%i\n", m_vPackets.size());
    SortPackets();
    return true;
 }
 
-bool CReceiverFile::AddPacket(CDataPacket &pPacket)
+bool CReceiverFile::AddPacket(CDataPacket& pPacket)
 {
 
    /*for(auto &Pack : m_vPackets)
@@ -182,12 +166,10 @@ bool CReceiverFile::AddPacket(CDataPacket &pPacket)
 
    m_vPackets.push_back(pPacket);
    return true;
-
 }
 
 void CReceiverFile::RecvThread()
 {
-
 
    size_t nCurEvID = 0;
    do
@@ -201,14 +183,8 @@ void CReceiverFile::RecvThread()
          ProcessPacket(m_vPackets[nCurEvID]);
          nCurEvID++;
       }
-        
 
-   }
-   while(!IsStopped());
-
+   } while(!IsStopped());
 
    printf("");
 }
-
-
-
