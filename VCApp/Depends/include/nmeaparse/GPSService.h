@@ -17,31 +17,31 @@
 #include <nmeaparse/NMEAParser.h>
 #include <nmeaparse/Event.h>
 
-namespace nmea {
+namespace nmea
+{
 
-class GPSService {
-private:
+class GPSService
+{
+ private:
+   void read_PSRF150(const NMEASentence& nmea);
+   void read_GPGGA(const NMEASentence& nmea);
+   void read_GPGSA(const NMEASentence& nmea);
+   void read_GPGSV(const NMEASentence& nmea);
+   void read_GPRMC(const NMEASentence& nmea);
+   void read_GPVTG(const NMEASentence& nmea);
 
-	void read_PSRF150(const NMEASentence& nmea);
-	void read_GPGGA	(const NMEASentence& nmea);
-	void read_GPGSA	(const NMEASentence& nmea);
-	void read_GPGSV	(const NMEASentence& nmea);
-	void read_GPRMC	(const NMEASentence& nmea);
-	void read_GPVTG	(const NMEASentence& nmea);
+ public:
+   GPSFix fix;
 
-public:
-	GPSFix fix;
+   GPSService(NMEAParser& parser);
+   virtual ~GPSService();
 
-	GPSService(NMEAParser& parser);
-	virtual ~GPSService();
+   Event<void(bool)> onLockStateChanged; // user assignable handler, called whenever lock changes
+   Event<void()>     onUpdate;           // user assignable handler, called whenever fix changes
 
-	Event<void(bool)> onLockStateChanged;		// user assignable handler, called whenever lock changes
-	Event<void()> onUpdate;						// user assignable handler, called whenever fix changes
-
-	void attachToParser(NMEAParser& parser);			// will attach to this parser's nmea sentence events
+   void attachToParser(NMEAParser& parser); // will attach to this parser's nmea sentence events
 };
 
-
-}
+} // namespace nmea
 
 #endif /* GPSSERVICE_H_ */

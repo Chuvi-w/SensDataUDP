@@ -14,204 +14,199 @@
 #include <functional>
 #include <cstdint>
 
+namespace nmea
+{
 
+template <class> class EventHandler;
+template <class> class Event;
 
-namespace nmea {
+template <typename... Args> class EventHandler<void(Args...)>
+{
+   friend Event<void(Args...)>;
 
+ private:
+   // Typenames
+   typename Event<void(Args...)>::ListIterator _iterator;
 
-	template<class> class EventHandler;
-	template<class> class Event;
+   // Static members
+   static uint64_t LastID;
 
+   // Properties
+   uint64_t                     ID;
+   std::function<void(Args...)> handler;
 
-	template<typename... Args>
-	class EventHandler<void(Args...)>
-	{
-		friend Event<void(Args...)>;
-	private:
-		// Typenames
-		typename Event<void(Args...)>::ListIterator _iterator;
+   // Functions
+   void _copy(const EventHandler& ref)
+   {
+      if(&ref != this)
+      {
+         _iterator = ref._iterator;
+         handler   = ref.handler;
+         ID        = ref.ID;
+      }
+   }
 
-		// Static members
-		static uint64_t LastID;
+ public:
+   // Typenames
+   typedef void (*CFunctionPointer)(Args...);
 
-		// Properties
-		uint64_t ID;
-		std::function<void(Args...)> handler;
+   // Static members
+   // (none)
 
-		// Functions
-		void _copy(const EventHandler& ref){
-			if (&ref != this){
-				_iterator = ref._iterator;
-				handler = ref.handler;
-				ID = ref.ID;
-			}
-		}
+   // Properties
+   // (none)
 
-	public:
-		// Typenames
-		typedef void(*CFunctionPointer)(Args...);
+   // Functions
+   EventHandler(std::function<void(Args...)> h) : _iterator(), handler(h), ID(++LastID) {}
 
-		// Static members
-		// (none)
+   EventHandler(const EventHandler& ref) { _copy(ref); }
 
-		// Properties
-		// (none)
+   virtual ~EventHandler(){};
 
-		// Functions
-		EventHandler(std::function<void(Args...)> h) : _iterator(), handler(h), ID(++LastID)
-		{}
+   EventHandler& operator=(const EventHandler& ref)
+   {
+      _copy(ref);
+      return *this;
+   }
 
-		EventHandler(const EventHandler& ref){
-			_copy(ref);
-		}
+   void operator()(Args... args) { handler(args...); }
 
-		virtual ~EventHandler(){};
+   bool operator==(const EventHandler& ref) { return ID == ref.ID; }
 
-		EventHandler& operator=(const EventHandler& ref){
-			_copy(ref);
-			return *this;
-		}
+   bool operator!=(const EventHandler& ref) { return ID != ref.ID; }
 
-		void operator() (Args... args){
-			handler(args...);
-		}
+   uint64_t getID() { return ID; }
 
-		bool operator==(const EventHandler& ref){
-			return ID == ref.ID;
-		}
+   // Returns function pointer to the underlying function
+   // or null if it's not a function but implements operator()
+   CFunctionPointer* getFunctionPointer()
+   {
+      CFunctionPointer* ptr = handler.template target<CFunctionPointer>();
+      return ptr;
+   }
+};
 
-		bool operator!=(const EventHandler& ref){
-			return ID != ref.ID;
-		}
+template <typename... Args> uint64_t EventHandler<void(Args...)>::LastID = 0;
 
-		uint64_t getID(){
-			return ID;
-		}
+template <typename... Args> class Event<void(Args...)>
+{
+   friend EventHandler<void(Args...)>;
 
-		// Returns function pointer to the underlying function
-		// or null if it's not a function but implements operator()
-		CFunctionPointer* getFunctionPointer(){
-			CFunctionPointer* ptr = handler.template target<CFunctionPointer>();
-			return ptr;
-		}
-	};
+ private:
+   // Typenames
+   typedef typename std::list<EventHandler<void(Args...)>>::iterator ListIterator;
 
-	template<typename... Args>
-	uint64_t EventHandler<void(Args...)>::LastID = 0;
+   // Static members
+   // (none)
 
+   // Properties
+   std::list<EventHandler<void(Args...)>> handlers;
 
-	template <typename ... Args>
-	class Event<void(Args...)>
-	{
-		friend EventHandler<void(Args...)>;
-	private:
-		// Typenames
-		typedef typename std::list<EventHandler<void(Args...)>>::iterator ListIterator;
+   // Functions
+   void _copy(const Event& ref)
+   {
+      if(&ref != this)
+      {
+         handlers = ref.handlers;
+      }
+   };
 
-		// Static members
-		// (none)
+   bool removeHandler(ListIterator handlerIter)
+   {
+      if(handlerIter == handlers.end())
+      {
+         return false;
+      }
 
-		// Properties
-		std::list<EventHandler<void(Args...)>> handlers;
+      handlers.erase(handlerIter);
+      return true;
+   };
 
-		//Functions
-		void _copy(const Event& ref){
-			if (&ref != this){
-				handlers = ref.handlers;
-			}
-		};
+ public:
+   // Typenames
+   // (none)
 
-		bool removeHandler(ListIterator handlerIter)	{
-			if (handlerIter == handlers.end()){
-				return false;
-			}
+   // Static members
+   // (none)
 
-			handlers.erase(handlerIter);
-			return true;
-		};
+   // Properties
+   bool enabled;
 
-	public:
-		// Typenames
-		// (none)
+   // Functions
+   Event() : enabled(true) {}
 
-		// Static members
-		// (none)
+   virtual ~Event() {}
 
-		// Properties
-		bool enabled;
+   Event(const Event& ref) { _copy(ref); }
 
-		// Functions
-		Event() : enabled(true)
-		{}
+   void call(Args... args)
+   {
+      if(!enabled)
+      {
+         return;
+      }
+      for(auto h = handlers.begin(); h != handlers.end(); h++)
+      {
+         (*h)(args...);
+      }
+   }
 
-		virtual ~Event() 
-		{}
+   EventHandler<void(Args...)> registerHandler(EventHandler<void(Args...)> handler)
+   {
+      bool found = false;
+      for(auto h = handlers.begin(); h != handlers.end(); h++)
+      {
+         if((*h) == handler)
+         {
+            found = true;
+            break;
+         }
+      }
+      if(!found)
+      {
+         ListIterator itr  = handlers.insert(handlers.end(), handler);
+         handler._iterator = itr;
+      }
+      return handler;
+   }
 
-		Event(const Event& ref) 	{
-			_copy(ref);
-		}
+   EventHandler<void(Args...)> registerHandler(std::function<void(Args...)> handler)
+   {
+      EventHandler<void(Args...)> wrapper(handler);
+      ListIterator                itr = handlers.insert(handlers.end(), wrapper);
+      wrapper._iterator               = itr;
+      return wrapper;
+   }
 
-		void call(Args... args)	{
-			if (!enabled) { return; }
-			for (auto h = handlers.begin(); h != handlers.end(); h++)
-			{
-				(*h)(args...);
-			}
-		}
+   bool removeHandler(EventHandler<void(Args...)>& handler)
+   {
+      bool sts          = removeHandler(handler._iterator);
+      handler._iterator = handlers.end();
+      return sts;
+   };
 
-		EventHandler<void(Args...)> registerHandler(EventHandler<void(Args...)> handler)	{
-			bool found = false;
-			for (auto h = handlers.begin(); h != handlers.end(); h++)
-			{
-				if ((*h) == handler)	{
-					found = true;
-					break;
-				}
-			}
-			if (!found)
-			{
-				ListIterator itr = handlers.insert(handlers.end(), handler);
-				handler._iterator = itr;
-			}
-			return handler;
-		}
+   void clear()
+   {
+      for(auto h = handlers.begin(); h != handlers.end(); h++)
+      {
+         (*h)._iterator = handlers.end();
+      }
+      handlers.clear();
+   };
 
-		EventHandler<void(Args...)> registerHandler(std::function<void(Args...)> handler)	{
-			EventHandler<void(Args...)> wrapper(handler);
-			ListIterator itr = handlers.insert(handlers.end(), wrapper);
-			wrapper._iterator = itr;
-			return wrapper;
-		}
+   void                        operator()(Args... args) { return call(args...); };
+   EventHandler<void(Args...)> operator+=(EventHandler<void(Args...)> handler) { return registerHandler(handler); };
+   EventHandler<void(Args...)> operator+=(std::function<void(Args...)> handler) { return registerHandler(handler); };
+   bool                        operator-=(EventHandler<void(Args...)>& handler) { return removeHandler(handler); };
+   bool                        operator-=(uint64_t handlerID) { return removeHandler(handlerID); };
 
-		bool removeHandler(EventHandler<void(Args...)>& handler)	{
-			bool sts = removeHandler(handler._iterator);
-			handler._iterator = handlers.end();
-			return sts;
-		};
+   EventHandler<void(Args...)>& operator=(const EventHandler<void(Args...)>& ref)
+   {
+      _copy(ref);
+      return *this;
+   };
+};
 
-		void clear(){
-			for (auto h = handlers.begin(); h != handlers.end(); h++)
-			{
-				(*h)._iterator = handlers.end();
-			}
-			handlers.clear();
-		};
-
-		void operator ()(Args... args)													{ return call(args...); };
-		EventHandler<void(Args...)> operator +=(EventHandler<void(Args...)> handler)	{ return registerHandler(handler); };
-		EventHandler<void(Args...)> operator +=(std::function<void(Args...)> handler)	{ return registerHandler(handler); };
-		bool operator -=(EventHandler<void(Args...)>& handler)							{ return removeHandler(handler); };
-		bool operator -=(uint64_t handlerID)											{ return removeHandler(handlerID); };
-
-		EventHandler<void(Args...)>& operator =(const EventHandler<void(Args...)>& ref){
-			_copy(ref);
-			return *this;
-		};
-
-	};
-
-
-
-}
+} // namespace nmea
 
 #endif /* EVENT_H_ */
