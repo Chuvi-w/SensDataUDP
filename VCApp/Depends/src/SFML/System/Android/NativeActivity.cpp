@@ -31,9 +31,6 @@
 namespace sf
 {
 ////////////////////////////////////////////////////////////
-ANativeActivity* getNativeActivity()
-{
-    return priv::getActivity()->activity;
-}
+ANativeActivity* getNativeActivity() { return priv::getActivity()->activity; }
 
 } // namespace sf

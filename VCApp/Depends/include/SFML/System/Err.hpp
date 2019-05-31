@@ -31,7 +31,6 @@
 #include <SFML/System/Export.hpp>
 #include <ostream>
 
-
 namespace sf
 {
 ////////////////////////////////////////////////////////////
@@ -42,9 +41,7 @@ SFML_SYSTEM_API std::ostream& err();
 
 } // namespace sf
 
-
 #endif // SFML_ERR_HPP
-
 
 ////////////////////////////////////////////////////////////
 /// \fn sf::err

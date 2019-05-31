@@ -31,7 +31,6 @@
 #include <SFML/Config.hpp>
 #include <SFML/System/Time.hpp>
 
-
 namespace sf
 {
 namespace priv
@@ -42,20 +41,18 @@ namespace priv
 ////////////////////////////////////////////////////////////
 class ClockImpl
 {
-public:
-
-    ////////////////////////////////////////////////////////////
-    /// \brief Get the current time
-    ///
-    /// \return Current time
-    ///
-    ////////////////////////////////////////////////////////////
-    static Time getCurrentTime();
+ public:
+   ////////////////////////////////////////////////////////////
+   /// \brief Get the current time
+   ///
+   /// \return Current time
+   ///
+   ////////////////////////////////////////////////////////////
+   static Time getCurrentTime();
 };
 
 } // namespace priv
 
 } // namespace sf
-
 
 #endif // SFML_CLOCKIMPLWIN32_HPP

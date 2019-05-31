@@ -25,17 +25,14 @@
 #ifndef SFML_NATIVEACTIVITY_HPP
 #define SFML_NATIVEACTIVITY_HPP
 
-
 ////////////////////////////////////////////////////////////
 // Headers
 ////////////////////////////////////////////////////////////
 #include <SFML/System/Export.hpp>
 
-
 #if !defined(SFML_SYSTEM_ANDROID)
 #error NativeActivity.hpp: This header is Android only.
 #endif
-
 
 struct ANativeActivity;
 
@@ -57,6 +54,5 @@ namespace sf
 SFML_SYSTEM_API ANativeActivity* getNativeActivity();
 
 } // namespace sf
-
 
 #endif // SFML_NATIVEACTIVITY_HPP

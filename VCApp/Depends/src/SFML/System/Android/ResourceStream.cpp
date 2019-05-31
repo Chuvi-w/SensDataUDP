@@ -22,7 +22,6 @@
 //
 ////////////////////////////////////////////////////////////
 
-
 ////////////////////////////////////////////////////////////
 // Headers
 ////////////////////////////////////////////////////////////
@@ -30,87 +29,79 @@
 #include <SFML/System/Android/Activity.hpp>
 #include <SFML/System/Lock.hpp>
 
-
 namespace sf
 {
 namespace priv
 {
 
 ////////////////////////////////////////////////////////////
-ResourceStream::ResourceStream(const std::string& filename) :
-m_file (NULL)
+ResourceStream::ResourceStream(const std::string& filename) : m_file(NULL)
 {
-    ActivityStates* states = getActivity(NULL);
-    Lock(states->mutex);
-    m_file = AAssetManager_open(states->activity->assetManager, filename.c_str(), AASSET_MODE_UNKNOWN);
+   ActivityStates* states = getActivity(NULL);
+   Lock(states->mutex);
+   m_file = AAssetManager_open(states->activity->assetManager, filename.c_str(), AASSET_MODE_UNKNOWN);
 }
-
 
 ////////////////////////////////////////////////////////////
 ResourceStream::~ResourceStream()
 {
-    if (m_file)
-    {
-        AAsset_close(m_file);
-    }
+   if(m_file)
+   {
+      AAsset_close(m_file);
+   }
 }
-
 
 ////////////////////////////////////////////////////////////
-Int64 ResourceStream::read(void *data, Int64 size)
+Int64 ResourceStream::read(void* data, Int64 size)
 {
-    if (m_file)
-    {
-        return AAsset_read(m_file, data, size);
-    }
-    else
-    {
-        return -1;
-    }
+   if(m_file)
+   {
+      return AAsset_read(m_file, data, size);
+   }
+   else
+   {
+      return -1;
+   }
 }
-
 
 ////////////////////////////////////////////////////////////
 Int64 ResourceStream::seek(Int64 position)
 {
-    if (m_file)
-    {
-        return AAsset_seek(m_file, position, SEEK_SET);
-    }
-    else
-    {
-        return -1;
-    }
+   if(m_file)
+   {
+      return AAsset_seek(m_file, position, SEEK_SET);
+   }
+   else
+   {
+      return -1;
+   }
 }
-
 
 ////////////////////////////////////////////////////////////
 Int64 ResourceStream::tell()
 {
-    if (m_file)
-    {
-        return getSize() - AAsset_getRemainingLength(m_file);
-    }
-    else
-    {
-        return -1;
-    }
+   if(m_file)
+   {
+      return getSize() - AAsset_getRemainingLength(m_file);
+   }
+   else
+   {
+      return -1;
+   }
 }
-
 
 ////////////////////////////////////////////////////////////
 Int64 ResourceStream::getSize()
 {
-    if (m_file)
-    {
-        return AAsset_getLength(m_file);
-    }
-    else
-    {
-        return -1;
-    }
+   if(m_file)
+   {
+      return AAsset_getLength(m_file);
+   }
+   else
+   {
+      return -1;
+   }
 }
-
 
 } // namespace priv
 } // namespace sf

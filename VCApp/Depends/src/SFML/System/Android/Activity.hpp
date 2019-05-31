@@ -41,13 +41,13 @@
 
 class SFML_SYSTEM_API LogcatStream : public std::streambuf
 {
-public:
-    LogcatStream();
+ public:
+   LogcatStream();
 
-    std::streambuf::int_type overflow (std::streambuf::int_type c);
+   std::streambuf::int_type overflow(std::streambuf::int_type c);
 
-private:
-    std::string m_message;
+ private:
+   std::string m_message;
 };
 
 namespace sf
@@ -56,46 +56,45 @@ namespace priv
 {
 struct ActivityStates
 {
-    ANativeActivity* activity;
-    ANativeWindow* window;
+   ANativeActivity* activity;
+   ANativeWindow*   window;
 
-    ALooper*        looper;
-    AInputQueue*    inputQueue;
-    AConfiguration* config;
+   ALooper*        looper;
+   AInputQueue*    inputQueue;
+   AConfiguration* config;
 
-    EGLDisplay display;
-    EglContext* context;
+   EGLDisplay  display;
+   EglContext* context;
 
-    void* savedState;
-    size_t savedStateSize;
+   void*  savedState;
+   size_t savedStateSize;
 
-    Mutex mutex;
+   Mutex mutex;
 
-    void (*forwardEvent)(const Event& event);
-    int (*processEvent)(int fd, int events, void* data);
+   void (*forwardEvent)(const Event& event);
+   int (*processEvent)(int fd, int events, void* data);
 
-    std::map<int, Vector2i> touchEvents;
-    Vector2i mousePosition;
-    bool isButtonPressed[Mouse::ButtonCount];
+   std::map<int, Vector2i> touchEvents;
+   Vector2i                mousePosition;
+   bool                    isButtonPressed[Mouse::ButtonCount];
 
-    bool mainOver;
+   bool mainOver;
 
-    Vector2i screenSize;
+   Vector2i screenSize;
 
-    bool initialized;
-    bool terminated;
+   bool initialized;
+   bool terminated;
 
-    bool fullscreen;
+   bool fullscreen;
 
-    bool updated;
+   bool updated;
 
-    LogcatStream logcat;
+   LogcatStream logcat;
 };
 
-SFML_SYSTEM_API ActivityStates* getActivity(ActivityStates* initializedStates=NULL, bool reset=false);
+SFML_SYSTEM_API ActivityStates* getActivity(ActivityStates* initializedStates = NULL, bool reset = false);
 
 } // namespace priv
 } // namespace sf
-
 
 #endif // SFML_ACTIVITY_HPP

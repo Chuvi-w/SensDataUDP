@@ -31,7 +31,6 @@
 #include <fcntl.h>
 #include <cstring>
 
-
 namespace sf
 {
 namespace priv
@@ -39,72 +38,58 @@ namespace priv
 ////////////////////////////////////////////////////////////
 sockaddr_in SocketImpl::createAddress(Uint32 address, unsigned short port)
 {
-    sockaddr_in addr;
-    std::memset(&addr, 0, sizeof(addr));
-    addr.sin_addr.s_addr = htonl(address);
-    addr.sin_family      = AF_INET;
-    addr.sin_port        = htons(port);
+   sockaddr_in addr;
+   std::memset(&addr, 0, sizeof(addr));
+   addr.sin_addr.s_addr = htonl(address);
+   addr.sin_family      = AF_INET;
+   addr.sin_port        = htons(port);
 
 #if defined(SFML_SYSTEM_MACOS)
-    addr.sin_len = sizeof(addr);
+   addr.sin_len = sizeof(addr);
 #endif
 
-    return addr;
+   return addr;
 }
-
 
 ////////////////////////////////////////////////////////////
-SocketHandle SocketImpl::invalidSocket()
-{
-    return -1;
-}
-
+SocketHandle SocketImpl::invalidSocket() { return -1; }
 
 ////////////////////////////////////////////////////////////
-void SocketImpl::close(SocketHandle sock)
-{
-    ::close(sock);
-}
-
+void SocketImpl::close(SocketHandle sock) { ::close(sock); }
 
 ////////////////////////////////////////////////////////////
 void SocketImpl::setBlocking(SocketHandle sock, bool block)
 {
-    int status = fcntl(sock, F_GETFL);
-    if (block)
-    {
-        if (fcntl(sock, F_SETFL, status & ~O_NONBLOCK) == -1)
-            err() << "Failed to set file status flags: " << errno << std::endl;
-    }
-    else
-    {
-        if (fcntl(sock, F_SETFL, status | O_NONBLOCK) == -1)
-            err() << "Failed to set file status flags: " << errno << std::endl;
-
-    }
+   int status = fcntl(sock, F_GETFL);
+   if(block)
+   {
+      if(fcntl(sock, F_SETFL, status & ~O_NONBLOCK) == -1) err() << "Failed to set file status flags: " << errno << std::endl;
+   }
+   else
+   {
+      if(fcntl(sock, F_SETFL, status | O_NONBLOCK) == -1) err() << "Failed to set file status flags: " << errno << std::endl;
+   }
 }
-
 
 ////////////////////////////////////////////////////////////
 Socket::Status SocketImpl::getErrorStatus()
 {
-    // The followings are sometimes equal to EWOULDBLOCK,
-    // so we have to make a special case for them in order
-    // to avoid having double values in the switch case
-    if ((errno == EAGAIN) || (errno == EINPROGRESS))
-        return Socket::NotReady;
+   // The followings are sometimes equal to EWOULDBLOCK,
+   // so we have to make a special case for them in order
+   // to avoid having double values in the switch case
+   if((errno == EAGAIN) || (errno == EINPROGRESS)) return Socket::NotReady;
 
-    switch (errno)
-    {
-        case EWOULDBLOCK:  return Socket::NotReady;
-        case ECONNABORTED: return Socket::Disconnected;
-        case ECONNRESET:   return Socket::Disconnected;
-        case ETIMEDOUT:    return Socket::Disconnected;
-        case ENETRESET:    return Socket::Disconnected;
-        case ENOTCONN:     return Socket::Disconnected;
-        case EPIPE:        return Socket::Disconnected;
-        default:           return Socket::Error;
-    }
+   switch(errno)
+   {
+      case EWOULDBLOCK: return Socket::NotReady;
+      case ECONNABORTED: return Socket::Disconnected;
+      case ECONNRESET: return Socket::Disconnected;
+      case ETIMEDOUT: return Socket::Disconnected;
+      case ENETRESET: return Socket::Disconnected;
+      case ENOTCONN: return Socket::Disconnected;
+      case EPIPE: return Socket::Disconnected;
+      default: return Socket::Error;
+   }
 }
 
 } // namespace priv

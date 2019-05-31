@@ -28,19 +28,17 @@
 #include <SFML/System/Sleep.hpp>
 
 #if defined(SFML_SYSTEM_WINDOWS)
-    #include <SFML/System/Win32/SleepImpl.hpp>
+#include <SFML/System/Win32/SleepImpl.hpp>
 #else
-    #include <SFML/System/Unix/SleepImpl.hpp>
+#include <SFML/System/Unix/SleepImpl.hpp>
 #endif
-
 
 namespace sf
 {
 ////////////////////////////////////////////////////////////
 void sleep(Time duration)
 {
-    if (duration >= Time::Zero)
-        priv::sleepImpl(duration);
+   if(duration >= Time::Zero) priv::sleepImpl(duration);
 }
 
 } // namespace sf

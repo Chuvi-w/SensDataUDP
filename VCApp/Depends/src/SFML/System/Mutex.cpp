@@ -28,39 +28,23 @@
 #include <SFML/System/Mutex.hpp>
 
 #if defined(SFML_SYSTEM_WINDOWS)
-    #include <SFML/System/Win32/MutexImpl.hpp>
+#include <SFML/System/Win32/MutexImpl.hpp>
 #else
-    #include <SFML/System/Unix/MutexImpl.hpp>
+#include <SFML/System/Unix/MutexImpl.hpp>
 #endif
-
 
 namespace sf
 {
 ////////////////////////////////////////////////////////////
-Mutex::Mutex()
-{
-    m_mutexImpl = new priv::MutexImpl;
-}
-
+Mutex::Mutex() { m_mutexImpl = new priv::MutexImpl; }
 
 ////////////////////////////////////////////////////////////
-Mutex::~Mutex()
-{
-    delete m_mutexImpl;
-}
-
+Mutex::~Mutex() { delete m_mutexImpl; }
 
 ////////////////////////////////////////////////////////////
-void Mutex::lock()
-{
-    m_mutexImpl->lock();
-}
-
+void Mutex::lock() { m_mutexImpl->lock(); }
 
 ////////////////////////////////////////////////////////////
-void Mutex::unlock()
-{
-    m_mutexImpl->unlock();
-}
+void Mutex::unlock() { m_mutexImpl->unlock(); }
 
 } // namespace sf

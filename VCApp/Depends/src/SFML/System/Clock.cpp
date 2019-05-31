@@ -28,36 +28,27 @@
 #include <SFML/System/Clock.hpp>
 
 #if defined(SFML_SYSTEM_WINDOWS)
-    #include <SFML/System/Win32/ClockImpl.hpp>
+#include <SFML/System/Win32/ClockImpl.hpp>
 #else
-    #include <SFML/System/Unix/ClockImpl.hpp>
+#include <SFML/System/Unix/ClockImpl.hpp>
 #endif
-
 
 namespace sf
 {
 ////////////////////////////////////////////////////////////
-Clock::Clock() :
-m_startTime(priv::ClockImpl::getCurrentTime())
-{
-}
-
+Clock::Clock() : m_startTime(priv::ClockImpl::getCurrentTime()) {}
 
 ////////////////////////////////////////////////////////////
-Time Clock::getElapsedTime() const
-{
-    return priv::ClockImpl::getCurrentTime() - m_startTime;
-}
-
+Time Clock::getElapsedTime() const { return priv::ClockImpl::getCurrentTime() - m_startTime; }
 
 ////////////////////////////////////////////////////////////
 Time Clock::restart()
 {
-    Time now = priv::ClockImpl::getCurrentTime();
-    Time elapsed = now - m_startTime;
-    m_startTime = now;
+   Time now     = priv::ClockImpl::getCurrentTime();
+   Time elapsed = now - m_startTime;
+   m_startTime  = now;
 
-    return elapsed;
+   return elapsed;
 }
 
 } // namespace sf

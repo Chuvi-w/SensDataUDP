@@ -31,7 +31,6 @@
 #include <cassert>
 #include <process.h>
 
-
 namespace sf
 {
 namespace priv
@@ -39,53 +38,46 @@ namespace priv
 ////////////////////////////////////////////////////////////
 ThreadImpl::ThreadImpl(Thread* owner)
 {
-    m_thread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 0, &ThreadImpl::entryPoint, owner, 0, &m_threadId));
+   m_thread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 0, &ThreadImpl::entryPoint, owner, 0, &m_threadId));
 
-    if (!m_thread)
-        err() << "Failed to create thread" << std::endl;
+   if(!m_thread) err() << "Failed to create thread" << std::endl;
 }
-
 
 ////////////////////////////////////////////////////////////
 ThreadImpl::~ThreadImpl()
 {
-    if (m_thread)
-        CloseHandle(m_thread);
+   if(m_thread) CloseHandle(m_thread);
 }
-
 
 ////////////////////////////////////////////////////////////
 void ThreadImpl::wait()
 {
-    if (m_thread)
-    {
-        assert(m_threadId != GetCurrentThreadId()); // A thread cannot wait for itself!
-        WaitForSingleObject(m_thread, INFINITE);
-    }
+   if(m_thread)
+   {
+      assert(m_threadId != GetCurrentThreadId()); // A thread cannot wait for itself!
+      WaitForSingleObject(m_thread, INFINITE);
+   }
 }
-
 
 ////////////////////////////////////////////////////////////
 void ThreadImpl::terminate()
 {
-    if (m_thread)
-        TerminateThread(m_thread, 0);
+   if(m_thread) TerminateThread(m_thread, 0);
 }
-
 
 ////////////////////////////////////////////////////////////
 unsigned int __stdcall ThreadImpl::entryPoint(void* userData)
 {
-    // The Thread instance is stored in the user data
-    Thread* owner = static_cast<Thread*>(userData);
+   // The Thread instance is stored in the user data
+   Thread* owner = static_cast<Thread*>(userData);
 
-    // Forward to the owner
-    owner->run();
+   // Forward to the owner
+   owner->run();
 
-    // Optional, but it is cleaner
-    _endthreadex(0);
+   // Optional, but it is cleaner
+   _endthreadex(0);
 
-    return 0;
+   return 0;
 }
 
 } // namespace priv

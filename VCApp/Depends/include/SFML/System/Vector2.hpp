@@ -25,7 +25,6 @@
 #ifndef SFML_VECTOR2_HPP
 #define SFML_VECTOR2_HPP
 
-
 namespace sf
 {
 ////////////////////////////////////////////////////////////
@@ -33,47 +32,44 @@ namespace sf
 ///        2-dimensional vectors
 ///
 ////////////////////////////////////////////////////////////
-template <typename T>
-class Vector2
+template <typename T> class Vector2
 {
-public:
+ public:
+   ////////////////////////////////////////////////////////////
+   /// \brief Default constructor
+   ///
+   /// Creates a Vector2(0, 0).
+   ///
+   ////////////////////////////////////////////////////////////
+   Vector2();
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    /// Creates a Vector2(0, 0).
-    ///
-    ////////////////////////////////////////////////////////////
-    Vector2();
+   ////////////////////////////////////////////////////////////
+   /// \brief Construct the vector from its coordinates
+   ///
+   /// \param X X coordinate
+   /// \param Y Y coordinate
+   ///
+   ////////////////////////////////////////////////////////////
+   Vector2(T X, T Y);
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Construct the vector from its coordinates
-    ///
-    /// \param X X coordinate
-    /// \param Y Y coordinate
-    ///
-    ////////////////////////////////////////////////////////////
-    Vector2(T X, T Y);
+   ////////////////////////////////////////////////////////////
+   /// \brief Construct the vector from another type of vector
+   ///
+   /// This constructor doesn't replace the copy constructor,
+   /// it's called only when U != T.
+   /// A call to this constructor will fail to compile if U
+   /// is not convertible to T.
+   ///
+   /// \param vector Vector to convert
+   ///
+   ////////////////////////////////////////////////////////////
+   template <typename U> explicit Vector2(const Vector2<U>& vector);
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Construct the vector from another type of vector
-    ///
-    /// This constructor doesn't replace the copy constructor,
-    /// it's called only when U != T.
-    /// A call to this constructor will fail to compile if U
-    /// is not convertible to T.
-    ///
-    /// \param vector Vector to convert
-    ///
-    ////////////////////////////////////////////////////////////
-    template <typename U>
-    explicit Vector2(const Vector2<U>& vector);
-
-    ////////////////////////////////////////////////////////////
-    // Member data
-    ////////////////////////////////////////////////////////////
-    T x; ///< X coordinate of the vector
-    T y; ///< Y coordinate of the vector
+   ////////////////////////////////////////////////////////////
+   // Member data
+   ////////////////////////////////////////////////////////////
+   T x; ///< X coordinate of the vector
+   T y; ///< Y coordinate of the vector
 };
 
 ////////////////////////////////////////////////////////////
@@ -85,8 +81,7 @@ public:
 /// \return Memberwise opposite of the vector
 ///
 ////////////////////////////////////////////////////////////
-template <typename T>
-Vector2<T> operator -(const Vector2<T>& right);
+template <typename T> Vector2<T> operator-(const Vector2<T>& right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Vector2
@@ -101,8 +96,7 @@ Vector2<T> operator -(const Vector2<T>& right);
 /// \return Reference to \a left
 ///
 ////////////////////////////////////////////////////////////
-template <typename T>
-Vector2<T>& operator +=(Vector2<T>& left, const Vector2<T>& right);
+template <typename T> Vector2<T>& operator+=(Vector2<T>& left, const Vector2<T>& right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Vector2
@@ -117,8 +111,7 @@ Vector2<T>& operator +=(Vector2<T>& left, const Vector2<T>& right);
 /// \return Reference to \a left
 ///
 ////////////////////////////////////////////////////////////
-template <typename T>
-Vector2<T>& operator -=(Vector2<T>& left, const Vector2<T>& right);
+template <typename T> Vector2<T>& operator-=(Vector2<T>& left, const Vector2<T>& right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Vector2
@@ -130,8 +123,7 @@ Vector2<T>& operator -=(Vector2<T>& left, const Vector2<T>& right);
 /// \return Memberwise addition of both vectors
 ///
 ////////////////////////////////////////////////////////////
-template <typename T>
-Vector2<T> operator +(const Vector2<T>& left, const Vector2<T>& right);
+template <typename T> Vector2<T> operator+(const Vector2<T>& left, const Vector2<T>& right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Vector2
@@ -143,8 +135,7 @@ Vector2<T> operator +(const Vector2<T>& left, const Vector2<T>& right);
 /// \return Memberwise subtraction of both vectors
 ///
 ////////////////////////////////////////////////////////////
-template <typename T>
-Vector2<T> operator -(const Vector2<T>& left, const Vector2<T>& right);
+template <typename T> Vector2<T> operator-(const Vector2<T>& left, const Vector2<T>& right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Vector2
@@ -156,8 +147,7 @@ Vector2<T> operator -(const Vector2<T>& left, const Vector2<T>& right);
 /// \return Memberwise multiplication by \a right
 ///
 ////////////////////////////////////////////////////////////
-template <typename T>
-Vector2<T> operator *(const Vector2<T>& left, T right);
+template <typename T> Vector2<T> operator*(const Vector2<T>& left, T right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Vector2
@@ -169,8 +159,7 @@ Vector2<T> operator *(const Vector2<T>& left, T right);
 /// \return Memberwise multiplication by \a left
 ///
 ////////////////////////////////////////////////////////////
-template <typename T>
-Vector2<T> operator *(T left, const Vector2<T>& right);
+template <typename T> Vector2<T> operator*(T left, const Vector2<T>& right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Vector2
@@ -185,8 +174,7 @@ Vector2<T> operator *(T left, const Vector2<T>& right);
 /// \return Reference to \a left
 ///
 ////////////////////////////////////////////////////////////
-template <typename T>
-Vector2<T>& operator *=(Vector2<T>& left, T right);
+template <typename T> Vector2<T>& operator*=(Vector2<T>& left, T right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Vector2
@@ -198,8 +186,7 @@ Vector2<T>& operator *=(Vector2<T>& left, T right);
 /// \return Memberwise division by \a right
 ///
 ////////////////////////////////////////////////////////////
-template <typename T>
-Vector2<T> operator /(const Vector2<T>& left, T right);
+template <typename T> Vector2<T> operator/(const Vector2<T>& left, T right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Vector2
@@ -214,8 +201,7 @@ Vector2<T> operator /(const Vector2<T>& left, T right);
 /// \return Reference to \a left
 ///
 ////////////////////////////////////////////////////////////
-template <typename T>
-Vector2<T>& operator /=(Vector2<T>& left, T right);
+template <typename T> Vector2<T>& operator/=(Vector2<T>& left, T right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Vector2
@@ -229,8 +215,7 @@ Vector2<T>& operator /=(Vector2<T>& left, T right);
 /// \return True if \a left is equal to \a right
 ///
 ////////////////////////////////////////////////////////////
-template <typename T>
-bool operator ==(const Vector2<T>& left, const Vector2<T>& right);
+template <typename T> bool operator==(const Vector2<T>& left, const Vector2<T>& right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Vector2
@@ -244,8 +229,7 @@ bool operator ==(const Vector2<T>& left, const Vector2<T>& right);
 /// \return True if \a left is not equal to \a right
 ///
 ////////////////////////////////////////////////////////////
-template <typename T>
-bool operator !=(const Vector2<T>& left, const Vector2<T>& right);
+template <typename T> bool operator!=(const Vector2<T>& left, const Vector2<T>& right);
 
 #include <SFML/System/Vector2.inl>
 
@@ -256,9 +240,7 @@ typedef Vector2<float>        Vector2f;
 
 } // namespace sf
 
-
 #endif // SFML_VECTOR2_HPP
-
 
 ////////////////////////////////////////////////////////////
 /// \class sf::Vector2

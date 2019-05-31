@@ -28,21 +28,12 @@
 #include <SFML/System/Lock.hpp>
 #include <SFML/System/Mutex.hpp>
 
-
 namespace sf
 {
 ////////////////////////////////////////////////////////////
-Lock::Lock(Mutex& mutex) :
-m_mutex(mutex)
-{
-    m_mutex.lock();
-}
-
+Lock::Lock(Mutex& mutex) : m_mutex(mutex) { m_mutex.lock(); }
 
 ////////////////////////////////////////////////////////////
-Lock::~Lock()
-{
-    m_mutex.unlock();
-}
+Lock::~Lock() { m_mutex.unlock(); }
 
 } // namespace sf
