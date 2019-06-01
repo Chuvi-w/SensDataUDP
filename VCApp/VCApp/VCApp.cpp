@@ -4,6 +4,7 @@
 #include "CTouchEvent.h"
 #include "CSensorEvent.h"
 #include "CNMEAEvent.h"
+#include <iostream>
 
 void RunReceiver(CDataReceiver& pReceiver)
 {
@@ -19,7 +20,16 @@ void RunReceiver(CDataReceiver& pReceiver)
       if(_kbhit())
       {
          auto c = _getch();
-         break;
+
+         if (c == 'q' || c == 'Q')
+         {
+            break;
+         }
+         if (c == 's' || c == 'S')
+         {
+            std::cout << pReceiver.GetStat();
+         }
+         
       }
    } while(true);
    pReceiver.StopThread();
@@ -36,9 +46,9 @@ void RunFRead()
 {
    CReceiverFile RF;
    printf("Loading...");
-   RF.LoadFile(R"(D:\AnDroid\2019_05_31-18_43_20.bin)");
-   RF.LoadFile(R"(D:\AnDroid\2019_05_31-20_26_41.bin)");
-   printf("OK");
+   RF.LoadFile(R"(D:\AnDroid\2019_05_31-21_46_50.bin)");
+   //RF.LoadFile(R"(D:\AnDroid\2019_05_31-20_26_41.bin)");
+ 
 
    RunReceiver(RF);
 }

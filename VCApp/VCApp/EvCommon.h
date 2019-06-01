@@ -64,3 +64,19 @@ class IEventReceiver : public std::enable_shared_from_this<IEventReceiver>
  private:
    uint32_t m_EvID;
 };
+
+
+
+class CTimeStampNS;
+template <typename DataT> class  EvPacketT
+{
+public:
+   EvPacketT(const CTimeStampNS &Time, const DataT &Dat) :m_NanoTime(Time), m_Data(Dat)
+   {
+
+   }
+
+private:
+   CTimeStampNS m_NanoTime;
+   DataT m_Data;
+};

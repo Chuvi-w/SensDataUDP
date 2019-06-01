@@ -517,3 +517,18 @@ void GPSService::read_GPVTG(const NMEASentence& nmea)
       throw pe;
    }
 }
+
+void nmea::GPSService::CreateFixIfNotExist(const NMEASentence& nmea)
+{
+   if (!nmea.valid()||nmea.sTalker.empty())
+   {
+      return;
+   }
+
+   if (mfix.find(nmea.sTalker) == mfix.end())
+   {
+      mfix[nmea.sTalker] = GPSFix();
+   }
+
+
+}

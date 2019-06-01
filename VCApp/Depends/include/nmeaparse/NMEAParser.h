@@ -35,7 +35,9 @@ class NMEASentence
 
  public:
    std::string              text;       // whole plaintext of the received command
-   std::string              name;       // name of the command
+   //std::string              name;       // name of the command
+   std::string              sTalker;
+   std::string              sMsgType;
    std::vector<std::string> parameters; // list of parameters from the command
    std::string              checksum;
    bool                     checksumIsCalculated;
@@ -60,6 +62,7 @@ class NMEASentence
 
    bool checksumOK() const;
    bool valid() const;
+   std::string GetName() const;
 };
 
 class NMEAParseError : public std::exception

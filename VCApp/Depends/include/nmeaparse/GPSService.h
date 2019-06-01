@@ -13,6 +13,7 @@
 #include <string>
 #include <chrono>
 #include <functional>
+#include <map>
 #include <nmeaparse/GPSFix.h>
 #include <nmeaparse/NMEAParser.h>
 #include <nmeaparse/Event.h>
@@ -30,8 +31,9 @@ class GPSService
    void read_GPRMC(const NMEASentence& nmea);
    void read_GPVTG(const NMEASentence& nmea);
 
+   void CreateFixIfNotExist(const NMEASentence& nmea);
  public:
-   GPSFix fix;
+   std::map<std::string,GPSFix> mfix;
 
    GPSService(NMEAParser& parser);
    virtual ~GPSService();

@@ -3,7 +3,9 @@
 #include "EvCommon.h"
 #include <map>
 #include <nmeaparse/nmea.h>
-
+#include "MatConv.h"
+#include "CTimeStamp.h"
+class CTimeStampNS;
 
 typedef struct LocationChangedEvent_s
 {
@@ -50,6 +52,20 @@ class CNMEAEvent : public IEventReceiver
    nmea::NMEAParser m_NMEAParser;
    nmea::GPSService m_NMEAGps;
 
-
+#ifdef NMEA_DEBUG_EVENTS
    std::map < std::string, std::map<std::string, uint32_t>> m_nEvTypes;
+
+   std::vector<std::string> m_vGPSLog;
+
+   typedef struct NMEALog_s
+   {
+      double lat, lng, speed;
+   }NMEALog_t;
+   std::vector<NMEALog_s> m_vCoordsLog, m_vCoordsLogNMEA;
+
+#endif
+
+   std::vector<EvPacketT<LocationChangedEvent_t>> m_vLocPackets;
+   CTimeStampNS m_LastPacketTS;
+
 };

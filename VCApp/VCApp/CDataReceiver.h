@@ -10,6 +10,7 @@
 //#include "CIMUSensors.h"
 #include <fstream>
 #include "EvCommon.h"
+#include <mutex>
 
 class CDataReceiver
 {
@@ -24,12 +25,13 @@ class CDataReceiver
    bool ProcessPacket(CDataPacket& Packet);
 
  public:
+
    CDataReceiver();
    bool AddListener(std::shared_ptr<IEventReceiver> pListener);
    void StopThread();
    void StartThread();
    void SetLogging(bool bLogging = true);
-
+   virtual std::string GetStat() const = 0;
  private:
    std::thread                                  m_pThread;
    std::atomic_bool                             m_bStopThread;
@@ -43,7 +45,10 @@ class CReceiverUDP : public CDataReceiver
    CReceiverUDP(uint16_t nPort);
    ~CReceiverUDP();
 
- protected:
+
+   virtual std::string GetStat() const override;
+
+protected:
    virtual void RecvThread() override;
 
  private:
@@ -71,13 +76,18 @@ class CReceiverFile : public CDataReceiver
    void SortPackets();
    bool LoadFile(const std::string& sFileName);
 
- private:
+
+   virtual std::string GetStat() const override;
+
+private:
    bool AddPacket(CDataPacket& pPacket);
 
  protected:
    virtual void RecvThread() override;
 
    std::vector<CDataPacket> m_vPackets;
+   size_t m_CurEvID;
+   mutable std::mutex m_RdLock;
 };
 
 #endif // CIMUReceiver_h__

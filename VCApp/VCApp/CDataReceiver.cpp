@@ -1,6 +1,7 @@
 #include "CDataReceiver.h"
 #include <inttypes.h>
 #include <algorithm>
+#include <sstream>
 #include "CTouchEvent.h"
 #include "CSensorEvent.h"
 #include "CDataPacket.h"
@@ -8,6 +9,11 @@
 CReceiverUDP::CReceiverUDP(uint16_t nPort) : m_nPort(nPort) {}
 
 CReceiverUDP::~CReceiverUDP() { StopThread(); }
+
+std::string CReceiverUDP::GetStat() const
+{
+   return "";
+}
 
 void CReceiverUDP::RecvThread()
 {
@@ -153,6 +159,14 @@ bool CReceiverFile::LoadFile(const std::string& sFileName)
    return true;
 }
 
+std::string CReceiverFile::GetStat() const
+{
+   std::lock_guard<std::mutex> AutoLock(m_RdLock);
+   std::stringstream ss;
+   ss << "Packets left=" << m_vPackets.size() - m_CurEvID << std::endl;
+   return ss.str();
+}
+
 bool CReceiverFile::AddPacket(CDataPacket& pPacket)
 {
 
@@ -170,18 +184,31 @@ bool CReceiverFile::AddPacket(CDataPacket& pPacket)
 
 void CReceiverFile::RecvThread()
 {
-
-   size_t nCurEvID = 0;
+   m_CurEvID = 0;
+   bool bNoMoreDataPrinted = false;
    do
    {
-      if(nCurEvID >= m_vPackets.size())
+      if (m_RdLock.try_lock())
       {
-         continue;
-      }
-      else
-      {
-         ProcessPacket(m_vPackets[nCurEvID]);
-         nCurEvID++;
+         if (m_CurEvID < m_vPackets.size())
+         {
+            ProcessPacket(m_vPackets[m_CurEvID]);
+            m_CurEvID++;
+            if (bNoMoreDataPrinted)
+            {
+               bNoMoreDataPrinted = false;
+            }
+         }
+         else
+         {
+            if (!bNoMoreDataPrinted)
+            {
+               bNoMoreDataPrinted = true;
+
+               printf("No more packets\n");
+            }
+         }
+         m_RdLock.unlock();
       }
 
    } while(!IsStopped());

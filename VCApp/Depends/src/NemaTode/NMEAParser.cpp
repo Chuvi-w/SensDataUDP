@@ -36,6 +36,11 @@ bool NMEASentence::valid() const { return isvalid; }
 
 bool NMEASentence::checksumOK() const { return (checksumIsCalculated) && (parsedChecksum == calculatedChecksum); }
 
+std::string nmea::NMEASentence::GetName() const
+{
+   return sTalker + sMsgType;
+}
+
 // true if the text contains a non-alpha numeric value
 bool hasNonAlphaNum(string txt)
 {
@@ -286,15 +291,20 @@ void NMEAParser::readSentence(std::string cmd)
    onSentence(nmea);
 
    // Call event handlers based on map entries
-   function<void(const NMEASentence&)> handler = eventTable[nmea.name];
-   if(!handler)
+   function<void(const NMEASentence&)> handler;
+   auto pFind = eventTable.find(nmea.GetName());
+   if (pFind != eventTable.end())
    {
-      if(nmea.name.length() == 5)
+      handler = pFind->second;
+   }
+   else
+   {
+      if (nmea.GetName().length() == 5)
       {
-         auto sMsgType = nmea.name.substr(2, nmea.name.length());
-         for(const auto &Event : eventTable)
+       
+         for (const auto &Event : eventTable)
          {
-            if(Event.first.length() == 5 && Event.first.find(sMsgType) == 2)
+            if (Event.first.length() == 5 && Event.first.find(nmea.sMsgType) == 2)
             {
                handler = Event.second;
                break;
@@ -302,14 +312,15 @@ void NMEAParser::readSentence(std::string cmd)
          }
       }
    }
+ 
    if(handler)
    {
-      onInfo(nmea, string("Calling specific handler for sentence named \"") + nmea.name + "\"");
+      onInfo(nmea, string("Calling specific handler for sentence named \"") + nmea.GetName() + "\"");
       handler(nmea);
    }
    else
    {
-      onWarning(nmea, string("Null event handler for type (name: \"") + nmea.name + "\")");
+      onWarning(nmea, string("Null event handler for type (name: \"") + nmea.GetName() + "\")");
    }
 
    cout.flags(oldflags); // reset
@@ -383,12 +394,20 @@ void NMEAParser::parseText(NMEASentence& nmea, string txt)
    { // comma not found, but there is a name...
       if(!txt.empty())
       { // the received data must just be the name
-         if(hasNonAlphaNum(txt))
+         
+         
+         if (txt.length() == 5)
+         {
+            nmea.sTalker = txt.substr(0, 2);
+            nmea.sMsgType = txt.substr(2, 3);
+         }
+         if (nmea.sTalker.empty() || nmea.sMsgType.empty() || hasNonAlphaNum(nmea.sTalker) || hasNonAlphaNum(nmea.sMsgType))
          {
             nmea.isvalid = false;
             return;
          }
-         nmea.name    = txt;
+
+        
          nmea.isvalid = true;
          return;
       }
@@ -407,8 +426,14 @@ void NMEAParser::parseText(NMEASentence& nmea, string txt)
    }
 
    // name should not include first comma
-   nmea.name = txt.substr(0, comma);
-   if(hasNonAlphaNum(nmea.name))
+   auto sFullName = txt.substr(0, comma);
+
+   if (sFullName.length() == 5)
+   {
+      nmea.sTalker = sFullName.substr(0, 2);
+      nmea.sMsgType = sFullName.substr(2, 3);
+   }
+   if (nmea.sTalker.empty() || nmea.sMsgType.empty() || hasNonAlphaNum(nmea.sTalker) || hasNonAlphaNum(nmea.sMsgType))
    {
       nmea.isvalid = false;
       return;
