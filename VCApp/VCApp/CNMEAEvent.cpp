@@ -5,37 +5,52 @@
 using namespace std;
 CNMEAEvent::CNMEAEvent(): IEventReceiver(NMEA_EV_ID), m_NMEAGps(m_NMEAParser)
 {
-   m_NMEAParser.log = true;
+   //m_NMEAParser.log = true;
 
-   m_NMEAGps.onUpdate += [this]()
-   {
-      printf("");
-   };
-#ifdef NMEA_DEBUG_EVENTS
+  
+
   // 
-   m_NMEAGps.onUpdate += [this]()
+   m_NMEAGps.onUpdate += [this](const std::string &sTalker, const nmea::GPSFix &Fix)
    {
-      auto &gps = this->m_NMEAGps;
       std::stringstream sOut;
-      sOut << gps.fix.timestamp.toString() << " " << (gps.fix.locked() ? "[*] " : "[ ] ") << setw(2) << setfill(' ') << gps.fix.trackingSatellites << "/" << setw(2) << setfill(' ') << gps.fix.visibleSatellites << " ";
-      sOut << fixed << setprecision(2) << setw(5) << setfill(' ') << gps.fix.almanac.averageSNR() << " dB   ";
-      sOut << fixed << setprecision(2) << setw(6) << setfill(' ') << gps.fix.speed << " km/h [" << nmea::GPSFix::travelAngleToCompassDirection(gps.fix.travelAngle, false) << "]  ";
-      sOut << fixed << setprecision(6) << gps.fix.latitude << "\xF8 " "N, " << gps.fix.longitude << "\xF8 " "E" << "  ";
-      sOut << "+/- " << setprecision(1) << gps.fix.horizontalAccuracy() << "m  ";
-      sOut << endl;
-      if (gps.fix.locked()&&gps.fix.latitude!=0.0&&gps.fix.longitude!=0.0)
+//       if (sTalker == "GP")
+//       {
+//          return;
+//       }
+
+      printf("NMEA_%s\n",sTalker.c_str());
+      for(const auto &Sat:Fix.almanac.satellites)
       {
-         if (m_vCoordsLogNMEA.empty() || (!m_vCoordsLogNMEA.empty() && m_vCoordsLogNMEA.back().lat != gps.fix.latitude&&m_vCoordsLogNMEA.back().lng != gps.fix.longitude))
+         printf("\t%s\n", Sat.toString().c_str());
+      }
+#ifdef NMEA_DEBUG_EVENTS
+      if (Fix.almanac.satellites.empty())
+      {
+         return;
+      }
+
+
+      sOut <<"["<<sTalker<<"]:"<< Fix.timestamp.toString() << " " << (Fix.locked() ? "[*] " : "[ ] ") << setw(2) << setfill(' ') << Fix.trackingSatellites << "/" << setw(2) << setfill(' ') << Fix.visibleSatellites << " ";
+      sOut << fixed << setprecision(2) << setw(5) << setfill(' ') << Fix.almanac.averageSNR() << " dB   ";
+      sOut << fixed << setprecision(2) << setw(6) << setfill(' ') << Fix.speed << " km/h [" << nmea::GPSFix::travelAngleToCompassDirection(Fix.travelAngle, false) << "]  ";
+      sOut << fixed << setprecision(6) << Fix.latitude << "\xF8 " "N, " << Fix.longitude << "\xF8 " "E" << "  ";
+      sOut << "+/- " << setprecision(1) << Fix.horizontalAccuracy() << "m  ";
+      sOut << endl;
+
+      if (Fix.locked()&&Fix.latitude!=0.0&&Fix.longitude!=0.0)
+      {
+         if (m_vCoordsLogNMEA.empty() || (!m_vCoordsLogNMEA.empty() && m_vCoordsLogNMEA.back().lat != Fix.latitude&&m_vCoordsLogNMEA.back().lng != Fix.longitude))
          {
-            m_vCoordsLogNMEA.push_back({ gps.fix.latitude, gps.fix.longitude, gps.fix.speed });
+            m_vCoordsLogNMEA.push_back({ Fix.latitude, Fix.longitude, Fix.speed });
          }
         
       }
       m_vGPSLog.push_back(sOut.str());
+#endif
       printf("%s", sOut.str().c_str());
      // std::cout << sOut.str();
    };
-#endif
+
 
 }
 
@@ -153,9 +168,9 @@ bool CNMEAEvent::ParseEvent(CDataPacket& pPacket)
          if(pPacket.GetData(LocEvent.sProvider) && pPacket.GetData(LocEvent.nTime) && pPacket.GetData(LocEvent.nElapsedRealtimeNanos) && pPacket.GetData(LocEvent.nFieldMask) && pPacket.GetData(LocEvent.dLatitude) && pPacket.GetData(LocEvent.dLongitude) && pPacket.GetData(LocEvent.dAltitude) && pPacket.GetData(LocEvent.flSpeed) && pPacket.GetData(LocEvent.flBearing) && pPacket.GetData(LocEvent.flAccuracy) && pPacket.GetData(LocEvent.flVerticalAccuracyMeters) && pPacket.GetData(LocEvent.flSpeedAccuracyMetersPerSecond) && pPacket.GetData(LocEvent.flBearingAccuracyDegrees))
          {
             m_vLocPackets.emplace_back(pPacket.GetNanoTime(),LocEvent);
-#ifdef NMEA_DEBUG_EVENTS
+#if 1//#ifdef NMEA_DEBUG_EVENTS
             // bswap(LocEvent.nElapsedRealtimeNanos);
-            m_vCoordsLog.push_back({ LocEvent.dLatitude, LocEvent.dLongitude,LocEvent.flSpeed });
+           // m_vCoordsLog.push_back({ LocEvent.dLatitude, LocEvent.dLongitude,LocEvent.flSpeed });
             printf("GPS %.9f %.9f %.9f %llu %llu %llu\n", LocEvent.dLatitude, LocEvent.dLongitude, LocEvent.dAltitude, LocEvent.nTime, LocEvent.nElapsedRealtimeNanos, pPacket.GetNanoTime().m_TS);
 #endif
          }

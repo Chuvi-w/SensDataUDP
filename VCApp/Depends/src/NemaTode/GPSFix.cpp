@@ -22,7 +22,7 @@ using namespace nmea;
 // ======================== GPS SATELLITE ====================
 // ===========================================================
 
-string GPSSatellite::toString()
+string GPSSatellite::toString() const
 {
    stringstream ss;
 
@@ -57,7 +57,7 @@ void GPSAlmanac::updateSatellite(GPSSatellite sat)
 
    satellites.push_back(sat);
 }
-double GPSAlmanac::percentComplete()
+double GPSAlmanac::percentComplete() const
 {
    if(totalPages == 0)
    {
@@ -66,7 +66,7 @@ double GPSAlmanac::percentComplete()
 
    return ((double)processedPages) / ((double)totalPages) * 100.0;
 }
-double GPSAlmanac::averageSNR()
+double GPSAlmanac::averageSNR() const
 {
 
    double avg      = 0;
@@ -89,7 +89,7 @@ double GPSAlmanac::averageSNR()
 
    return avg;
 }
-double GPSAlmanac::minSNR()
+double GPSAlmanac::minSNR() const
 {
    double min = 9999999;
    if(satellites.empty())
@@ -115,7 +115,7 @@ double GPSAlmanac::minSNR()
    return min;
 }
 
-double GPSAlmanac::maxSNR()
+double GPSAlmanac::maxSNR() const
 {
    double max = 0;
    for(const auto& satellite : satellites)
@@ -204,7 +204,7 @@ void GPSTimestamp::setDate(int32_t raw_date)
    }
 }
 
-std::string GPSTimestamp::toString()
+std::string GPSTimestamp::toString() const
 {
    std::stringstream ss;
    ss << hour << "h " << min << "m " << sec << "s"
@@ -260,7 +260,7 @@ seconds GPSFix::timeSinceLastUpdate()
    return seconds((uint64_t)secs);
 }
 
-bool GPSFix::hasEstimate() { return (latitude != 0 && longitude != 0) || (quality == 6); }
+bool GPSFix::hasEstimate() const { return (latitude != 0 && longitude != 0) || (quality == 6); }
 
 bool GPSFix::setlock(bool locked)
 {
@@ -272,24 +272,27 @@ bool GPSFix::setlock(bool locked)
    return false;
 }
 
-bool GPSFix::locked() { return haslock; }
+bool GPSFix::locked() const
+{
+   return haslock;
+}
 
 // Returns meters
-double GPSFix::horizontalAccuracy()
+double GPSFix::horizontalAccuracy() const
 {
    // horizontal 2drms 95% = 4.0  -- from GPS CHIP datasheets
    return 4.0 * horizontalDilution;
 }
 
 // Returns meters
-double GPSFix::verticalAccuracy()
+double GPSFix::verticalAccuracy() const
 {
    // Vertical 2drms 95% = 6.0  -- from GPS CHIP datasheets
    return 6.0 * verticalDilution;
 }
 
 // Takes a degree travel heading (0-360') and returns the name
-std::string GPSFix::travelAngleToCompassDirection(double deg, bool abbrev)
+std::string GPSFix::travelAngleToCompassDirection(double deg, bool abbrev) 
 {
 
    // normalize, just in case

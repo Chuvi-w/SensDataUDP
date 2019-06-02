@@ -1,154 +1,180 @@
 package com.example.sensdataudp;
-import java.io.File;
-import java.io.FileOutputStream;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.io.IOException;
-import java.io.ByteArrayOutputStream;
 
-import android.os.Environment;
-import android.util.Log;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import android.os.SystemClock;
-public class CNetStream {
+import android.net.wifi.WifiManager;
 
-    //private
-    private File OutFile;
-    private FileOutputStream fOutStream;
-    //private String mReceiverIP="192.168.1.10";
-    private String mReceiverIP="192.168.42.255";
-    public static DatagramSocket mSocket = null;
-    //public static DatagramPacket mPacket = null;
-    public static InetAddress mClientAdr=null;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-    public boolean start_UDP_Stream()
-    {
-        File DataDir=new File(Environment.getExternalStorageDirectory(), "SensDataUdp");
-      boolean dd1= DataDir.mkdirs();
-      boolean dd2=  DataDir.mkdir();
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+public class CNetStream
+{
 
-        final DateFormat dateFormat = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
-        OutFile = new File(DataDir.getAbsolutePath(), dateFormat.format(new Date(System.currentTimeMillis()))+".bin");
-        //OutFile.mkdirs();
-        try {
-            OutFile.createNewFile();
-        }catch (java.io.IOException e)
-        {
-            fOutStream=null;
-            OutFile=null;
-        }
-
-        try {
-            fOutStream = new FileOutputStream(OutFile);
-        }catch (java.io.FileNotFoundException e)
-        {
-            fOutStream=null;
-            OutFile=null;
-        }
-		/*
-		boolean isOnWifi = isOnWifi();
-    	if(isOnWifi == false)
-    	{
-    		showDialog(R.string.error_warningwifi);
-    		return false;
-    	}
-    	*/
+	public static DatagramSocket mSocket = null;
+	public static ArrayList<InetAddress> mBroadcastAddr = null;
+	public static ArrayList<InetAddress> mLocalAddr = null;
+	//private Queue<ArrayStream> mDataQueue = null;
+	private BlockingQueue<ArrayStream> mDataQueue = null;
+	private volatile boolean m_bThreadRunning = false;
+	private Thread mNetStreamThread=null;
 
 
-
-        try
-        {
-            mClientAdr = InetAddress.getByName(mReceiverIP);
-        }
-        catch (UnknownHostException e)
-        {
-            //showDialog(R.string.error_invalidaddr);
-            return false;
-        }
-        try
-        {
-            mSocket = new DatagramSocket();
-            mSocket.setReuseAddress(true);
-        }
-        catch (SocketException e)
-        {
-            mSocket = null;
-            //showDialog(R.string.error_neterror);
-            return false;
-        }
-        return true;
+	WifiManager m_WiFiMGR = null;
 
 
-    }
+	public CNetStream(WifiManager WiFiMgr)
+	{
+		m_WiFiMGR = WiFiMgr;
+		mBroadcastAddr = new ArrayList<InetAddress>();
+		mLocalAddr = new ArrayList<InetAddress>();
+		//mDataQueue=new ConcurrentLinkedQueue<ArrayStream>();
+		mDataQueue=new LinkedBlockingQueue<ArrayStream>();
+	}
 
-    public void stop_UDP_Stream()
-    {
-        if (mSocket != null)
-        {
-            mSocket.close();
-        }
-        mSocket = null;
-        mClientAdr = null;
-        try {
-            fOutStream.close();
-        }catch (IOException e)
-        {
-            fOutStream=null;
-        }
-        OutFile = null;
-
-    }
-
-    public void SendPacket(int PacketID, ArrayStream Pack)
-    {
-
-        ArrayStream OutPacket=new ArrayStream();
-        OutPacket.write(Integer.valueOf(0x1));
-        OutPacket.write(Integer.valueOf(PacketID));
-        OutPacket.write(Long.valueOf(System.nanoTime()));
-       // OutPacket.write(Long.valueOf(SystemClock.elapsedRealtimeNanos()));
-        OutPacket.write(Integer.valueOf(Pack.size()));
-        try {
-            OutPacket.write(Pack.toByteArray());
-        }
-        catch (IOException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            //Log.e("Error", "SendBlock");
-            return;
-        }
-        byte OutPacketArray[]=OutPacket.toByteArray();
+	public boolean StartStream()
+	{
 
 
-        try {
-            fOutStream.write(OutPacketArray);
-        }catch (IOException e)
-        {
-            fOutStream=null;
-        }
-        if(mSocket!=null&&mClientAdr!=null)
-        {
-            try {
+		if (!GetAvaiableBroadcastIP())
+		{
+			return false;
+		}
 
-                DatagramPacket packet = new DatagramPacket(OutPacketArray, OutPacketArray.length, mClientAdr, 4452);
-                mSocket.send(packet);
-            }
-            catch (IOException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                //Log.e("Error", "SendBlock");
-                return;
-            }
-        }
-    }
+		try
+		{
+			mSocket = new DatagramSocket();
+			//mSocket.setReuseAddress(true);
+		}
+		catch (SocketException e)
+		{
+			mSocket = null;
+			//showDialog(R.string.error_neterror);
+			return false;
+		}
 
+		mNetStreamThread=new Thread(new CNetStreamThread());
+		if(mNetStreamThread!=null)
+		{
+			m_bThreadRunning=true;
+			mNetStreamThread.start();
+			return  true;
+		}
+		return false;
+	}
+
+	public void StopStream()
+	{
+		m_bThreadRunning=false;
+		if (mNetStreamThread != null&&mNetStreamThread.isAlive())
+		{
+			mNetStreamThread.interrupt();
+			try
+			{
+				mNetStreamThread.join();
+			}
+			catch (java.lang.InterruptedException e)
+			{
+
+			}
+		}
+		if (mSocket != null)
+		{
+			mSocket.close();
+		}
+		mSocket = null;
+		mBroadcastAddr = null;
+	}
+
+	public void SendPacket(ArrayStream DataPacket)
+	{
+		mDataQueue.add(DataPacket);
+
+
+	}
+
+	private boolean GetAvaiableBroadcastIP()
+	{
+		mBroadcastAddr.clear();
+		try
+		{
+			List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+			for (NetworkInterface intf : interfaces)
+			{
+				List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
+				List<InterfaceAddress> intfAddrs = intf.getInterfaceAddresses();
+
+				for (InterfaceAddress IntF : intfAddrs)
+				{
+					InetAddress addr = IntF.getAddress();
+					InetAddress BroadAddr = IntF.getBroadcast();
+					if (!addr.isLoopbackAddress() && BroadAddr != null)
+					{
+						String sAddr = addr.getHostAddress();
+						boolean isIPv4 = sAddr.indexOf(':') < 0;
+						if (isIPv4)
+						{
+							mBroadcastAddr.add(BroadAddr);
+							mLocalAddr.add(addr);
+						}
+					}
+				}
+			}
+		}
+		catch (Exception ignored)
+		{
+		} // for now eat exceptions
+		return !mBroadcastAddr.isEmpty();
+	}
+	class CNetStreamThread implements Runnable
+	{
+		public void run()
+		{
+
+			while (!Thread.currentThread().isInterrupted()&&m_bThreadRunning)
+			{
+				//try
+				{
+					if (!mDataQueue.isEmpty())
+					{
+
+						byte [] OutPacketArray=mDataQueue.poll().toByteArray();
+						if (mSocket != null && mBroadcastAddr != null)
+						{
+							for (InetAddress BrAddr : mBroadcastAddr)
+							{
+								try
+								{
+									DatagramPacket packet = new DatagramPacket(OutPacketArray, OutPacketArray.length, BrAddr, 4452);
+									mSocket.send(packet);
+
+								}
+								catch (IOException e)
+								{
+
+								}
+							}
+						}
+					}
+				//	Thread.sleep(0,500);
+				}
+				//catch (InterruptedException ex)
+				//{
+				//	Thread.currentThread().interrupt();
+				//}
+
+			}
+		}
+	}
 
 }

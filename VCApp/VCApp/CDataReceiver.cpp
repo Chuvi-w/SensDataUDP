@@ -27,7 +27,7 @@ void CReceiverUDP::RecvThread()
    unsigned short RecvPort;
    m_Socket.setBlocking(false);
    CDataPacket DataPack;
-
+   size_t nPack = 0;
    do
    {
       stat = m_Socket.receive(RecvData, sizeof(RecvData), NumRecvBytes, RecvFrom, RecvPort);
@@ -38,9 +38,9 @@ void CReceiverUDP::RecvThread()
             RecvData[NumRecvBytes] = 0;
          }
          RecvName = std::string("IMU_UDP_") + RecvFrom.toString() + "_" + std::to_string(RecvPort);
-
-         DataPack.LoadData(RecvData, NumRecvBytes, RecvName);
-         ProcessPacket(DataPack);
+         printf("%u_%s\n",nPack++, RecvName.c_str());
+         //DataPack.LoadData(RecvData, NumRecvBytes, RecvName);
+         //ProcessPacket(DataPack);
       }
 
    } while(!IsStopped());

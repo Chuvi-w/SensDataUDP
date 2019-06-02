@@ -38,7 +38,7 @@ class GPSSatellite
    uint32_t    prn;       // id - 0-32
    double      elevation; // 0-90 deg
    double      azimuth;   // 0-359 deg
-   std::string toString();
+   std::string toString() const;
                operator std::string();
 };
 
@@ -61,10 +61,10 @@ class GPSAlmanac
 
    // mapped by prn
    std::vector<GPSSatellite> satellites;
-   double                    averageSNR();
-   double                    minSNR();
-   double                    maxSNR();
-   double                    percentComplete();
+   double                    averageSNR() const;
+   double                    minSNR() const;
+   double                    maxSNR() const;
+   double                    percentComplete() const;
 };
 
 // =========================== GPS TIMESTAMP =====================================
@@ -73,7 +73,7 @@ class GPSAlmanac
 class GPSTimestamp
 {
  private:
-   std::string monthName(uint32_t index);
+   static std::string monthName(uint32_t index);
 
  public:
    GPSTimestamp();
@@ -100,7 +100,7 @@ class GPSTimestamp
    // ddmmyy
    void setDate(int32_t raw_date);
 
-   std::string toString();
+   std::string toString() const;
 };
 
 // =========================== GPS FIX =====================================
@@ -143,10 +143,10 @@ class GPSFix
    int32_t trackingSatellites;
    int32_t visibleSatellites;
 
-   bool   locked();
-   double horizontalAccuracy();
-   double verticalAccuracy();
-   bool   hasEstimate();
+   bool   locked() const;
+   double horizontalAccuracy() const;
+   double verticalAccuracy() const;
+   bool   hasEstimate() const;
 
    std::chrono::seconds timeSinceLastUpdate(); // Returns seconds difference from last timestamp and right now.
 

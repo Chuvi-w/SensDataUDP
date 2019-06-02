@@ -127,9 +127,9 @@ void GPSService::read_GPGGA(const NMEASentence& nmea)
       {
          throw NMEAParseError("GPS data is missing parameters.");
       }
-
+      CreateFixIfNotExist(nmea);
       // TIMESTAMP
-      this->fix.timestamp.setTime(parseDouble(nmea.parameters[0]));
+      this->mfix[nmea.sTalker].timestamp.setTime(parseDouble(nmea.parameters[0]));
 
       string sll;
       string dir;
@@ -138,7 +138,7 @@ void GPSService::read_GPGGA(const NMEASentence& nmea)
       dir = nmea.parameters[2];
       if(!sll.empty())
       {
-         this->fix.latitude = convertLatLongToDeg(sll, dir);
+         this->mfix[nmea.sTalker].latitude = convertLatLongToDeg(sll, dir);
       }
 
       // LONG
@@ -146,35 +146,35 @@ void GPSService::read_GPGGA(const NMEASentence& nmea)
       dir = nmea.parameters[4];
       if(!sll.empty())
       {
-         this->fix.longitude = convertLatLongToDeg(sll, dir);
+         this->mfix[nmea.sTalker].longitude = convertLatLongToDeg(sll, dir);
       }
 
       // FIX QUALITY
       bool lockupdate   = false;
-      this->fix.quality = (uint8_t)parseInt(nmea.parameters[5]);
-      if(this->fix.quality == 0)
+      this->mfix[nmea.sTalker].quality = (uint8_t)parseInt(nmea.parameters[5]);
+      if(this->mfix[nmea.sTalker].quality == 0)
       {
-         lockupdate = this->fix.setlock(false);
+         lockupdate = this->mfix[nmea.sTalker].setlock(false);
       }
-      else if(this->fix.quality == 1)
+      else if(this->mfix[nmea.sTalker].quality == 1)
       {
-         lockupdate = this->fix.setlock(true);
+         lockupdate = this->mfix[nmea.sTalker].setlock(true);
       }
       else
       {
       }
 
       // TRACKING SATELLITES
-      this->fix.trackingSatellites = (int32_t)parseInt(nmea.parameters[6]);
-      if(this->fix.visibleSatellites < this->fix.trackingSatellites)
+      this->mfix[nmea.sTalker].trackingSatellites = (int32_t)parseInt(nmea.parameters[6]);
+      if(this->mfix[nmea.sTalker].visibleSatellites < this->mfix[nmea.sTalker].trackingSatellites)
       {
-         this->fix.visibleSatellites = this->fix.trackingSatellites; // the visible count is in another sentence.
+         this->mfix[nmea.sTalker].visibleSatellites = this->mfix[nmea.sTalker].trackingSatellites; // the visible count is in another sentence.
       }
 
       // ALTITUDE
       if(!nmea.parameters[8].empty())
       {
-         this->fix.altitude = parseDouble(nmea.parameters[8]);
+         this->mfix[nmea.sTalker].altitude = parseDouble(nmea.parameters[8]);
       }
       else
       {
@@ -184,9 +184,9 @@ void GPSService::read_GPGGA(const NMEASentence& nmea)
       // calling handlers
       if(lockupdate)
       {
-         this->onLockStateChanged(this->fix.haslock);
+         this->onLockStateChanged(this->mfix[nmea.sTalker].haslock);
       }
-      this->onUpdate();
+      this->onUpdate(nmea.sTalker, this->mfix[nmea.sTalker]);
    }
    catch(NumberConversionError& ex)
    {
@@ -231,18 +231,18 @@ void GPSService::read_GPGSA(const NMEASentence& nmea)
       {
          throw NMEAParseError("GPS data is missing parameters.");
       }
-
+      CreateFixIfNotExist(nmea);
       // FIX TYPE
       bool     lockupdate = false;
       uint64_t fixtype    = parseInt(nmea.parameters[1]);
-      this->fix.type      = (int8_t)fixtype;
+      this->mfix[nmea.sTalker].type      = (int8_t)fixtype;
       if(fixtype == 1)
       {
-         lockupdate = this->fix.setlock(false);
+         lockupdate = this->mfix[nmea.sTalker].setlock(false);
       }
       else if(fixtype == 3)
       {
-         lockupdate = this->fix.setlock(true);
+         lockupdate = this->mfix[nmea.sTalker].setlock(true);
       }
       else
       {
@@ -250,22 +250,22 @@ void GPSService::read_GPGSA(const NMEASentence& nmea)
 
       // DILUTION OF PRECISION  -- PDOP
       double dop         = parseDouble(nmea.parameters[14]);
-      this->fix.dilution = dop;
+      this->mfix[nmea.sTalker].dilution = dop;
 
       // HORIZONTAL DILUTION OF PRECISION -- HDOP
       double hdop                  = parseDouble(nmea.parameters[15]);
-      this->fix.horizontalDilution = hdop;
+      this->mfix[nmea.sTalker].horizontalDilution = hdop;
 
       // VERTICAL DILUTION OF PRECISION -- VDOP
       double vdop                = parseDouble(nmea.parameters[16]);
-      this->fix.verticalDilution = vdop;
+      this->mfix[nmea.sTalker].verticalDilution = vdop;
 
       // calling handlers
       if(lockupdate)
       {
-         this->onLockStateChanged(this->fix.haslock);
+         this->onLockStateChanged(this->mfix[nmea.sTalker].haslock);
       }
-      this->onUpdate();
+      this->onUpdate(nmea.sTalker, this->mfix[nmea.sTalker]);
    }
    catch(NumberConversionError& ex)
    {
@@ -309,17 +309,17 @@ void GPSService::read_GPGSV(const NMEASentence& nmea)
       {
          throw NMEAParseError("Checksum is invalid!");
       }
-
+      CreateFixIfNotExist(nmea);
       // can't do this check because the length varies depending on satallites...
       // if(nmea.parameters.size() < 18){
       //	throw NMEAParseError("GPS data is missing parameters.");
       //}
 
       // VISIBLE SATELLITES
-      this->fix.visibleSatellites = (int32_t)parseInt(nmea.parameters[2]);
-      if(this->fix.trackingSatellites == 0)
+      this->mfix[nmea.sTalker].visibleSatellites = (int32_t)parseInt(nmea.parameters[2]);
+      if(this->mfix[nmea.sTalker].trackingSatellites == 0)
       {
-         this->fix.visibleSatellites = 0; // if no satellites are tracking, then none are visible!
+         this->mfix[nmea.sTalker].visibleSatellites = 0; // if no satellites are tracking, then none are visible!
       }                                   // Also NMEA defaults to 12 visible when chip powers on. Obviously not right.
 
       uint32_t totalPages  = (uint32_t)parseInt(nmea.parameters[0]);
@@ -328,13 +328,13 @@ void GPSService::read_GPGSV(const NMEASentence& nmea)
       // if this is the first page, then reset the almanac
       if(currentPage == 1)
       {
-         this->fix.almanac.clear();
+         this->mfix[nmea.sTalker].almanac.clear();
          // cout << "CLEARING ALMANAC" << endl;
       }
 
-      this->fix.almanac.lastPage    = currentPage;
-      this->fix.almanac.totalPages  = totalPages;
-      this->fix.almanac.visibleSize = this->fix.visibleSatellites;
+      this->mfix[nmea.sTalker].almanac.lastPage    = currentPage;
+      this->mfix[nmea.sTalker].almanac.totalPages  = totalPages;
+      this->mfix[nmea.sTalker].almanac.visibleSize = this->mfix[nmea.sTalker].visibleSatellites;
 
       int entriesInPage = (nmea.parameters.size() - 3) >> 2; // first 3 are not satellite info
       //- entries come in 4-ples, and truncate, so used shift
@@ -350,19 +350,19 @@ void GPSService::read_GPGSV(const NMEASentence& nmea)
          sat.snr       = (uint32_t)parseInt(nmea.parameters[prop + 3]);
 
          // cout << "ADDING SATELLITE ::" << sat.toString() << endl;
-         this->fix.almanac.updateSatellite(sat);
+         this->mfix[nmea.sTalker].almanac.updateSatellite(sat);
       }
 
-      this->fix.almanac.processedPages++;
+      this->mfix[nmea.sTalker].almanac.processedPages++;
 
       //
-      if(this->fix.visibleSatellites == 0)
+      if(this->mfix[nmea.sTalker].visibleSatellites == 0)
       {
-         this->fix.almanac.clear();
+         this->mfix[nmea.sTalker].almanac.clear();
       }
 
-      // cout << "ALMANAC FINISHED page " << this->fix.almanac.processedPages << " of " << this->fix.almanac.totalPages << endl;
-      this->onUpdate();
+      // cout << "ALMANAC FINISHED page " << this->mfix[nmea.sTalker].almanac.processedPages << " of " << this->mfix[nmea.sTalker].almanac.totalPages << endl;
+      this->onUpdate(nmea.sTalker, this->mfix[nmea.sTalker]);
    }
    catch(NumberConversionError& ex)
    {
@@ -408,9 +408,9 @@ void GPSService::read_GPRMC(const NMEASentence& nmea)
       {
          throw NMEAParseError("GPS data is missing parameters.");
       }
-
+      CreateFixIfNotExist(nmea);
       // TIMESTAMP
-      this->fix.timestamp.setTime(parseDouble(nmea.parameters[0]));
+      this->mfix[nmea.sTalker].timestamp.setTime(parseDouble(nmea.parameters[0]));
 
       string sll;
       string dir;
@@ -419,7 +419,7 @@ void GPSService::read_GPRMC(const NMEASentence& nmea)
       dir = nmea.parameters[3];
       if(!sll.empty())
       {
-         this->fix.latitude = convertLatLongToDeg(sll, dir);
+         this->mfix[nmea.sTalker].latitude = convertLatLongToDeg(sll, dir);
       }
 
       // LONG
@@ -427,7 +427,7 @@ void GPSService::read_GPRMC(const NMEASentence& nmea)
       dir = nmea.parameters[5];
       if(!sll.empty())
       {
-         this->fix.longitude = convertLatLongToDeg(sll, dir);
+         this->mfix[nmea.sTalker].longitude = convertLatLongToDeg(sll, dir);
       }
 
       // ACTIVE
@@ -437,30 +437,30 @@ void GPSService::read_GPRMC(const NMEASentence& nmea)
       {
          status = nmea.parameters[1][0];
       }
-      this->fix.status = status;
+      this->mfix[nmea.sTalker].status = status;
       if(status == 'V')
       {
-         lockupdate = this->fix.setlock(false);
+         lockupdate = this->mfix[nmea.sTalker].setlock(false);
       }
       else if(status == 'A')
       {
-         lockupdate = this->fix.setlock(true);
+         lockupdate = this->mfix[nmea.sTalker].setlock(true);
       }
       else
       {
-         lockupdate = this->fix.setlock(false); // not A or V, so must be wrong... no lock
+         lockupdate = this->mfix[nmea.sTalker].setlock(false); // not A or V, so must be wrong... no lock
       }
 
-      this->fix.speed       = convertKnotsToKilometersPerHour(parseDouble(nmea.parameters[6])); // received as knots, convert to km/h
-      this->fix.travelAngle = parseDouble(nmea.parameters[7]);
-      this->fix.timestamp.setDate((int32_t)parseInt(nmea.parameters[8]));
+      this->mfix[nmea.sTalker].speed       = convertKnotsToKilometersPerHour(parseDouble(nmea.parameters[6])); // received as knots, convert to km/h
+      this->mfix[nmea.sTalker].travelAngle = parseDouble(nmea.parameters[7]);
+      this->mfix[nmea.sTalker].timestamp.setDate((int32_t)parseInt(nmea.parameters[8]));
 
       // calling handlers
       if(lockupdate)
       {
-         this->onLockStateChanged(this->fix.haslock);
+         this->onLockStateChanged(this->mfix[nmea.sTalker].haslock);
       }
-      this->onUpdate();
+      this->onUpdate(nmea.sTalker, this->mfix[nmea.sTalker]);
    }
    catch(NumberConversionError& ex)
    {
@@ -494,17 +494,17 @@ void GPSService::read_GPVTG(const NMEASentence& nmea)
       {
          throw NMEAParseError("Checksum is invalid!");
       }
-
+    
       if(nmea.parameters.size() < 8)
       {
          throw NMEAParseError("GPS data is missing parameters.");
       }
-
+      CreateFixIfNotExist(nmea);
       // SPEED
       // if empty, is converted to 0
-      this->fix.speed = parseDouble(nmea.parameters[6]); // km/h
+      this->mfix[nmea.sTalker].speed = parseDouble(nmea.parameters[6]); // km/h
 
-      this->onUpdate();
+      this->onUpdate(nmea.sTalker, this->mfix[nmea.sTalker]);
    }
    catch(NumberConversionError& ex)
    {

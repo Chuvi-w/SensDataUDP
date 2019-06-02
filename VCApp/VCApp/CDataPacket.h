@@ -2,6 +2,28 @@
 #include "EvCommon.h"
 #include "CTimeStamp.h"
 
+class CSourceTypeBase
+{
+protected:
+   CSourceTypeBase()
+   {
+
+   }
+
+
+
+};
+
+
+class CSourceTypeFile
+{
+public:
+   CSourceTypeFile()
+   {
+
+   }
+};
+
 class CDataPacket
 {
  public:
