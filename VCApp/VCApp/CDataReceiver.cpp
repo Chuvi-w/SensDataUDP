@@ -118,7 +118,10 @@ void CReceiverFile::ResetPackets() { m_vPackets.clear(); }
 
 void CReceiverFile::SortPackets()
 {
-   std::sort(m_vPackets.begin(), m_vPackets.end(), [](const CDataPacket& p1, const CDataPacket& p2) { return p1.GetNanoTime() < p2.GetNanoTime(); });
+   std::sort(m_vPackets.begin(), m_vPackets.end(), [](const CDataPacket& p1, const CDataPacket& p2)
+   {
+      return p1.GetNanoTime() < p2.GetNanoTime();
+   });
 }
 
 bool CReceiverFile::LoadFile(const std::string& sFileName)
@@ -165,6 +168,54 @@ std::string CReceiverFile::GetStat() const
    std::stringstream ss;
    ss << "Packets left=" << m_vPackets.size() - m_CurEvID << std::endl;
    return ss.str();
+}
+
+void CReceiverFile::GetTimeMinMaxSKO()
+{
+   std::sort(m_vPackets.begin(), m_vPackets.end(), [](const CDataPacket& p1, const CDataPacket& p2)
+   {
+      return p1.GetNanoTime() < p2.GetNanoTime();
+   });
+   int64_t DiffMin = INT64_MAX;
+   int64_t DiffMax = 0;
+   CTimeStampNS TimeDiff, nCurTS;
+   auto nPrevTS = m_vPackets.front().GetNanoTime();
+   std::vector<int64_t> vTimeDiff;
+
+   double dTimeDiffSum = 0, dTimeDiffAvg;
+
+   double dSKOSum = 0, dSKO;
+   for(size_t i = 1; i < m_vPackets.size(); i++)
+   {
+      nCurTS = m_vPackets[i].GetNanoTime();
+      TimeDiff = nCurTS - nPrevTS;
+      nPrevTS = nCurTS;
+      dTimeDiffSum += TimeDiff.m_TS;
+      vTimeDiff.push_back(TimeDiff.m_TS);
+      if(TimeDiff.m_TS < DiffMin)
+      {
+         DiffMin = TimeDiff.m_TS;
+      }
+
+      if(TimeDiff.m_TS > DiffMax)
+      {
+         DiffMax = TimeDiff.m_TS;
+      }
+
+   }
+   dTimeDiffAvg = dTimeDiffSum / double(vTimeDiff.size());
+   for(const auto &D : vTimeDiff)
+   {
+      dSKOSum = abs((double)D - dTimeDiffAvg)*abs((double)D - dTimeDiffAvg);
+   }
+
+   dSKO = sqrt(dSKOSum / double(vTimeDiff.size()));
+
+   printf("Time Min=%llu. Max=%llu\n", DiffMin, DiffMax);
+
+
+   printf("");
+
 }
 
 bool CReceiverFile::AddPacket(CDataPacket& pPacket)

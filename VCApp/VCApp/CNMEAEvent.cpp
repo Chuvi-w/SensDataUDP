@@ -3,26 +3,93 @@
 #include <iostream>
 #include <iomanip>
 using namespace std;
+
+
+#include <windows.h> 
+#include <thread>
+#include <chrono>
+
+void gotoxy(int x, int y)
+{
+   COORD coord;
+   coord.X = x;
+   coord.Y = y;
+   SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+std::map<uint32_t, std::string> g_KnownPrn;
+
 CNMEAEvent::CNMEAEvent(): IEventReceiver(NMEA_EV_ID), m_NMEAGps(m_NMEAParser)
 {
    //m_NMEAParser.log = true;
 
-  
-
+ 
+   
   // 
    m_NMEAGps.onUpdate += [this](const std::string &sTalker, const nmea::GPSFix &Fix)
    {
       std::stringstream sOut;
+      bool bSatFound;
+     
 //       if (sTalker == "GP")
 //       {
 //          return;
 //       }
 
-      printf("NMEA_%s\n",sTalker.c_str());
-      for(const auto &Sat:Fix.almanac.satellites)
+      auto EmptySatString = [](uint32_t prn)
       {
-         printf("\t%s\n", Sat.toString().c_str());
+         stringstream ss;
+
+         ss << "[PRN: " << setw(3) << setfill(' ') << prn << " "
+            << "  SNR: " << setw(3) << setfill(' ') << 0.0 << " dB  "
+            << "  Azimuth: " << setw(3) << setfill(' ') << 0.0 << " deg "
+            << "  Elevation: " << setw(3) << setfill(' ') << 0.0 << " deg  "
+            << "]";
+
+         return ss.str();
+      };
+
+      if(Fix.almanac.satellites.empty())
+      {
+         return;
       }
+
+      sOut << "[" << sTalker << "]:" << Fix.timestamp.toString() << " " << (Fix.locked() ? "[*] " : "[ ] ") << setw(2) << setfill(' ') << Fix.trackingSatellites << "/" << setw(2) << setfill(' ') << Fix.visibleSatellites << " ";
+      sOut << fixed << setprecision(2) << setw(5) << setfill(' ') << Fix.almanac.averageSNR() << " dB   ";
+      sOut << fixed << setprecision(2) << setw(6) << setfill(' ') << Fix.speed << " km/h [" << nmea::GPSFix::travelAngleToCompassDirection(Fix.travelAngle, false) << "]  ";
+      sOut << fixed << setprecision(6) << Fix.latitude << "\xF8 " "N, " << Fix.longitude << "\xF8 " "E" << "  ";
+      sOut << "+/- " << setprecision(1) << Fix.horizontalAccuracy() << "m  ";
+      sOut << endl;
+
+      //printf("NMEA_%s\n",sTalker.c_str());
+      for(const auto &Sat : Fix.almanac.satellites)
+      {
+         g_KnownPrn[Sat.prn] = Sat.toString();
+      }
+      gotoxy(0, 1);
+      printf("%s\n", sOut.str().c_str());
+      for(auto t : g_KnownPrn)
+      {
+         bSatFound = false;
+         for(const auto &Sat : Fix.almanac.satellites)
+         {
+            if(Sat.prn == t.first)
+            {
+               bSatFound = true;
+               printf("\t[*]%s\n", Sat.toString().c_str());
+            }
+         }
+         if(!bSatFound)
+         {
+           // printf("\t[o]%s\n", EmptySatString(t.first).c_str());
+            printf("\t[o]%s\n", t.second.c_str());
+         }
+
+         std::this_thread::sleep_for(std::chrono::microseconds(20));
+        // Sleep(2);
+      }
+
+     
 #ifdef NMEA_DEBUG_EVENTS
       if (Fix.almanac.satellites.empty())
       {
@@ -47,6 +114,7 @@ CNMEAEvent::CNMEAEvent(): IEventReceiver(NMEA_EV_ID), m_NMEAGps(m_NMEAParser)
       }
       m_vGPSLog.push_back(sOut.str());
 #endif
+     
       printf("%s", sOut.str().c_str());
      // std::cout << sOut.str();
    };
@@ -171,6 +239,7 @@ bool CNMEAEvent::ParseEvent(CDataPacket& pPacket)
 #if 1//#ifdef NMEA_DEBUG_EVENTS
             // bswap(LocEvent.nElapsedRealtimeNanos);
            // m_vCoordsLog.push_back({ LocEvent.dLatitude, LocEvent.dLongitude,LocEvent.flSpeed });
+            gotoxy(0, 0);
             printf("GPS %.9f %.9f %.9f %llu %llu %llu\n", LocEvent.dLatitude, LocEvent.dLongitude, LocEvent.dAltitude, LocEvent.nTime, LocEvent.nElapsedRealtimeNanos, pPacket.GetNanoTime().m_TS);
 #endif
          }

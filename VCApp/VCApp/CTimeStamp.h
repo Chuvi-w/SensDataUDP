@@ -13,7 +13,7 @@ class CTimeStampNS
    bool         operator==(const CTimeStampNS& pOther) const;
    CTimeStampNS operator-(const CTimeStampNS& pOther) const { return CTimeStampNS(m_TS - pOther.m_TS); }
 
-   bool operator<=(int32_t Time) { return m_TS <= Time; }
+   bool operator<=(int32_t Time) const  { return m_TS <= Time; }
 
    int64_t m_TS;
 };

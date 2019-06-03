@@ -80,6 +80,8 @@ class CReceiverFile : public CDataReceiver
    virtual std::string GetStat() const override;
 
 private:
+
+   void GetTimeMinMaxSKO();
    bool AddPacket(CDataPacket& pPacket);
 
  protected:
