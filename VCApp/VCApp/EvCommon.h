@@ -56,7 +56,7 @@ class IEventReceiver : public std::enable_shared_from_this<IEventReceiver>
    IEventReceiver(uint32_t nEvID) : m_EvID(nEvID) {}
    IEventReceiver(const IEventReceiver& pEv) : m_EvID(pEv.m_EvID) {}
    ~IEventReceiver() {}
-   virtual bool ParseEvent(CDataPacket& pPacket) = 0;
+   virtual bool ParseEvent(const  CDataPacket& pPacket) = 0;
 
    virtual std::shared_ptr<IEventReceiver> GetEvShared() = 0;
    uint32_t                                GetEventID() const { return m_EvID; }

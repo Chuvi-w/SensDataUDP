@@ -22,7 +22,7 @@ class CDataReceiver
    std::atomic_bool IsStopped() const;
 
    bool ProcessPacket(const std::string& RecvName, const void* pPacket, size_t nDataSize);
-   bool ProcessPacket(CDataPacket& Packet);
+   bool ProcessPacket(const CDataPacket& Packet);
 
  public:
 

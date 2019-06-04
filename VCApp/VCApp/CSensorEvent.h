@@ -22,7 +22,7 @@ class CSensorEvent : public IEventReceiver
 
    ~CSensorEvent();
 
-   virtual bool ParseEvent(CDataPacket& pPacket) override;
+   virtual bool ParseEvent(const CDataPacket& pPacket) override;
 
    virtual std::shared_ptr<IEventReceiver> GetEvShared() override;
 

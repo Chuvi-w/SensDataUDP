@@ -55,9 +55,9 @@ void RunFRead()
 int main()
 {
 
-   RunFRead();
+  // RunFRead();
 
-   // RunUDP();
+  RunUDP();
 
    return 1;
 }

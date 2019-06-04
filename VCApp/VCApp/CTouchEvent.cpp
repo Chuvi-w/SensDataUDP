@@ -8,7 +8,7 @@ CTouchEvent::CTouchEvent() : IEventReceiver(TOUCH_EV_ID) {}
 
 CTouchEvent::~CTouchEvent() {}
 
-bool CTouchEvent::ParseEvent(CDataPacket& pPacket)
+bool CTouchEvent::ParseEvent(const CDataPacket& pPacket)
 {
    if(pPacket.GetDataSize() < sizeof(MotionEvent_t))
    {

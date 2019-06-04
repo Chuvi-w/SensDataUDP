@@ -26,8 +26,11 @@ void CReceiverUDP::RecvThread()
    std::string    RecvName;
    unsigned short RecvPort;
    m_Socket.setBlocking(false);
+   std::vector<CDataPacket> vPack;
    CDataPacket DataPack;
    size_t nPack = 0;
+   size_t LoadOffset;
+   int32_t LoadSize;
    do
    {
       stat = m_Socket.receive(RecvData, sizeof(RecvData), NumRecvBytes, RecvFrom, RecvPort);
@@ -38,9 +41,27 @@ void CReceiverUDP::RecvThread()
             RecvData[NumRecvBytes] = 0;
          }
          RecvName = std::string("IMU_UDP_") + RecvFrom.toString() + "_" + std::to_string(RecvPort);
-         printf("%u_%s\n",nPack++, RecvName.c_str());
-         //DataPack.LoadData(RecvData, NumRecvBytes, RecvName);
-         //ProcessPacket(DataPack);
+        
+
+         LoadOffset = 0;
+         vPack.clear();
+         do 
+         {
+            LoadSize = DataPack.LoadData(&RecvData[LoadOffset], NumRecvBytes - LoadOffset, RecvName);
+            if(LoadSize < 0)
+            {
+               break;
+            }
+            vPack.push_back(DataPack);
+            LoadOffset += LoadSize;
+         } while (true);
+        
+         for(const auto &p : vPack)
+         {
+            printf("%u_%s %u\n", nPack++, RecvName.c_str(), NumRecvBytes);
+            ProcessPacket(p);
+         }
+       
       }
 
    } while(!IsStopped());
@@ -50,7 +71,7 @@ CDataReceiver::~CDataReceiver() {}
 
 std::atomic_bool CDataReceiver::IsStopped() const { return m_bStopThread; }
 
-bool CDataReceiver::ProcessPacket(CDataPacket& Packet)
+bool CDataReceiver::ProcessPacket(const CDataPacket& Packet)
 {
    if(!Packet.IsValid())
    {

@@ -32,7 +32,7 @@ class CDataPacket
    ~CDataPacket();
 
    int32_t                    LoadData(void* pData, size_t nDataSize, const std::string& sSourceName);
-   template <typename T> bool GetData(T* Data, size_t nElementsCount)
+   template <typename T> bool GetData(T* Data, size_t nElementsCount) const
    {
       if(!m_nData || m_nReadPos + (sizeof(T) * nElementsCount) > m_nData->size())
       {
@@ -49,7 +49,7 @@ class CDataPacket
       m_nReadPos += (sizeof(T) * nElementsCount);
       return true;
    }
-   template <typename T> bool GetData(T& Data)
+   template <typename T> bool GetData(T& Data) const
    {
       if(!m_nData || m_nReadPos + sizeof(T) > m_nData->size())
       {
@@ -65,7 +65,7 @@ class CDataPacket
       return true;
    }
 
-   template <> bool GetData(std::string& sString)
+   template <> bool GetData(std::string& sString) const
    {
 
       uint32_t nStringLen;
@@ -93,7 +93,7 @@ class CDataPacket
  private:
    // void *m_nData;
    std::shared_ptr<std::vector<uint8_t>> m_nData;
-   size_t                                m_nReadPos;
+   mutable size_t                                m_nReadPos;
    bool                                  m_bEndian;
    CTimeStampNS                          m_nNanoTime;
    uint64_t                              m_nPacketID;

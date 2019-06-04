@@ -53,13 +53,13 @@ CNMEAEvent::CNMEAEvent(): IEventReceiver(NMEA_EV_ID), m_NMEAGps(m_NMEAParser)
       {
          return;
       }
-
-      sOut << "[" << sTalker << "]:" << Fix.timestamp.toString() << " " << (Fix.locked() ? "[*] " : "[ ] ") << setw(2) << setfill(' ') << Fix.trackingSatellites << "/" << setw(2) << setfill(' ') << Fix.visibleSatellites << " ";
-      sOut << fixed << setprecision(2) << setw(5) << setfill(' ') << Fix.almanac.averageSNR() << " dB   ";
-      sOut << fixed << setprecision(2) << setw(6) << setfill(' ') << Fix.speed << " km/h [" << nmea::GPSFix::travelAngleToCompassDirection(Fix.travelAngle, false) << "]  ";
-      sOut << fixed << setprecision(6) << Fix.latitude << "\xF8 " "N, " << Fix.longitude << "\xF8 " "E" << "  ";
-      sOut << "+/- " << setprecision(1) << Fix.horizontalAccuracy() << "m  ";
-      sOut << endl;
+     gotoxy(0, 1);
+//       sOut << "[" << sTalker << "]:" << Fix.timestamp.toString() << " " << (Fix.locked() ? "[*] " : "[ ] ") << setw(2) << setfill(' ') << Fix.trackingSatellites << "/" << setw(2) << setfill(' ') << Fix.visibleSatellites << " ";
+//       sOut << fixed << setprecision(2) << setw(5) << setfill(' ') << Fix.almanac.averageSNR() << " dB   ";
+//       sOut << fixed << setprecision(2) << setw(6) << setfill(' ') << Fix.speed << " km/h [" << nmea::GPSFix::travelAngleToCompassDirection(Fix.travelAngle, false) << "]  ";
+//       sOut << fixed << setprecision(6) << Fix.latitude << "\xF8 " "N, " << Fix.longitude << "\xF8 " "E" << "  ";
+//       sOut << "+/- " << setprecision(1) << Fix.horizontalAccuracy() << "m  ";
+//       sOut << endl;
 
       //printf("NMEA_%s\n",sTalker.c_str());
       for(const auto &Sat : Fix.almanac.satellites)
@@ -67,7 +67,7 @@ CNMEAEvent::CNMEAEvent(): IEventReceiver(NMEA_EV_ID), m_NMEAGps(m_NMEAParser)
          g_KnownPrn[Sat.prn] = Sat.toString();
       }
       gotoxy(0, 1);
-      printf("%s\n", sOut.str().c_str());
+      //printf("%s\n", sOut.str().c_str());
       for(auto t : g_KnownPrn)
       {
          bSatFound = false;
@@ -169,7 +169,7 @@ CNMEAEvent::~CNMEAEvent()
 #endif
 }
 
-bool CNMEAEvent::ParseEvent(CDataPacket& pPacket)
+bool CNMEAEvent::ParseEvent(const CDataPacket& pPacket)
 {
 
    int32_t         nPacketID;

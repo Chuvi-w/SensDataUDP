@@ -6,7 +6,7 @@ CSensorEvent::CSensorEvent() : IEventReceiver(SENSOR_EV_ID) {}
 
 CSensorEvent::~CSensorEvent() {}
 
-bool CSensorEvent::ParseEvent(CDataPacket& pPacket)
+bool CSensorEvent::ParseEvent(const CDataPacket& pPacket)
 {
    ComSensorsHdr_t SensHDR;
    float*          FlValue = nullptr;
