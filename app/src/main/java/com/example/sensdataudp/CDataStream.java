@@ -1,68 +1,91 @@
 package com.example.sensdataudp;
+import android.widget.TextView;
 
-import java.io.IOException;
-
-public class CDataStream
+public class CDataStream implements IStreamInterface
 {
+    private CNetStream m_NetStream = null;
+    private CFileStream m_FileStream = null;
+    private long m_LastPacketTime = 0;
+    private boolean m_bStreamEnable = false;
+    private ArrayStream m_MultiPack = null;
+    private boolean m_bStartNet =false;
+    private boolean m_bStartFile =false;
+    private StringBuilder mSB=null;
+    private TextView m_TextView;
 
-	CNetStream m_NetStream = null;
-	CFileStream m_FileStream = null;
+    CDataStream(CNetStream NetStream, TextView tv)
+    {
+        m_NetStream = NetStream;
+        m_FileStream = new CFileStream();
+        m_MultiPack = new ArrayStream();
+        mSB=new StringBuilder();
+        m_TextView=tv;
+    }
 
-	long m_LastPacketTime=0;
-	boolean m_bStreamEnable=false;
-	ArrayStream m_MultiPack =null;
-	CDataStream(CNetStream NetStream)
-	{
-		m_NetStream = NetStream;
-		m_FileStream = new CFileStream();
-		m_MultiPack= new ArrayStream();
-	}
+    @Override
+    public boolean StartStream()
+    {
+       m_bStartNet = m_NetStream.StartStream();
+       m_bStartFile = m_FileStream.StartStream();
+        m_bStreamEnable = m_bStartFile || m_bStartNet;
+        return m_bStreamEnable;
+    }
 
-	public boolean StartStream()
-	{
+    @Override
+    public void StopStream()
+    {
+        m_FileStream.StopStream();
+        m_NetStream.StopStream();
+        m_bStreamEnable = false;
+    }
 
+    @Override
+    public void SendPacket(ArrayStream DataPacket)
+    {
+    }
 
-		boolean bStartNet = m_NetStream.StartStream();
-		boolean bStartFile = m_FileStream.StartStream();
-		m_bStreamEnable=bStartFile || bStartNet;
-		return m_bStreamEnable;
-	}
+    @Override
+    public StringBuilder GetStat()
+    {
+        mSB.setLength(0);
+        if(m_bStartFile)
+        {
+            mSB.append(m_FileStream.GetStat());
+        }
+        if(m_bStartNet)
+        {
+            mSB.append(m_NetStream.GetStat());
+        }
+        return mSB;
+    }
 
-	public void StopStream()
-	{
-		m_FileStream.StopStream();
-		m_NetStream.StopStream();
-		m_bStreamEnable=false;
-	}
+    public void SendPacket(int PacketID, ArrayStream Pack)
+    {
+        if (!m_bStreamEnable)
+        {
+            return;
+        }
+        ArrayStream OutPacket = new ArrayStream();
+        OutPacket.write(Integer.valueOf(0x1));
+        OutPacket.write(Integer.valueOf(PacketID));
+        OutPacket.write(Long.valueOf(System.nanoTime()));
+        // OutPacket.write(Long.valueOf(SystemClock.elapsedRealtimeNanos()));
+        OutPacket.write(Integer.valueOf(Pack.size()));
+        OutPacket.write(Pack);
+        m_FileStream.SendPacket(OutPacket);
+        m_NetStream.SendPacket(OutPacket);
+        //	m_MultiPack.write(OutPacket);
+        //	//if(System.nanoTime()-m_LastPacketTime>(20*1000*1000))
+        //	if(m_MultiPack.size()>1024)
+        //	{
+        //		m_FileStream.SendPacket(m_MultiPack);
+        //		m_NetStream.SendPacket(m_MultiPack);
+        //		m_MultiPack.reset();
+        //		m_LastPacketTime=System.nanoTime();
+        //	}
 
-	public void SendPacket(int PacketID, ArrayStream Pack)
-	{
+        StringBuilder Log=GetStat();
+        m_TextView.setText(Log);
 
-		if(!m_bStreamEnable)
-		{
-			return;
-		}
-		ArrayStream OutPacket = new ArrayStream();
-		OutPacket.write(Integer.valueOf(0x1));
-		OutPacket.write(Integer.valueOf(PacketID));
-		OutPacket.write(Long.valueOf(System.nanoTime()));
-		// OutPacket.write(Long.valueOf(SystemClock.elapsedRealtimeNanos()));
-		OutPacket.write(Integer.valueOf(Pack.size()));
-		OutPacket.write(Pack);
-
-		m_FileStream.SendPacket(OutPacket);
-		m_NetStream.SendPacket(OutPacket);
-
-	//	m_MultiPack.write(OutPacket);
-
-	//	//if(System.nanoTime()-m_LastPacketTime>(20*1000*1000))
-	//	if(m_MultiPack.size()>1024)
-	//	{
-	//		m_FileStream.SendPacket(m_MultiPack);
-	//		m_NetStream.SendPacket(m_MultiPack);
-	//		m_MultiPack.reset();
-	//		m_LastPacketTime=System.nanoTime();
-	//	}
-
-	}
+    }
 }

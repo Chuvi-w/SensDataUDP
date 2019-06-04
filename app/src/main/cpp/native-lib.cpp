@@ -124,6 +124,7 @@ Java_com_example_sensdataudp_MainActivity_ParseTouchEvent(JNIEnv *env, jobject o
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 {
+
     JNIEnv *env = NULL;
     if(vm->GetEnv(reinterpret_cast<void **>(&env), JNI_VERSION_1_4)!=JNI_OK)
     {
