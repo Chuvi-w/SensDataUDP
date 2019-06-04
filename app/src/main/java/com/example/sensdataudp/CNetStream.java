@@ -18,12 +18,62 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
+
 public class CNetStream
 {
 
-	public static DatagramSocket mSocket = null;
-	public static ArrayList<InetAddress> mBroadcastAddr = null;
-	public static ArrayList<InetAddress> mLocalAddr = null;
+
+	class CSockData
+	{
+		CSockData(InetAddress BrAddr, InetAddress LocAddr)
+		{
+			mBroadcastAddr=BrAddr;
+			mLocalAddr=LocAddr;
+
+			try
+			{
+				mSocket=new DatagramSocket();
+				mSocket.setSoTimeout(1);
+
+			}
+			catch (SocketException e)
+			{
+				mSocket = null;
+			}
+
+		}
+
+
+		public void SendPacket(byte buf[])
+		{
+			try
+			{
+				if(mPacket==null)
+				{
+					mPacket=new DatagramPacket(buf, buf.length, mBroadcastAddr, 4452);
+				}
+				else
+				{
+					mPacket.setData(buf);
+				}
+
+				mSocket.send(mPacket);
+			}
+			catch (IOException e)
+			{
+
+			}
+		}
+		private DatagramPacket mPacket=null;
+		private DatagramSocket mSocket = null;
+		private  InetAddress mBroadcastAddr = null;
+		private  InetAddress mLocalAddr = null;
+	}
+
+	public static BlockingQueue<CSockData> mSockets=null;
+	//public static ArrayList<InetAddress> mBroadcastAddr = null;
+	//public static ArrayList<InetAddress> mLocalAddr = null;
 	//private Queue<ArrayStream> mDataQueue = null;
 	private BlockingQueue<ArrayStream> mDataQueue = null;
 	private volatile boolean m_bThreadRunning = false;
@@ -36,10 +86,11 @@ public class CNetStream
 	public CNetStream(WifiManager WiFiMgr)
 	{
 		m_WiFiMGR = WiFiMgr;
-		mBroadcastAddr = new ArrayList<InetAddress>();
-		mLocalAddr = new ArrayList<InetAddress>();
+		//mBroadcastAddr = new ArrayList<InetAddress>();
+		//mLocalAddr = new ArrayList<InetAddress>();
 		//mDataQueue=new ConcurrentLinkedQueue<ArrayStream>();
 		mDataQueue=new LinkedBlockingQueue<ArrayStream>();
+		mSockets=new LinkedBlockingQueue<>();
 	}
 
 	public boolean StartStream()
@@ -50,7 +101,7 @@ public class CNetStream
 		{
 			return false;
 		}
-
+/*
 		try
 		{
 			mSocket = new DatagramSocket();
@@ -62,12 +113,13 @@ public class CNetStream
 			//showDialog(R.string.error_neterror);
 			return false;
 		}
-
+*/
 		mNetStreamThread=new Thread(new CNetStreamThread());
 		if(mNetStreamThread!=null)
 		{
 			m_bThreadRunning=true;
 			mNetStreamThread.start();
+			mNetStreamThread.setPriority(8);
 			return  true;
 		}
 		return false;
@@ -88,12 +140,14 @@ public class CNetStream
 
 			}
 		}
+		/*
 		if (mSocket != null)
 		{
 			mSocket.close();
 		}
 		mSocket = null;
 		mBroadcastAddr = null;
+		*/
 	}
 
 	public void SendPacket(ArrayStream DataPacket)
@@ -105,7 +159,8 @@ public class CNetStream
 
 	private boolean GetAvaiableBroadcastIP()
 	{
-		mBroadcastAddr.clear();
+		//mBroadcastAddr.clear();
+		mSockets.clear();;
 		try
 		{
 			List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
@@ -124,8 +179,9 @@ public class CNetStream
 						boolean isIPv4 = sAddr.indexOf(':') < 0;
 						if (isIPv4)
 						{
-							mBroadcastAddr.add(BroadAddr);
-							mLocalAddr.add(addr);
+							mSockets.add(new CSockData(BroadAddr,addr));
+							//mBroadcastAddr.add(BroadAddr);
+							//mLocalAddr.add(addr);
 						}
 					}
 				}
@@ -134,44 +190,37 @@ public class CNetStream
 		catch (Exception ignored)
 		{
 		} // for now eat exceptions
-		return !mBroadcastAddr.isEmpty();
+		//return !mBroadcastAddr.isEmpty();
+		return  !mSockets.isEmpty();
 	}
 	class CNetStreamThread implements Runnable
 	{
 		public void run()
 		{
-
+			ArrayStream RecvData=null;
+			byte [] OutPacketArray=null;
 			while (!Thread.currentThread().isInterrupted()&&m_bThreadRunning)
 			{
-				//try
+				try
 				{
-					if (!mDataQueue.isEmpty())
-					{
-
-						byte [] OutPacketArray=mDataQueue.poll().toByteArray();
-						if (mSocket != null && mBroadcastAddr != null)
-						{
-							for (InetAddress BrAddr : mBroadcastAddr)
-							{
-								try
-								{
-									DatagramPacket packet = new DatagramPacket(OutPacketArray, OutPacketArray.length, BrAddr, 4452);
-									mSocket.send(packet);
-
-								}
-								catch (IOException e)
-								{
-
-								}
-							}
-						}
-					}
-				//	Thread.sleep(0,500);
+					RecvData=mDataQueue.poll(1, TimeUnit.NANOSECONDS);
 				}
-				//catch (InterruptedException ex)
-				//{
-				//	Thread.currentThread().interrupt();
-				//}
+				catch (InterruptedException e)
+				{
+					RecvData=null;
+				}
+
+				if(RecvData!=null)
+				{
+					OutPacketArray=RecvData.toByteArray();
+					for (CSockData nSocket : mSockets)
+					{
+						nSocket.SendPacket(OutPacketArray);
+
+					}
+					OutPacketArray=null;
+					RecvData=null;
+				}
 
 			}
 		}

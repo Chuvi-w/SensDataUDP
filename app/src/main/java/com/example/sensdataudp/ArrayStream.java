@@ -21,6 +21,12 @@ class ArrayStream extends ByteArrayOutputStream
 		m_Buff.order(ByteOrder.LITTLE_ENDIAN);
 	}
 
+
+
+	public void write(ArrayStream a)
+	{
+		write(a.buf,0,a.count);
+	}
 	public void write(float value)
 	{
 

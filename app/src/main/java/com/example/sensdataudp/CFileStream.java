@@ -10,7 +10,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class CFileStream
 {
@@ -18,12 +21,12 @@ public class CFileStream
 	//private
 	private File OutFile;
 	private FileOutputStream fOutStream;
-	private Queue<ArrayStream> mDataQueue = null;
+	private BlockingQueue<ArrayStream> mDataQueue = null;
 	private volatile boolean m_bThreadRunning = false;
 	private Thread mFWriteThread=null;
 	CFileStream()
 	{
-		mDataQueue=new ConcurrentLinkedQueue<ArrayStream>();
+		mDataQueue=new LinkedBlockingQueue<>();
 	}
 
 
@@ -106,27 +109,38 @@ public class CFileStream
 	class CFileWriter implements Runnable
 	{
 
+
+
+
 		@Override
 		public void run()
 		{
+			ArrayStream RecvData=null;
+			byte [] OutPacketArray=null;
 
 			while (!Thread.currentThread().isInterrupted()&&m_bThreadRunning)
 			{
 				try
 				{
-					if(!mDataQueue.isEmpty())
+					RecvData=mDataQueue.poll(1, TimeUnit.NANOSECONDS);
+				}
+				catch (InterruptedException e)
+				{
+					RecvData=null;
+				}
+				if(RecvData!=null)
+				{
+					OutPacketArray = RecvData.toByteArray();
+					try
 					{
-						fOutStream.write(mDataQueue.poll().toByteArray());
+						fOutStream.write(OutPacketArray);
+					}catch (IOException e)
+					{
+						// fOutStream = null;
 					}
-					Thread.sleep(0,500000);
-				}
-				catch (IOException e)
-				{
-					// fOutStream = null;
-				}
-				catch (InterruptedException ex)
-				{
-					Thread.currentThread().interrupt();
+
+					OutPacketArray=null;
+					RecvData=null;
 				}
 
 			}

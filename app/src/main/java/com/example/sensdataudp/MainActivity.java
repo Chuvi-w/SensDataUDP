@@ -25,7 +25,6 @@ public class MainActivity extends AppCompatActivity
 	TextView tv;
 
 	TouchEvListener TEvListener = new TouchEvListener();
-	static boolean bStreamEnable = false;
 	static CDataStream DataStream = null;
 
 	public static SensorManager mSensor_Stream;
@@ -61,10 +60,7 @@ public class MainActivity extends AppCompatActivity
 
 		DataStream = new CDataStream(new CNetStream(wifiMgr));
 
-		if (bStreamEnable == false)
-		{
-			bStreamEnable = DataStream.StartStream();
-		}
+		DataStream.StartStream();
 
 		StartSensors();
 
@@ -91,11 +87,7 @@ public class MainActivity extends AppCompatActivity
 	protected void onDestroy()
 	{
 		super.onDestroy();
-		if (bStreamEnable)
-		{
-			DataStream.StopStream();
-			bStreamEnable = false;
-		}
+		DataStream.StopStream();
 		StopSensors();
 		m_GNSSData.OnDestroy();
 	}
@@ -118,10 +110,7 @@ public class MainActivity extends AppCompatActivity
 
 	public static void SendData(int PacketID, ArrayStream Pack)
 	{
-		if (bStreamEnable)
-		{
-			DataStream.SendPacket(PacketID, Pack);
-		}
+		DataStream.SendPacket(PacketID, Pack);
 	}
 
 	private void CheckPermissions()
