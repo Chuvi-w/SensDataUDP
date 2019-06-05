@@ -1,28 +1,12 @@
 #pragma once
 #include "EvCommon.h"
 #include "CTimeStamp.h"
-
-class CSourceTypeBase
-{
-protected:
-   CSourceTypeBase()
-   {
-
-   }
+#include "CRecvSource.h"
 
 
 
-};
 
 
-class CSourceTypeFile
-{
-public:
-   CSourceTypeFile()
-   {
-
-   }
-};
 
 class CDataPacket
 {
@@ -31,7 +15,7 @@ class CDataPacket
    CDataPacket(const CDataPacket& pOther);
    ~CDataPacket();
 
-   int32_t                    LoadData(void* pData, size_t nDataSize, const std::string& sSourceName);
+   int32_t                    LoadData(void* pData, size_t nDataSize, IRecvSource::Ptr DataSource);
    template <typename T> bool GetData(T* Data, size_t nElementsCount) const
    {
       if(!m_nData || m_nReadPos + (sizeof(T) * nElementsCount) > m_nData->size())
@@ -81,6 +65,11 @@ class CDataPacket
       return true;
    }
 
+   IRecvSource::Ptr GetRecvSrc() const
+   {
+      return m_RecvSource;
+   }
+
    size_t       GetRemainDataSize() const;
    size_t       GetDataSize() const;
    bool         IsValid() const;
@@ -89,13 +78,15 @@ class CDataPacket
    uint64_t GetPacketID() const;
 
    bool operator==(const CDataPacket& pOther) const;
-
+   CommonPacketData_t GetCommonData() const;
  private:
    // void *m_nData;
    std::shared_ptr<std::vector<uint8_t>> m_nData;
    mutable size_t                                m_nReadPos;
    bool                                  m_bEndian;
    CTimeStampNS                          m_nNanoTime;
+   int64_t                              m_TimeMS;
    uint64_t                              m_nPacketID;
+   IRecvSource::Ptr                      m_RecvSource;
    // uint64_t m_nRecvSize;
 };

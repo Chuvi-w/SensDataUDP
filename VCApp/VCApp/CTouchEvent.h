@@ -7,9 +7,10 @@ class CTouchEvent : public IEventReceiver
 {
  private:
    CTouchEvent();
-   using PTR = std::shared_ptr<CTouchEvent>;
+  
 
  public:
+    using PTR = std::shared_ptr<CTouchEvent>;
    static PTR Create() { return std::shared_ptr<CTouchEvent>(new CTouchEvent); }
    ~CTouchEvent();
    virtual bool                            ParseEvent(const CDataPacket& pPacket) override;

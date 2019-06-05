@@ -5,15 +5,60 @@
 #include "CSensorEvent.h"
 #include "CNMEAEvent.h"
 #include <iostream>
+#include <functional>
+#include "CIMU_Acc.h"
+
+typedef CTouchEvent::PTR(*pfnCreate)();
+
+void Create(std::function<std::shared_ptr<IEventReceiver>()> fnCreate)
+{
+
+   auto cr = fnCreate();
+
+   printf("");
+}
+
 
 void RunReceiver(CDataReceiver& pReceiver)
 {
-   auto TouchEv = CTouchEvent::Create();
-   auto SensEv  = CSensorEvent::Create();
-   auto NMEAEv  = CNMEAEvent::Create();
-   pReceiver.AddListener(TouchEv);
-   pReceiver.AddListener(SensEv);
-   pReceiver.AddListener(NMEAEv);
+
+  Create(std::bind(&CTouchEvent::Create));
+  Create(std::bind(&CSensorEvent::Create));
+  
+  
+  std::vector<CBaseIMUSensor::PTR> vIMU;
+   
+  
+
+  pReceiver.SetNewReceiversFunc([&vIMU]()
+   {
+      std::vector<IEventReceiver::PTR> vRecv;
+      //auto TouchEv = CTouchEvent::Create();
+      auto SensEv = CSensorEvent::Create();
+      //auto NMEAEv = CNMEAEvent::Create();
+      auto IMU_Acc = CIMUAcc::Create();
+      auto IMU_Gyr = CIMUGyr::Create();
+      auto IMU_Mag = CIMUMag::Create();
+      SensEv->AddIMU(IMU_Acc);
+      SensEv->AddIMU(IMU_Gyr);
+      SensEv->AddIMU(IMU_Mag);
+      vRecv.push_back(SensEv);
+     // vRecv.push_back(TouchEv);
+     
+     // vRecv.push_back(NMEAEv);
+
+      vIMU.push_back(IMU_Gyr);
+      vIMU.push_back(IMU_Acc);
+      vIMU.push_back(IMU_Mag);
+      return vRecv;
+      
+   });
+
+
+//   pReceiver.AddEvListenerCreator(&CTouchEvent::Create);
+ //  pReceiver.AddEvListenerCreator(&CSensorEvent::Create);
+ //  pReceiver.AddEvListenerCreator(&CNMEAEvent::Create);
+
    pReceiver.StartThread();
    do
    {
@@ -28,6 +73,24 @@ void RunReceiver(CDataReceiver& pReceiver)
          if (c == 's' || c == 'S')
          {
             std::cout << pReceiver.GetStat();
+         }
+
+         if(c == 'r' || c == 'R')
+         {
+            for(auto &IMU : vIMU)
+            {
+               IMU->ResetFrames();
+            }
+           
+         }
+
+         if(c == 'c' || c == 'C')
+         {
+            for(auto &IMU : vIMU)
+            {
+               IMU->Calibrate();
+            }
+
          }
          
       }

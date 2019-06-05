@@ -131,6 +131,7 @@
       <PreprocessorDefinitions>WIN32;SFML_STATIC;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)\Depends\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,6 +153,7 @@
       <PreprocessorDefinitions>WIN32;SFML_STATIC;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)\Depends\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -166,7 +168,9 @@
     <ClCompile Include="CDataPacket.cpp" />
     <ClCompile Include="CDataReceiver.cpp" />
     <ClCompile Include="CIMUBase.cpp" />
+    <ClCompile Include="CIMU_Acc.cpp" />
     <ClCompile Include="CNMEAEvent.cpp" />
+    <ClCompile Include="CRecvSource.cpp" />
     <ClCompile Include="CSensorEvent.cpp" />
     <ClCompile Include="CTimeStamp.cpp" />
     <ClCompile Include="CTouchEvent.cpp" />
@@ -177,11 +181,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AndroidInput.h" />
-    <ClInclude Include="android\ndk_helper\AndroidInput.h" />
     <ClInclude Include="CDataPacket.h" />
     <ClInclude Include="CDataReceiver.h" />
     <ClInclude Include="CIMUBase.h" />
+    <ClInclude Include="CIMU_Acc.h" />
     <ClInclude Include="CNMEAEvent.h" />
+    <ClInclude Include="ConsoleTools.h" />
+    <ClInclude Include="CRecvSource.h" />
     <ClInclude Include="CSensorEvent.h" />
     <ClInclude Include="CTimeStamp.h" />
     <ClInclude Include="CTouchEvent.h" />

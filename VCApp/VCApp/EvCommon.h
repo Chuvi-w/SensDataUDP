@@ -4,6 +4,7 @@
 #include <intrin.h>
 #include <vector>
 #include <memory>
+#include "CTimeStamp.h"
 
 #define TOUCH_EV_ID (0xAA00)
 #define SENSOR_EV_ID (0xBB00)
@@ -15,6 +16,7 @@ typedef struct CommPacket_s
    jint  IsEndian;
    jint  PacketID;
    jlong NanoTime;
+   jlong TimeMS;
    jint  DataSize;
 } CommPacket_t;
 #pragma pack(pop)
@@ -49,10 +51,18 @@ template <typename T> inline void bswap(T& s)
    }
 }
 
+typedef struct CommonData_s
+{
+   CTimeStampNS TimeNano;
+   int64_t TimeMS;
+   std::shared_ptr<class IRecvSource> RecvSrc;
+}CommonPacketData_t;
+
 class CDataPacket;
 class IEventReceiver : public std::enable_shared_from_this<IEventReceiver>
 {
  public:
+    using PTR = std::shared_ptr<IEventReceiver>;
    IEventReceiver(uint32_t nEvID) : m_EvID(nEvID) {}
    IEventReceiver(const IEventReceiver& pEv) : m_EvID(pEv.m_EvID) {}
    ~IEventReceiver() {}

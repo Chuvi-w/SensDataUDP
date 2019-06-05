@@ -15,6 +15,7 @@ std::string CReceiverUDP::GetStat() const
    return "";
 }
 
+
 void CReceiverUDP::RecvThread()
 {
    sf::Socket::Status stat;
@@ -47,24 +48,47 @@ void CReceiverUDP::RecvThread()
          vPack.clear();
          do 
          {
-            LoadSize = DataPack.LoadData(&RecvData[LoadOffset], NumRecvBytes - LoadOffset, RecvName);
+            LoadSize = DataPack.LoadData(&RecvData[LoadOffset], NumRecvBytes - LoadOffset, FindOrCreateRecvSrc(RecvFrom, RecvPort));
             if(LoadSize < 0)
             {
                break;
             }
-            vPack.push_back(DataPack);
+           // printf("%u_%s %u\n", nPack++, RecvName.c_str(), NumRecvBytes);
+            ProcessPacket(DataPack);
+          
             LoadOffset += LoadSize;
          } while (true);
         
          for(const auto &p : vPack)
          {
-            printf("%u_%s %u\n", nPack++, RecvName.c_str(), NumRecvBytes);
-            ProcessPacket(p);
+         
+            
          }
        
       }
 
    } while(!IsStopped());
+}
+
+IRecvSource::Ptr CReceiverUDP::FindOrCreateRecvSrc(sf::IpAddress ip, uint16_t nPort)
+{
+
+   for(const auto &RecvSrc : m_vRecvSource)
+   {
+      
+      auto *Ptr = dynamic_cast<CRecvSrcUDP*>(RecvSrc.get());
+      if(Ptr)
+      {
+         if(ip == Ptr->GetIP() && nPort == Ptr->GetPort())
+         {
+            return RecvSrc;
+         }
+      }
+
+   }
+
+   m_vRecvSource.push_back(IRecvSource::Ptr(new CRecvSrcUDP(ip, nPort)));
+   return m_vRecvSource.back();
 }
 
 CDataReceiver::~CDataReceiver() {}
@@ -77,8 +101,30 @@ bool CDataReceiver::ProcessPacket(const CDataPacket& Packet)
    {
       return false;
    }
+   auto SrcHash = Packet.GetRecvSrc()->GetHash();
 
-   for(auto& Listener : m_vListeners)
+   auto pProcessor = m_Receivers.find(SrcHash);
+   if(pProcessor == m_Receivers.end())
+   {
+      if(m_fnMakeNewReceivers)
+      {
+         m_Receivers[SrcHash] = m_fnMakeNewReceivers();
+      }
+      else
+      {
+         m_Receivers[SrcHash] = std::vector<IEventReceiver::PTR>();
+      }
+    
+     
+     /* for(auto& ExtListener : m_vEvListenerCreator)
+      {
+         m_Receivers[SrcHash].push_back(ExtListener());
+      }*/
+      pProcessor = m_Receivers.find(SrcHash);
+   }
+
+   
+   for(auto& Listener : pProcessor->second)
    {
       if(Listener->GetEventID() == Packet.GetPacketID())
       {
@@ -94,22 +140,25 @@ CDataReceiver::CDataReceiver()
    m_bLogging    = false;
 }
 
-bool CDataReceiver::AddListener(std::shared_ptr<IEventReceiver> pListener)
-{
-   bool bExist = false;
-   for(auto& ExtListener : m_vListeners)
-   {
-      if(ExtListener == pListener)
-      {
-         bExist = true;
-      }
-   }
-   if(!bExist)
-   {
-      m_vListeners.push_back(pListener);
-   }
-   return !bExist;
-}
+
+
+// bool CDataReceiver::AddEvListenerCreator(std::function<std::shared_ptr<IEventReceiver>()> fnCreate)
+// {
+// 
+//    size_t FuncTypeHash= fnCreate.target_type().hash_code();
+//    size_t CmpType = 0;
+//  
+//    for(auto& ExtListener : m_vEvListenerCreator)
+//    {
+//       CmpType = ExtListener.target_type().hash_code();
+//       if(FuncTypeHash == CmpType)
+//       {
+//          return false;
+//       }
+//    }
+//    m_vEvListenerCreator.push_back(fnCreate);
+//    return true;
+// }
 
 void CDataReceiver::StopThread()
 {
@@ -169,7 +218,7 @@ bool CReceiverFile::LoadFile(const std::string& sFileName)
 
    do
    {
-      CurRead = DataPack.LoadData(reinterpret_cast<void*>((size_t)pFileData + ReadOffset), FileSz - ReadOffset, "Data");
+      CurRead = DataPack.LoadData(reinterpret_cast<void*>((size_t)pFileData + ReadOffset), FileSz - ReadOffset, IRecvSource::Ptr(new CRecvSrcFile()));
       if(CurRead > 0)
       {
 

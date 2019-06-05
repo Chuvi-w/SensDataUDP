@@ -7,10 +7,11 @@
 #include <thread>
 #include <atomic>
 #include <map>
-//#include "CIMUSensors.h"
 #include <fstream>
 #include "EvCommon.h"
 #include <mutex>
+#include "CRecvSource.h"
+
 
 class CDataReceiver
 {
@@ -21,22 +22,31 @@ class CDataReceiver
 
    std::atomic_bool IsStopped() const;
 
-   bool ProcessPacket(const std::string& RecvName, const void* pPacket, size_t nDataSize);
    bool ProcessPacket(const CDataPacket& Packet);
 
  public:
 
    CDataReceiver();
-   bool AddListener(std::shared_ptr<IEventReceiver> pListener);
+  
+   //bool AddEvListenerCreator(std::function<std::shared_ptr<IEventReceiver>()> fnCreate);
    void StopThread();
    void StartThread();
    void SetLogging(bool bLogging = true);
    virtual std::string GetStat() const = 0;
+
+   void SetNewReceiversFunc(std::function<std::vector<IEventReceiver::PTR>()> pFn)
+   {
+      m_fnMakeNewReceivers = pFn;
+   }
  private:
    std::thread                                  m_pThread;
    std::atomic_bool                             m_bStopThread;
    bool                                         m_bLogging;
-   std::vector<std::shared_ptr<IEventReceiver>> m_vListeners;
+  // std::vector<std::function<std::shared_ptr<IEventReceiver>()>>   m_vEvListenerCreator;
+   std::map<size_t, std::vector<IEventReceiver::PTR>> m_Receivers;
+   std::function<std::vector<IEventReceiver::PTR>()> m_fnMakeNewReceivers;
+
+   
 };
 
 class CReceiverUDP : public CDataReceiver
@@ -52,9 +62,14 @@ protected:
    virtual void RecvThread() override;
 
  private:
+    IRecvSource::Ptr FindOrCreateRecvSrc(sf::IpAddress ip, uint16_t nPort);
+
    uint16_t m_nPort;
 
    sf::UdpSocket m_Socket;
+
+
+   std::vector<IRecvSource::Ptr> m_vRecvSource;
 };
 
 class CReceiverFile : public CDataReceiver
@@ -90,6 +105,7 @@ private:
    std::vector<CDataPacket> m_vPackets;
    size_t m_CurEvID;
    mutable std::mutex m_RdLock;
+  
 };
 
 #endif // CIMUReceiver_h__

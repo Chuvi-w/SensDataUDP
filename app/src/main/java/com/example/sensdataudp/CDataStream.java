@@ -68,8 +68,8 @@ public class CDataStream implements IStreamInterface
         ArrayStream OutPacket = new ArrayStream();
         OutPacket.write(Integer.valueOf(0x1));
         OutPacket.write(Integer.valueOf(PacketID));
-        OutPacket.write(Long.valueOf(System.nanoTime()));
-        // OutPacket.write(Long.valueOf(SystemClock.elapsedRealtimeNanos()));
+        OutPacket.write(System.nanoTime());
+        OutPacket.write(System.currentTimeMillis());
         OutPacket.write(Integer.valueOf(Pack.size()));
         OutPacket.write(Pack);
         m_FileStream.SendPacket(OutPacket);

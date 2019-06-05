@@ -2,6 +2,7 @@ package com.example.sensdataudp;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.util.Log;
 
 public class SensorListener implements SensorEventListener
 {
@@ -11,12 +12,13 @@ public class SensorListener implements SensorEventListener
     public void onSensorChanged(SensorEvent event)
     {
         mSensorPacket.reset();
-        mSensorPacket.write(Long.valueOf(event.sensor.getType()));
         mSensorPacket.write(event.timestamp);
-        // mSensorPacket.write(event.sensor);
-        mSensorPacket.write(Long.valueOf(event.values.length));
+        mSensorPacket.write(event.sensor.getType());
+        mSensorPacket.write(event.accuracy);
+        mSensorPacket.write(Integer.valueOf(event.values.length));
         mSensorPacket.write(event.sensor.getResolution());
         mSensorPacket.write(event.sensor.getMaximumRange());
+
         for (int i = 0; i < event.values.length; i++)
         {
             mSensorPacket.write(event.values[i]);
@@ -27,6 +29,7 @@ public class SensorListener implements SensorEventListener
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy)
     {
+        Log.d("AAAAA","Accurasy"+accuracy);
         // sensor.
         //sensor.getType();
     }

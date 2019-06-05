@@ -8,14 +8,9 @@ using namespace std;
 #include <windows.h> 
 #include <thread>
 #include <chrono>
+#include "ConsoleTools.h"
 
-void gotoxy(int x, int y)
-{
-   COORD coord;
-   coord.X = x;
-   coord.Y = y;
-   SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
-}
+
 
 std::map<uint32_t, std::string> g_KnownPrn;
 
@@ -26,7 +21,7 @@ CNMEAEvent::CNMEAEvent(): IEventReceiver(NMEA_EV_ID), m_NMEAGps(m_NMEAParser)
  
    
   // 
-   m_NMEAGps.onUpdate += [this](const std::string &sTalker, const nmea::GPSFix &Fix)
+ auto OnUpdete=[this](const std::string &sTalker, const nmea::GPSFix &Fix)
    {
       std::stringstream sOut;
       bool bSatFound;
@@ -119,7 +114,7 @@ CNMEAEvent::CNMEAEvent(): IEventReceiver(NMEA_EV_ID), m_NMEAGps(m_NMEAParser)
      // std::cout << sOut.str();
    };
 
-
+ m_NMEAGps.onUpdate += OnUpdete;
 }
 
 CNMEAEvent::~CNMEAEvent() 
@@ -239,8 +234,8 @@ bool CNMEAEvent::ParseEvent(const CDataPacket& pPacket)
 #if 1//#ifdef NMEA_DEBUG_EVENTS
             // bswap(LocEvent.nElapsedRealtimeNanos);
            // m_vCoordsLog.push_back({ LocEvent.dLatitude, LocEvent.dLongitude,LocEvent.flSpeed });
-            gotoxy(0, 0);
-            printf("GPS %.9f %.9f %.9f %llu %llu %llu\n", LocEvent.dLatitude, LocEvent.dLongitude, LocEvent.dAltitude, LocEvent.nTime, LocEvent.nElapsedRealtimeNanos, pPacket.GetNanoTime().m_TS);
+           // gotoxy(0, 0);
+          //  printf("GPS %.9f %.9f %.9f %llu %llu %llu\n", LocEvent.dLatitude, LocEvent.dLongitude, LocEvent.dAltitude, LocEvent.nTime, LocEvent.nElapsedRealtimeNanos, pPacket.GetNanoTime().m_TS);
 #endif
          }
       }

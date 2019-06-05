@@ -54,6 +54,12 @@
     <ClCompile Include="CNMEAEvent.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="CRecvSource.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="CIMU_Acc.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="jni.h">
@@ -86,9 +92,6 @@
     <ClInclude Include="MathLib\MathLib3D.h">
       <Filter>Заголовочные файлы\MathLib</Filter>
     </ClInclude>
-    <ClInclude Include="android\ndk_helper\AndroidInput.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="AndroidInput.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
@@ -114,6 +117,15 @@
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="CNMEAEvent.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CRecvSource.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CIMU_Acc.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleTools.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>
