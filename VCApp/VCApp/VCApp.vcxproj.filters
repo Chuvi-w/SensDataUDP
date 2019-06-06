@@ -147,4 +147,9 @@
       <Filter>Заголовочные файлы\Open_IMU_AHRS</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Open_IMU_AHRS\OpenIMU_Notes.txt">
+      <Filter>Файлы исходного кода\Open_IMU_AHRS</Filter>
+    </Text>
+  </ItemGroup>
 </Project>
