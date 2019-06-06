@@ -61,6 +61,10 @@ public:
    {
       return m_Val;
    }
+   CTimeStampNS GetIMUTime() const
+   {
+      return m_iTS;
+   }
  private:
     CommonPacketData_t m_Com;
     CTimeStampNS  m_iTS;
@@ -77,16 +81,15 @@ protected:
 public:
    using PTR = std::shared_ptr<CBaseIMUSensor>;
 
-   void SetResolution(float Res, float Max);
-
    float GetMaxRange() const;
    float GetRes() const;
 
 
    IMUType_t GetType() const;
 
-   void AddFrame(const CIMUFrame& Fr);
+   void AddFrame(const CIMUFrame& Fr, float flResolution, float flMaxRange);
 
+   void GetAndPrintSKO(const CIMUFrame& Fr) const;
    void ResetFrames();
 
    virtual bool PreAddFrame(CIMUFrame &fr);
@@ -97,6 +100,20 @@ public:
 
    Vec3D GetAvg(size_t Offset=0, size_t nCount=-1) const;
    
+   CTimeStampNS GetLastFrameTime() const
+   {
+      return m_CurFrameTime;
+   }
+
+   CTimeStampNS GetFrameTimeDiff() const
+   {
+      return m_FrameTimeDiff;
+   }
+
+   bool HaveOneFrame() const
+   {
+      return m_flMaxRange != 0.0&&m_FlRes != 0.0;
+   }
 private:
 
    std::mutex m_FrMux;
@@ -107,6 +124,9 @@ private:
    bool m_bHaveUncalibrated;
    float m_flMaxRange;
    float m_FlRes;
+
+   CTimeStampNS m_FrameTimeDiff;
+   CTimeStampNS m_CurFrameTime;
 };
 
 

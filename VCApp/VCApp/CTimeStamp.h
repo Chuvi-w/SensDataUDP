@@ -8,6 +8,14 @@ class CTimeStampNS
    CTimeStampNS();
    CTimeStampNS(int64_t Ts);
    CTimeStampNS(const CTimeStampNS& pOther);
+   operator bool() const
+   {
+      return m_TS != 0;
+   }
+   operator int64_t() const
+   {
+      return m_TS;
+   }
    bool         operator<(const CTimeStampNS& pOther) const;
    double       GetSeconds() const;
    bool         operator==(const CTimeStampNS& pOther) const;

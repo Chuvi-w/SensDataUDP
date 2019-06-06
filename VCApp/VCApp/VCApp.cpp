@@ -36,20 +36,9 @@ void RunReceiver(CDataReceiver& pReceiver)
       //auto TouchEv = CTouchEvent::Create();
       auto SensEv = CSensorEvent::Create();
       //auto NMEAEv = CNMEAEvent::Create();
-      auto IMU_Acc = CIMUAcc::Create();
-      auto IMU_Gyr = CIMUGyr::Create();
-      auto IMU_Mag = CIMUMag::Create();
-      SensEv->AddIMU(IMU_Acc);
-      SensEv->AddIMU(IMU_Gyr);
-      SensEv->AddIMU(IMU_Mag);
-      vRecv.push_back(SensEv);
-     // vRecv.push_back(TouchEv);
      
-     // vRecv.push_back(NMEAEv);
+      vRecv.push_back(SensEv);
 
-      vIMU.push_back(IMU_Gyr);
-      vIMU.push_back(IMU_Acc);
-      vIMU.push_back(IMU_Mag);
       return vRecv;
       
    });

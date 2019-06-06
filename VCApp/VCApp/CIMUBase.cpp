@@ -5,16 +5,11 @@
 
 
 
-CBaseIMUSensor::CBaseIMUSensor(IMUType_t Type, bool bUncalib, int nOutPos):m_ImuType(Type), m_bHaveUncalibrated(bUncalib), m_OutPos(nOutPos)
+CBaseIMUSensor::CBaseIMUSensor(IMUType_t Type, bool bUncalib, int nOutPos):m_ImuType(Type), m_bHaveUncalibrated(bUncalib), m_OutPos(nOutPos), m_FlRes(0.0), m_flMaxRange(0.0), m_FrameTimeDiff(0), m_CurFrameTime(0)
 {
    ResetFrames();
 }
 
-void CBaseIMUSensor::SetResolution(float Res, float Max)
-{
-   m_FlRes = Res;
-   m_flMaxRange = Max;
-}
 
 float CBaseIMUSensor::GetMaxRange() const
 {
@@ -31,26 +26,44 @@ IMUType_t CBaseIMUSensor::GetType() const
    return m_ImuType;
 }
 
-void CBaseIMUSensor::AddFrame(const CIMUFrame& Fr)
+void CBaseIMUSensor::AddFrame(const CIMUFrame& Fr, float flResolution, float flMaxRange)
 {
    std::lock_guard <std::mutex> _Guard(m_FrMux);
+
+   m_FlRes = flResolution;
+   m_flMaxRange = flMaxRange;
+
    if(m_SkipCount++ < 200)
    {
       return;
    }
    auto FrameData = Fr;
-   if(PreAddFrame(FrameData))
+   if(!PreAddFrame(FrameData))
    {
-      m_vFrames.push_back(FrameData);
+      return;
    }
 
+   if(m_CurFrameTime.m_TS != 0)
+   {
+      m_FrameTimeDiff = Fr.GetIMUTime() - m_CurFrameTime;
+   }
   
+   m_CurFrameTime = Fr.GetIMUTime();
+  
+   m_vFrames.push_back(FrameData);
+   GetAndPrintSKO(FrameData);
+}
+
+void CBaseIMUSensor::GetAndPrintSKO(const CIMUFrame& Fr) const
+{
+
    int nOutLine;
    if(m_OutPos < 0)
    {
       return;
    }
-   nOutLine = 12 + m_OutPos * 4;
+
+   nOutLine = 12 + m_OutPos * 6;
 
    Vec3D vAvg;
    try
@@ -63,7 +76,7 @@ void CBaseIMUSensor::AddFrame(const CIMUFrame& Fr)
       return;
    }
    Vec3D vCur = Fr.GetVal();
-
+   auto ImuTime = Fr.GetIMUTime();
    Vec3D vSCOData = NullVec3D;
    Vec3D vSCOMin;
    float flRes = m_FlRes;
@@ -96,7 +109,7 @@ void CBaseIMUSensor::AddFrame(const CIMUFrame& Fr)
       flRes = RAD2DEG(flRes)*60.0;
       Mag = RAD2DEG(Mag)*60.0;
    }
-  
+
    SpCoords.x = vCur.GetSphericCoordinates(SpCoords.y, SpCoords.z);
    SpCoords.y = RAD2DEG(SpCoords.y);
    SpCoords.z = RAD2DEG(SpCoords.z);
@@ -104,6 +117,7 @@ void CBaseIMUSensor::AddFrame(const CIMUFrame& Fr)
    printf("%08u {%018.15f, %018.15f, %018.15f} ,{%018.15f, %018.15f, %018.15f}                   \n", m_vFrames.size(), vAvg.x, vAvg.y, vAvg.z, vSCOData.x, vSCOData.y, vSCOData.z);
    printf("%08u {%018.15f, %018.15f, %018.15f} ,{%018.15f, %018.15f, %018.15f}                   \n", m_vFrames.size(), vCur.x, vCur.y, vCur.z, vSCOMin.x, vSCOMin.y, vSCOMin.z);
    printf("%08u %018.15f %018.15f {%018.15f, %018.15f, %018.15f}                \n", m_vFrames.size(), flRes, Mag, SpCoords.x, SpCoords.y, SpCoords.z);
+   printf("\t%llu %018.15f %05.7f", ImuTime.m_TS, ImuTime.GetSeconds(), (double)m_FrameTimeDiff.m_TS/1000000.0);
 }
 
 void CBaseIMUSensor::ResetFrames()
@@ -124,8 +138,8 @@ bool CBaseIMUSensor::PreAddFrame(CIMUFrame &fr)
 Vec3D CBaseIMUSensor::GetAvg(size_t Offset/*=0*/, size_t nCount/*=-1*/) const
 {
    Vec3D Res = {0, 0, 0};
-  
-   if(Offset >= m_vFrames.size()||m_vFrames.empty())
+
+   if(Offset >= m_vFrames.size() || m_vFrames.empty())
    {
       throw std::exception("CBaseIMUSensor AVG overflow.");
    }
@@ -141,7 +155,7 @@ Vec3D CBaseIMUSensor::GetAvg(size_t Offset/*=0*/, size_t nCount/*=-1*/) const
       throw std::exception("CBaseIMUSensor AVG overflow.");
    }
 
-   for(size_t i = Offset; i < Offset+nCount; i++)
+   for(size_t i = Offset; i < Offset + nCount; i++)
    {
       Res += m_vFrames[i].GetVal();
    }
