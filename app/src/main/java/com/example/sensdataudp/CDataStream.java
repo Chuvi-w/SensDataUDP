@@ -26,7 +26,11 @@ public class CDataStream implements IStreamInterface
     public boolean StartStream()
     {
        m_bStartNet = m_NetStream.StartStream();
-       m_bStartFile = m_FileStream.StartStream();
+       if(m_bStartNet==false)
+       {
+           m_bStartFile = m_FileStream.StartStream();
+       }
+
         m_bStreamEnable = m_bStartFile || m_bStartNet;
         return m_bStreamEnable;
     }
