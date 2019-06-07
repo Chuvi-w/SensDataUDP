@@ -7,7 +7,8 @@
 #include "CSensorEvent.h"
 #include "CDataPacket.h"
 
-CReceiverNetWork::CReceiverNetWork(uint16_t nUPDPort, uint16_t nTCPPort): m_nUDPPort(nUPDPort), m_nTCPPort(nTCPPort) {}
+CReceiverNetWork::CReceiverNetWork(uint16_t nUPDPort, uint16_t nTCPPort): m_nUDPPort(nUPDPort), m_nTCPPort(nTCPPort),
+m_BindStatus(sf::Socket::Error),m_ListenStatus(sf::Socket::Error) {}
 
 CReceiverNetWork::~CReceiverNetWork() { StopThread(); }
 
