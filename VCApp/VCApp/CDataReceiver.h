@@ -11,6 +11,8 @@
 #include "EvCommon.h"
 #include <mutex>
 #include "CRecvSource.h"
+#include <list>
+#include "CSocketClient.h"
 
 
 class CDataReceiver
@@ -49,11 +51,11 @@ class CDataReceiver
    
 };
 
-class CReceiverUDP : public CDataReceiver
+class CReceiverNetWork : public CDataReceiver
 {
  public:
-   CReceiverUDP(uint16_t nPort);
-   ~CReceiverUDP();
+   CReceiverNetWork(uint16_t nUDPPort, uint16_t nTCPPort);
+   ~CReceiverNetWork();
 
 
    virtual std::string GetStat() const override;
@@ -62,13 +64,19 @@ protected:
    virtual void RecvThread() override;
 
  private:
+
+    void CheckTCPEvents();
+    void CheckUDPBroadcastRequests();
     IRecvSource::Ptr FindOrCreateRecvSrc(sf::IpAddress ip, uint16_t nPort);
 
-   uint16_t m_nPort;
-
-   sf::UdpSocket m_Socket;
-
-
+   uint16_t m_nUDPPort;
+   uint16_t m_nTCPPort;
+   sf::UdpSocket m_SockUDP;
+   sf::TcpListener           m_Listener;
+   sf::SocketSelector        m_Selector;
+   std::list<CSocketClient*> m_clients;
+   sf::Socket::Status        m_BindStatus;
+   sf::Socket::Status        m_ListenStatus;
    std::vector<IRecvSource::Ptr> m_vRecvSource;
 };
 

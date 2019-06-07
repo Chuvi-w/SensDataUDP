@@ -7,7 +7,14 @@ import android.util.Log;
 public class SensorListener implements SensorEventListener
 {
     ArrayStream mSensorPacket = new ArrayStream();
+    Integer m_Count=0;
+    CDataStream m_Sender=null;
 
+    SensorListener(CDataStream Sender)
+    {
+        m_Count=0;
+        m_Sender=Sender;
+    }
     @Override
     public void onSensorChanged(SensorEvent event)
     {
@@ -18,12 +25,12 @@ public class SensorListener implements SensorEventListener
         mSensorPacket.write(Integer.valueOf(event.values.length));
         mSensorPacket.write(event.sensor.getResolution());
         mSensorPacket.write(event.sensor.getMaximumRange());
-
+        mSensorPacket.write(m_Count++);
         for (int i = 0; i < event.values.length; i++)
         {
             mSensorPacket.write(event.values[i]);
         }
-        MainActivity.SendData(0xBB00, mSensorPacket);
+        m_Sender.SendPacket(0xBB00, mSensorPacket);
     }
 
     @Override

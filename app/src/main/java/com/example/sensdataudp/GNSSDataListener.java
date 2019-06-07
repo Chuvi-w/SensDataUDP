@@ -31,9 +31,12 @@ public class GNSSDataListener
     private ArrayStream m_NmeaPacket = new ArrayStream();
     private ArrayStream m_LocationPacket = new ArrayStream();
 
-    public GNSSDataListener(LocationManager pLocManager)
+    CDataStream m_Sender=null;
+
+    public GNSSDataListener(LocationManager pLocManager,CDataStream Sender)
     {
         m_locationManager = pLocManager;
+        m_Sender=Sender;
         CreateListeners();
         //m_locationManager.add
     }
@@ -116,7 +119,7 @@ public class GNSSDataListener
                         m_LocationPacket.write(0.0f);
                         m_LocationPacket.write(0.0f);
                     }
-                    MainActivity.SendData(0xCC00, m_LocationPacket);
+                    m_Sender.SendPacket(0xCC00, m_LocationPacket);
                 }
                 catch (IOException exc)
                 {
@@ -198,7 +201,7 @@ public class GNSSDataListener
             m_NmeaPacket.write(Integer.valueOf(0xa5));
             m_NmeaPacket.write(timestamp);
             m_NmeaPacket.write(message);
-            MainActivity.SendData(0xCC00, m_NmeaPacket);
+            m_Sender.SendPacket(0xCC00, m_NmeaPacket);
         }
         catch (IOException exc)
         {

@@ -14,13 +14,13 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity
 {
-    public static SensorManager mSensor_Stream;
-    public static LocationManager mLocationmanager;
-    public static boolean m_PermissionWrite = false;
-    public static boolean m_PermissionInternet = false;
-    public static boolean m_PermissionNetworkState = false;
-    public static boolean m_PermissionWifiState = false;
-    static CDataStream DataStream = null;
+    private SensorManager mSensor_Stream;
+    private LocationManager mLocationmanager;
+    public boolean m_PermissionWrite = false;
+    private boolean m_PermissionInternet = false;
+    private boolean m_PermissionNetworkState = false;
+    private boolean m_PermissionWifiState = false;
+    private CDataStream mDataStream = null;
     private static int mDelay = SensorManager.SENSOR_DELAY_FASTEST;
 
     static
@@ -28,19 +28,10 @@ public class MainActivity extends AppCompatActivity
         System.loadLibrary("native-lib");
     }
 
-    TextView tv;
-    TouchEvListener TEvListener = new TouchEvListener();
-    SensorListener SensListener = new SensorListener();
+    public TextView tv;
+    TouchEvListener TEvListener = new TouchEvListener(mDataStream);
+    SensorListener SensListener = new SensorListener(mDataStream);
     private GNSSDataListener m_GNSSData = null;
-
-    public static void SendData(int PacketID, ArrayStream Pack)
-    {
-
-
-      //  tv.setText(Log);
-
-        DataStream.SendPacket(PacketID, Pack);
-    }
 
     /**
      * Called when the activity is first created.
@@ -57,11 +48,15 @@ public class MainActivity extends AppCompatActivity
         //m_Touch.Init();
         mSensor_Stream = (SensorManager) getSystemService(SENSOR_SERVICE);
         mLocationmanager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        WifiManager wifiMgr = (WifiManager) getSystemService(WIFI_SERVICE);
-        DataStream = new CDataStream(new CNetStream(wifiMgr),tv);
-        DataStream.StartStream();
+        mDataStream = new CDataStream(this);
+        mDataStream.StartStream();
+
+        TEvListener = new TouchEvListener(mDataStream);
+        SensListener = new SensorListener(mDataStream);
+        tv.setOnTouchListener(TEvListener);
+        setContentView(tv);
         StartSensors();
-        m_GNSSData = new GNSSDataListener(mLocationmanager);
+        m_GNSSData = new GNSSDataListener(mLocationmanager,mDataStream);
     }
 
     @Override
@@ -80,7 +75,7 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy()
     {
         super.onDestroy();
-        DataStream.StopStream();
+        mDataStream.StopStream();
         StopSensors();
         m_GNSSData.OnDestroy();
     }

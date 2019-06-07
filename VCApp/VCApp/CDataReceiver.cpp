@@ -2,31 +2,29 @@
 #include <inttypes.h>
 #include <algorithm>
 #include <sstream>
+#include <iostream>
 #include "CTouchEvent.h"
 #include "CSensorEvent.h"
 #include "CDataPacket.h"
 
-CReceiverUDP::CReceiverUDP(uint16_t nPort) : m_nPort(nPort) {}
+CReceiverNetWork::CReceiverNetWork(uint16_t nUPDPort, uint16_t nTCPPort): m_nUDPPort(nUPDPort), m_nTCPPort(nTCPPort) {}
 
-CReceiverUDP::~CReceiverUDP() { StopThread(); }
+CReceiverNetWork::~CReceiverNetWork() { StopThread(); }
 
-std::string CReceiverUDP::GetStat() const
+std::string CReceiverNetWork::GetStat() const
 {
    return "";
 }
 
 
-void CReceiverUDP::RecvThread()
+void CReceiverNetWork::RecvThread()
 {
-   sf::Socket::Status stat;
-   bool               bBindOK = m_Socket.bind(m_nPort, sf::IpAddress(0, 0, 0, 0)) != sf::Socket::Done;
-
-   sf::IpAddress  RecvFrom;
-   char           RecvData[1024 * 20];
-   size_t         NumRecvBytes;
+   
+ 
+  
    std::string    RecvName;
-   unsigned short RecvPort;
-   m_Socket.setBlocking(false);
+   
+   m_SockUDP.setBlocking(false);
    std::vector<CDataPacket> vPack;
    CDataPacket DataPack;
    size_t nPack = 0;
@@ -34,43 +32,149 @@ void CReceiverUDP::RecvThread()
    int32_t LoadSize;
    do
    {
-      stat = m_Socket.receive(RecvData, sizeof(RecvData), NumRecvBytes, RecvFrom, RecvPort);
-      if(stat == sf::Socket::Done && NumRecvBytes > 0)
+      if(1)
       {
-         if(NumRecvBytes < sizeof(RecvData))
-         {
-            RecvData[NumRecvBytes] = 0;
-         }
-         RecvName = std::string("IMU_UDP_") + RecvFrom.toString() + "_" + std::to_string(RecvPort);
-        
-
-         LoadOffset = 0;
-         vPack.clear();
-         do 
-         {
-            LoadSize = DataPack.LoadData(&RecvData[LoadOffset], NumRecvBytes - LoadOffset, FindOrCreateRecvSrc(RecvFrom, RecvPort));
-            if(LoadSize < 0)
-            {
-               break;
-            }
-           // printf("%u_%s %u\n", nPack++, RecvName.c_str(), NumRecvBytes);
-            ProcessPacket(DataPack);
-          
-            LoadOffset += LoadSize;
-         } while (true);
-        
-         for(const auto &p : vPack)
-         {
-         
-            
-         }
-       
+         CheckUDPBroadcastRequests();
+         CheckTCPEvents();
       }
+    
+      
 
    } while(!IsStopped());
 }
 
-IRecvSource::Ptr CReceiverUDP::FindOrCreateRecvSrc(sf::IpAddress ip, uint16_t nPort)
+void CReceiverNetWork::CheckTCPEvents()
+{
+   std::vector<uint8_t> vRecvData;
+   size_t LoadOffset;
+   int32_t LoadSize;
+   CDataPacket DataPack;
+   if(m_ListenStatus != sf::Socket::Done)
+   {
+      m_ListenStatus = m_Listener.listen(m_nTCPPort);
+      if(m_ListenStatus != sf::Socket::Done)
+      {
+         printf("Unable to listen on port %u\n", m_nTCPPort);
+         m_nTCPPort++;
+      }
+      else
+      {
+         m_Selector.clear();
+         m_Selector.add(m_Listener);
+         printf("Start listening on port %u\n", m_nTCPPort);
+      }
+   }
+   else
+   {
+      if(m_Selector.wait(sf::microseconds(10)))
+      {
+       //  std::cout << "Wait ok" << std::endl;
+         if(m_Selector.isReady(m_Listener))
+         {
+            std::cout << "m_Listener ready" << std::endl;
+            auto client = new CSocketClient;
+            if(m_Listener.accept(client->GetSocket()) == sf::Socket::Done)
+            {
+               client->ResetConnectTime();
+               m_clients.push_back(client);
+               m_Selector.add(client->GetSocket());
+            }
+            else
+            {
+               // Error, we won't get a new connection, delete the socket
+               delete client;
+            }
+         }
+         else
+         {
+            for(auto& SockClient : m_clients)
+            {
+               if(m_Selector.isReady(SockClient->GetSocket()))
+               {
+                  vRecvData= SockClient->ReceivePacket();
+
+                  if(!vRecvData.empty())
+                  {
+                     LoadOffset = 0;
+                     LoadSize = 0;
+                     do
+                     {
+                        LoadSize = DataPack.LoadData(&vRecvData[LoadOffset], vRecvData.size() - LoadOffset, FindOrCreateRecvSrc(SockClient->GetSocket().getRemoteAddress(), SockClient->GetSocket().getRemotePort()));
+                        if(LoadSize < 0)
+                        {
+                           break;
+                        }
+                        // printf("%u_%s %u\n", nPack++, RecvName.c_str(), NumRecvBytes);
+                        ProcessPacket(DataPack);
+
+                        LoadOffset += LoadSize;
+                     }
+                     while(LoadOffset<vRecvData.size());
+                  }
+               }
+            }
+         }
+      }
+
+      m_clients.remove_if([this](CSocketClient* pClient)
+      {
+         if(pClient->IsTimeoutOrDisconnected())
+         {
+            m_Selector.remove(pClient->GetSocket());
+            return true;
+         }
+         return false;
+      });
+   }
+}
+
+void CReceiverNetWork::CheckUDPBroadcastRequests()
+{
+   sf::IpAddress  RecvFrom;
+   char           RecvData[1024 * 20];
+   size_t         NumRecvBytes;
+   sf::Socket::Status stat;
+   unsigned short RecvPort;
+   if(m_BindStatus != sf::Socket::Done)
+   {
+      m_BindStatus= m_SockUDP.bind(m_nUDPPort, sf::IpAddress(0, 0, 0, 0));
+      if(m_BindStatus != sf::Socket::Done)
+      {
+         printf("Unable to bind on port %u\n", m_nUDPPort);
+         m_nUDPPort++;
+      }
+      else
+      {
+         printf("Start listening on UDP port %u\n", m_nUDPPort);
+      }
+   }
+   else
+   {
+      stat = m_SockUDP.receive(RecvData, sizeof(RecvData), NumRecvBytes, RecvFrom, RecvPort);
+      if(stat == sf::Socket::Done && NumRecvBytes > 0)
+      {
+         if(
+            m_ListenStatus == sf::Socket::Done&&
+            NumRecvBytes == (sizeof(uint32_t) * 3) &&
+            ((uint32_t*)RecvData)[0] == 0xFF00EE11 &&
+            ((uint32_t*)RecvData)[1] == 0x22DD33CC &&
+            ((uint32_t*)RecvData)[2] == 0xBB44AA55
+            )
+         {
+            NumRecvBytes = (sizeof(uint32_t) * 4);
+            ((uint32_t*)RecvData)[0] = 0x00FF11EE;
+            ((uint32_t*)RecvData)[1] = 0xDD22CC33;
+            ((uint32_t*)RecvData)[2] = 0x44BB55AA;
+            ((uint32_t*)RecvData)[3] = m_nTCPPort;
+            m_SockUDP.send(RecvData, NumRecvBytes, RecvFrom, RecvPort);
+            printf("");
+         }
+
+      }
+   }
+}
+
+IRecvSource::Ptr CReceiverNetWork::FindOrCreateRecvSrc(sf::IpAddress ip, uint16_t nPort)
 {
 
    for(const auto &RecvSrc : m_vRecvSource)

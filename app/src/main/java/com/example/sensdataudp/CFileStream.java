@@ -21,8 +21,10 @@ public class CFileStream implements IStreamInterface
     private Thread mFWriteThread = null;
     private StringBuilder mSB=null;
     private long m_TotalSend=0;
-    CFileStream()
+    private MainActivity mMain=null;
+    CFileStream(MainActivity Main)
     {
+        mMain=Main;
         mDataQueue = new LinkedBlockingQueue<>();
         mSB=new StringBuilder();
 
@@ -31,7 +33,7 @@ public class CFileStream implements IStreamInterface
     @Override
     public boolean StartStream()
     {
-        if (MainActivity.m_PermissionWrite)
+        if (mMain.m_PermissionWrite)
         {
             File DataDir = new File(Environment.getExternalStorageDirectory(), "SensDataUdp");
             boolean dd1 = DataDir.mkdirs();
@@ -67,7 +69,7 @@ public class CFileStream implements IStreamInterface
     @Override
     public void StopStream()
     {
-        if (MainActivity.m_PermissionWrite)
+        if (mMain.m_PermissionWrite)
         {
             m_bThreadRunning = false;
             if (mFWriteThread != null && mFWriteThread.isAlive())
@@ -96,7 +98,7 @@ public class CFileStream implements IStreamInterface
     @Override
     public void SendPacket(ArrayStream DataPacket)
     {
-        if (MainActivity.m_PermissionWrite)
+        if (mMain.m_PermissionWrite)
         {
             mDataQueue.add(DataPacket);
             m_TotalSend++;
@@ -112,6 +114,12 @@ public class CFileStream implements IStreamInterface
         mSB.append("\tTotal="+m_TotalSend+"\n"+"\tBuff="+mDataQueue.size()+"\n");
         mSB.append("\n}\n");
         return mSB;
+    }
+
+    @Override
+    public boolean IsEnable()
+    {
+        return m_bThreadRunning;
     }
 
     class CFileWriter implements Runnable

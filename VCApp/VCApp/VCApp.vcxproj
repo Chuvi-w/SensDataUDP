@@ -172,6 +172,7 @@
     <ClCompile Include="CNMEAEvent.cpp" />
     <ClCompile Include="CRecvSource.cpp" />
     <ClCompile Include="CSensorEvent.cpp" />
+    <ClCompile Include="CSocketClient.cpp" />
     <ClCompile Include="CTimeStamp.cpp" />
     <ClCompile Include="CTouchEvent.cpp" />
     <ClCompile Include="gestureDetector.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="ConsoleTools.h" />
     <ClInclude Include="CRecvSource.h" />
     <ClInclude Include="CSensorEvent.h" />
+    <ClInclude Include="CSocketClient.h" />
     <ClInclude Include="CTimeStamp.h" />
     <ClInclude Include="CTouchEvent.h" />
     <ClInclude Include="EvCommon.h" />

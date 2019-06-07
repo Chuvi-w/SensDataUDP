@@ -72,6 +72,9 @@
     <ClCompile Include="Open_IMU_AHRS\MahonyAHRS_c.c">
       <Filter>Файлы исходного кода\Open_IMU_AHRS</Filter>
     </ClCompile>
+    <ClCompile Include="CSocketClient.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="jni.h">
@@ -145,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="Open_IMU_AHRS\MahonyAHRS_c.h">
       <Filter>Заголовочные файлы\Open_IMU_AHRS</Filter>
+    </ClInclude>
+    <ClInclude Include="CSocketClient.h">
+      <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

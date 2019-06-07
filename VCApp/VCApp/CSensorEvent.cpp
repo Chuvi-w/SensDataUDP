@@ -36,7 +36,7 @@ bool CSensorEvent::ParseEvent(const CDataPacket& pPacket)
       !pPacket.GetData(SensHDR.nSize) ||
       !pPacket.GetData(SensHDR.flRes) ||
       !pPacket.GetData(SensHDR.flMaxRange) ||
-    
+      !pPacket.GetData(SensHDR.nCount) ||
       pPacket.GetRemainDataSize() < SensHDR.nSize * sizeof(float)
    )
    {

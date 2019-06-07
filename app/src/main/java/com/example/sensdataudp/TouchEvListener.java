@@ -6,6 +6,12 @@ public class TouchEvListener implements View.OnTouchListener
 {
     StringBuilder sb = new StringBuilder();
     ArrayStream m_Touch = new ArrayStream();
+    CDataStream m_Sender=null;
+
+    TouchEvListener(CDataStream Sender)
+    {
+        m_Sender=Sender;
+    }
 
     @Override
     public boolean onTouch(View view, MotionEvent event)
@@ -45,7 +51,7 @@ public class TouchEvListener implements View.OnTouchListener
             m_Touch.write(event.getOrientation(i));
             //m_Touch.write(pointerCount);
         }
-        MainActivity.SendData(0xAA00, m_Touch);
+        m_Sender.SendPacket(0xAA00, m_Touch);
         return true;
     }
 }

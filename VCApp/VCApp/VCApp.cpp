@@ -90,7 +90,7 @@ void RunReceiver(CDataReceiver& pReceiver)
 void RunUDP()
 
 {
-   CReceiverUDP Recv(4452);
+   CReceiverNetWork Recv(4452,4450);
    RunReceiver(Recv);
 }
 

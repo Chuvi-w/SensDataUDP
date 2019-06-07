@@ -12,9 +12,10 @@ typedef struct ComSensorsHdr_s
    jlong  nTimeStamp;
    jint   nType;
    jint   nAccuracy;
+   jint  nSize;
    jfloat flRes;
    jfloat flMaxRange;
-   jint  nSize;
+   jint   nCount;
 } ComSensorsHdr_t;
 #pragma pack(pop)
 
@@ -47,4 +48,6 @@ class CSensorEvent : public IEventReceiver
     CIMUAcc::PTR m_Acc;
     CIMUGyr::PTR m_Gyr;
     CIMUMag::PTR m_Mag;
+
+   
 };

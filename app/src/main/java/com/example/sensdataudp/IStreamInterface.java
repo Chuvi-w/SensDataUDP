@@ -8,4 +8,6 @@ public interface IStreamInterface
     void SendPacket(ArrayStream DataPacket);
 
     StringBuilder GetStat();
+
+    boolean IsEnable();
 }
