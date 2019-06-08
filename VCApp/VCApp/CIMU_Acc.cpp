@@ -1,26 +1,24 @@
 #include "CIMU_Acc.h"
 
-
-
-void CIMUMag::AddCalibrationFrame(const CIMUFrame &fr)
+void CIMUMag::AddCalibrationFrame(const CIMUFrame& fr)
 {
-   auto &Val = fr.GetVal();
-  
+   auto& Val = fr.GetVal();
+
    if(m_bFirstFrame)
    {
       m_bFirstFrame = false;
-      m_MaxVal = Val;
-      m_MinVal = Val;
+      m_MaxVal      = Val;
+      m_MinVal      = Val;
       return;
    }
-   
+
    if(Val.x > m_MaxVal.x)
    {
       m_MaxVal.x = Val.x;
    }
    if(Val.y > m_MaxVal.y)
    {
-      m_MaxVal.y= Val.y;
+      m_MaxVal.y = Val.y;
    }
    if(Val.z > m_MaxVal.z)
    {
@@ -39,10 +37,9 @@ void CIMUMag::AddCalibrationFrame(const CIMUFrame &fr)
    {
       m_MinVal.z = Val.z;
    }
-
 }
 
-bool CIMUMag::PreAddFrame(CIMUFrame &fr)
+bool CIMUMag::PreAddFrame(CIMUFrame& fr)
 {
    if(!m_bCalibrated)
    {
@@ -51,15 +48,12 @@ bool CIMUMag::PreAddFrame(CIMUFrame &fr)
    return true;
 }
 
-void CIMUMag::Calibrate()
-{
-   printf("");
-}
+void CIMUMag::Calibrate() { printf(""); }
 
 void CIMUMag::OnReset()
 {
    m_bCalibrated = false;
-   m_MinVal = NullVec3D;
-   m_MaxVal = NullVec3D;
+   m_MinVal      = NullVec3D;
+   m_MaxVal      = NullVec3D;
    m_bFirstFrame = true;
 }

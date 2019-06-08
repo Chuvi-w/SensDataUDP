@@ -53,20 +53,20 @@ template <typename T> inline void bswap(T& s)
 
 typedef struct CommonData_s
 {
-   CTimeStampNS TimeNano;
-   int64_t TimeMS;
+   CTimeStampNS                       TimeNano;
+   int64_t                            TimeMS;
    std::shared_ptr<class IRecvSource> RecvSrc;
-}CommonPacketData_t;
+} CommonPacketData_t;
 
 class CDataPacket;
 class IEventReceiver : public std::enable_shared_from_this<IEventReceiver>
 {
  public:
-    using PTR = std::shared_ptr<IEventReceiver>;
+   using PTR = std::shared_ptr<IEventReceiver>;
    IEventReceiver(uint32_t nEvID) : m_EvID(nEvID) {}
    IEventReceiver(const IEventReceiver& pEv) : m_EvID(pEv.m_EvID) {}
    ~IEventReceiver() {}
-   virtual bool ParseEvent(const  CDataPacket& pPacket) = 0;
+   virtual bool ParseEvent(const CDataPacket& pPacket) = 0;
 
    virtual std::shared_ptr<IEventReceiver> GetEvShared() = 0;
    uint32_t                                GetEventID() const { return m_EvID; }
@@ -75,18 +75,13 @@ class IEventReceiver : public std::enable_shared_from_this<IEventReceiver>
    uint32_t m_EvID;
 };
 
-
-
 class CTimeStampNS;
-template <typename DataT> class  EvPacketT
+template <typename DataT> class EvPacketT
 {
-public:
-   EvPacketT(const CTimeStampNS &Time, const DataT &Dat) :m_NanoTime(Time), m_Data(Dat)
-   {
+ public:
+   EvPacketT(const CTimeStampNS& Time, const DataT& Dat) : m_NanoTime(Time), m_Data(Dat) {}
 
-   }
-
-private:
+ private:
    CTimeStampNS m_NanoTime;
-   DataT m_Data;
+   DataT        m_Data;
 };

@@ -19,12 +19,6 @@
     <Filter Include="Файлы исходного кода\MathLib">
       <UniqueIdentifier>{ad4cb3a9-10e7-4330-b634-d6fa1bc882e0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Заголовочные файлы\Open_IMU_AHRS">
-      <UniqueIdentifier>{acfcd072-e6f4-441d-9638-df601a07e675}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Файлы исходного кода\Open_IMU_AHRS">
-      <UniqueIdentifier>{05720741-5ec1-4bea-84bb-72daa62f390c}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VCApp.cpp">
@@ -65,12 +59,6 @@
     </ClCompile>
     <ClCompile Include="CIMU_Acc.cpp">
       <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
-    <ClCompile Include="Open_IMU_AHRS\MadgwickAHRS_c.c">
-      <Filter>Файлы исходного кода\Open_IMU_AHRS</Filter>
-    </ClCompile>
-    <ClCompile Include="Open_IMU_AHRS\MahonyAHRS_c.c">
-      <Filter>Файлы исходного кода\Open_IMU_AHRS</Filter>
     </ClCompile>
     <ClCompile Include="CSocketClient.cpp">
       <Filter>Файлы исходного кода</Filter>
@@ -143,19 +131,8 @@
     <ClInclude Include="ConsoleTools.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="Open_IMU_AHRS\MadgwickAHRS_c.h">
-      <Filter>Заголовочные файлы\Open_IMU_AHRS</Filter>
-    </ClInclude>
-    <ClInclude Include="Open_IMU_AHRS\MahonyAHRS_c.h">
-      <Filter>Заголовочные файлы\Open_IMU_AHRS</Filter>
-    </ClInclude>
     <ClInclude Include="CSocketClient.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Open_IMU_AHRS\OpenIMU_Notes.txt">
-      <Filter>Файлы исходного кода\Open_IMU_AHRS</Filter>
-    </Text>
   </ItemGroup>
 </Project>

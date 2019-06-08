@@ -29,7 +29,7 @@
 
 volatile float twoKp = twoKpDef;                                           // 2 * proportional gain (Kp)
 volatile float twoKi = twoKiDef;                                           // 2 * integral gain (Ki)
-volatile float g_q0 = 1.0f, g_q1 = 0.0f, g_q2 = 0.0f, g_q3 = 0.0f;                 // quaternion of sensor frame relative to auxiliary frame
+volatile float g_q0 = 1.0f, g_q1 = 0.0f, g_q2 = 0.0f, g_q3 = 0.0f;         // quaternion of sensor frame relative to auxiliary frame
 volatile float integralFBx = 0.0f, integralFBy = 0.0f, integralFBz = 0.0f; // integral error terms scaled by Ki
 
 //---------------------------------------------------------------------------------------------------

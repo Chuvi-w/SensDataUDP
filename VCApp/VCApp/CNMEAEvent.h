@@ -24,13 +24,12 @@ typedef struct LocationChangedEvent_s
    float       flBearingAccuracyDegrees;
 } LocationChangedEvent_t;
 
-
 typedef struct NMEAPacket_s
 {
-   char sTalker[2];
-   char sMsgType[3];
+   char                     sTalker[2];
+   char                     sMsgType[3];
    std::vector<std::string> vData;
-}NMEAPacket_t;
+} NMEAPacket_t;
 
 class CNMEAEvent : public IEventReceiver
 {
@@ -48,24 +47,23 @@ class CNMEAEvent : public IEventReceiver
    virtual std::shared_ptr<IEventReceiver> GetEvShared() override;
 
  private:
-   NMEAPacket_t ParseNMEAString(std::string& sNMEA) const;
+   NMEAPacket_t     ParseNMEAString(std::string& sNMEA) const;
    nmea::NMEAParser m_NMEAParser;
    nmea::GPSService m_NMEAGps;
 
 #ifdef NMEA_DEBUG_EVENTS
-   std::map < std::string, std::map<std::string, uint32_t>> m_nEvTypes;
+   std::map<std::string, std::map<std::string, uint32_t>> m_nEvTypes;
 
    std::vector<std::string> m_vGPSLog;
 
    typedef struct NMEALog_s
    {
       double lat, lng, speed;
-   }NMEALog_t;
+   } NMEALog_t;
    std::vector<NMEALog_s> m_vCoordsLog, m_vCoordsLogNMEA;
 
 #endif
 
    std::vector<EvPacketT<LocationChangedEvent_t>> m_vLocPackets;
-   CTimeStampNS m_LastPacketTS;
-
+   CTimeStampNS                                   m_LastPacketTS;
 };

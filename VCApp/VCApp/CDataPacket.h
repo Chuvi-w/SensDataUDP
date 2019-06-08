@@ -3,11 +3,6 @@
 #include "CTimeStamp.h"
 #include "CRecvSource.h"
 
-
-
-
-
-
 class CDataPacket
 {
  public:
@@ -65,10 +60,7 @@ class CDataPacket
       return true;
    }
 
-   IRecvSource::Ptr GetRecvSrc() const
-   {
-      return m_RecvSource;
-   }
+   IRecvSource::Ptr GetRecvSrc() const { return m_RecvSource; }
 
    size_t       GetRemainDataSize() const;
    size_t       GetDataSize() const;
@@ -77,15 +69,16 @@ class CDataPacket
 
    uint64_t GetPacketID() const;
 
-   bool operator==(const CDataPacket& pOther) const;
+   bool               operator==(const CDataPacket& pOther) const;
    CommonPacketData_t GetCommonData() const;
+
  private:
    // void *m_nData;
    std::shared_ptr<std::vector<uint8_t>> m_nData;
-   mutable size_t                                m_nReadPos;
+   mutable size_t                        m_nReadPos;
    bool                                  m_bEndian;
    CTimeStampNS                          m_nNanoTime;
-   int64_t                              m_TimeMS;
+   int64_t                               m_TimeMS;
    uint64_t                              m_nPacketID;
    IRecvSource::Ptr                      m_RecvSource;
    // uint64_t m_nRecvSize;

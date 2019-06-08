@@ -16,8 +16,8 @@
 //----------------------------------------------------------------------------------------------------
 // Variable declaration
 
-extern volatile float twoKp;          // 2 * proportional gain (Kp)
-extern volatile float twoKi;          // 2 * integral gain (Ki)
+extern volatile float twoKp;                  // 2 * proportional gain (Kp)
+extern volatile float twoKi;                  // 2 * integral gain (Ki)
 extern volatile float g_q0, g_q1, g_q2, g_q3; // quaternion of sensor frame relative to auxiliary frame
 
 //---------------------------------------------------------------------------------------------------

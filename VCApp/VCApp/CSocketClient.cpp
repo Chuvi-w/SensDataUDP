@@ -2,20 +2,11 @@
 #include <iostream>
 #include <stdint.h>
 
+CSocketClient::CSocketClient() : m_bDisconnected(false) {}
 
-CSocketClient::CSocketClient(): m_bDisconnected(false)
-{
-}
+CSocketClient::~CSocketClient() { m_Socket.disconnect(); }
 
-CSocketClient::~CSocketClient()
-{
-   m_Socket.disconnect();
-}
-
-sf::TcpSocket& CSocketClient::GetSocket()
-{
-   return m_Socket;
-}
+sf::TcpSocket& CSocketClient::GetSocket() { return m_Socket; }
 
 void CSocketClient::ResetConnectTime()
 {
@@ -23,22 +14,19 @@ void CSocketClient::ResetConnectTime()
    m_TimeConnect.restart();
 }
 
-void CSocketClient::ResetLastRecvTime()
-{
-   m_TimeLastRecv.restart();
-}
+void CSocketClient::ResetLastRecvTime() { m_TimeLastRecv.restart(); }
 
 std::vector<uint8_t> CSocketClient::ReceivePacket()
 {
    std::vector<uint8_t> vData(4096);
-   size_t nRecvd = 0;
-   auto   RecvStatus = m_Socket.receive(vData.data(), vData.size(), nRecvd);
+   size_t               nRecvd     = 0;
+   auto                 RecvStatus = m_Socket.receive(vData.data(), vData.size(), nRecvd);
    if(RecvStatus == sf::Socket::Done)
    {
       vData.resize(nRecvd);
-      //std::cout << "Recv " << nRecvd << " bytes from " << m_Socket.getRemoteAddress().toString().c_str() << ":" << m_Socket.getRemotePort() << std::endl;
+      // std::cout << "Recv " << nRecvd << " bytes from " << m_Socket.getRemoteAddress().toString().c_str() << ":" << m_Socket.getRemotePort() << std::endl;
       m_TimeLastRecv.restart();
-      //m_Socket.send(Data, nRecvd);
+      // m_Socket.send(Data, nRecvd);
    }
    else
    {
@@ -57,10 +45,7 @@ std::vector<uint8_t> CSocketClient::ReceivePacket()
    return vData;
 }
 
-sf::Time CSocketClient::GetConnectTime()
-{
-   return m_TimeConnect.getElapsedTime();
-}
+sf::Time CSocketClient::GetConnectTime() { return m_TimeConnect.getElapsedTime(); }
 
 bool CSocketClient::IsTimeoutOrDisconnected() const
 {

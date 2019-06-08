@@ -177,8 +177,6 @@
     <ClCompile Include="CTouchEvent.cpp" />
     <ClCompile Include="gestureDetector.cpp" />
     <ClCompile Include="MathLib\MathUtils.cpp" />
-    <ClCompile Include="Open_IMU_AHRS\MadgwickAHRS_c.c" />
-    <ClCompile Include="Open_IMU_AHRS\MahonyAHRS_c.c" />
     <ClCompile Include="TouchEvData.cpp" />
     <ClCompile Include="VCApp.cpp" />
   </ItemGroup>
@@ -205,12 +203,7 @@
     <ClInclude Include="MathLib\Vector2D.h" />
     <ClInclude Include="MathLib\Vector3D.h" />
     <ClInclude Include="MathLib\Vector4D.h" />
-    <ClInclude Include="Open_IMU_AHRS\MadgwickAHRS_c.h" />
-    <ClInclude Include="Open_IMU_AHRS\MahonyAHRS_c.h" />
     <ClInclude Include="TouchEvData.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Open_IMU_AHRS\OpenIMU_Notes.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

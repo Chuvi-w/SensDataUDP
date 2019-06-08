@@ -4,7 +4,7 @@ CDataPacket::CDataPacket() : m_nData(nullptr), m_nReadPos(0), m_bEndian(false), 
 // m_nRecvSize(0)
 {}
 
-CDataPacket::CDataPacket(const CDataPacket& pOther) : m_nData(pOther.m_nData), m_nReadPos(pOther.m_nReadPos), m_bEndian(pOther.m_bEndian), m_nNanoTime(pOther.m_nNanoTime), m_nPacketID(pOther.m_nPacketID)
+CDataPacket::CDataPacket(const CDataPacket& pOther) : m_nData(pOther.m_nData), m_nReadPos(pOther.m_nReadPos), m_bEndian(pOther.m_bEndian), m_nNanoTime(pOther.m_nNanoTime), m_nPacketID(pOther.m_nPacketID), m_RecvSource(pOther.m_RecvSource)
 // m_nRecvSize(pOther.m_nRecvSize)
 {}
 
@@ -50,7 +50,7 @@ int32_t CDataPacket::LoadData(void* pData, size_t nDataSize, IRecvSource::Ptr Da
    nTimeStamp  = CommHdr.NanoTime;
    m_nPacketID = CommHdr.PacketID;
    nRecvSize   = CommHdr.DataSize;
-   m_TimeMS = CommHdr.TimeMS;
+   m_TimeMS    = CommHdr.TimeMS;
    if(!m_bEndian)
    {
       bswap(nTimeStamp);
@@ -59,7 +59,7 @@ int32_t CDataPacket::LoadData(void* pData, size_t nDataSize, IRecvSource::Ptr Da
       bswap(m_TimeMS);
    }
 
-  // printf("%llu\n", m_TimeMS);
+   // printf("%llu\n", m_TimeMS);
    m_nNanoTime = CTimeStampNS(nTimeStamp);
    if(nDataSize < sizeof(CommPacket_t) + nRecvSize)
    {
@@ -96,13 +96,7 @@ CTimeStampNS CDataPacket::GetNanoTime() const { return m_nNanoTime; }
 
 uint64_t CDataPacket::GetPacketID() const { return m_nPacketID; }
 
-CommonPacketData_t CDataPacket::GetCommonData() const
-{
-   return
-   {
-      m_nNanoTime, m_TimeMS, m_RecvSource
-   };
-}
+CommonPacketData_t CDataPacket::GetCommonData() const { return {m_nNanoTime, m_TimeMS, m_RecvSource}; }
 
 bool CDataPacket::operator==(const CDataPacket& pOther) const
 {

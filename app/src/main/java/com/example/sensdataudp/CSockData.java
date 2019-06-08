@@ -46,8 +46,8 @@ class CSockData
         try
         {
             mSocket.connect(mInAddr,10);
-            mSocket.setTcpNoDelay(true);
-            mSocket.setSoTimeout(1);
+         //  mSocket.setTcpNoDelay(true);
+         //  mSocket.setSoTimeout(1);
             mBConnected=true;
         }
         catch (IOException e)
@@ -64,7 +64,6 @@ class CSockData
 
             try
             {
-
                 mSocket.getOutputStream().write(buf);
             }
 

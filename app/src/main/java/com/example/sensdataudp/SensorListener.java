@@ -7,7 +7,7 @@ import android.util.Log;
 public class SensorListener implements SensorEventListener
 {
     ArrayStream mSensorPacket = new ArrayStream();
-    Integer m_Count=0;
+    long m_Count=0;
     CDataStream m_Sender=null;
 
     SensorListener(CDataStream Sender)
