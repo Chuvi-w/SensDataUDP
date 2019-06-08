@@ -92,7 +92,7 @@ class CBaseIMUSensor
 
  private:
    std::mutex             m_FrMux;
-   std::vector<CIMUFrame> m_vFrames;
+   std::list<CIMUFrame> m_vFrames;
    IMUType_t              m_ImuType;
    size_t                 m_SkipCount;
    int                    m_OutPos;

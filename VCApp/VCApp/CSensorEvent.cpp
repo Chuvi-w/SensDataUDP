@@ -8,6 +8,7 @@ CSensorEvent::CSensorEvent() : IEventReceiver(SENSOR_EV_ID), m_Acc(CIMUAcc::Crea
    m_vIMU[m_Acc->GetType()] = m_Acc;
    m_vIMU[m_Gyr->GetType()] = m_Gyr;
    m_vIMU[m_Mag->GetType()] = m_Mag;
+   m_FirstFrameTime = 0;
 }
 
 CSensorEvent::~CSensorEvent() {}
@@ -50,13 +51,19 @@ bool CSensorEvent::ParseEvent(const CDataPacket& pPacket)
          printf("Packet lost (%llu)\n", SensHDR.nCount - (m_nLastPacketCount + 1));
       }
    }
+
+   if (m_FirstFrameTime.m_TS == 0)
+   {
+      m_FirstFrameTime = pPacket.GetNanoTime();
+   }
    m_nLastPacketCount = SensHDR.nCount;
    auto fIMU          = m_vIMU.find(IMUType_t(SensHDR.nType));
    if(fIMU != m_vIMU.end())
    {
       fIMU->second->AddFrame(CIMUFrame(pPacket.GetCommonData(), SensHDR.nTimeStamp, Vec3D(FlCoords[0], FlCoords[1], FlCoords[2]), Vec3D(FlCalib[0], FlCalib[1], FlCalib[2])), SensHDR.flRes, SensHDR.flMaxRange);
    }
-
+   gotoxy(0, 2);
+   printf("%011.7f\n", pPacket.GetNanoTime().GetSeconds() - m_FirstFrameTime.GetSeconds());
    static size_t nCOunt   = 0;
    auto          AccTime  = m_Acc->GetLastFrameTime();
    auto          GyrTime  = m_Gyr->GetLastFrameTime();
@@ -72,28 +79,33 @@ bool CSensorEvent::ParseEvent(const CDataPacket& pPacket)
       m_AccTime.AddElement(m_Acc->GetFrameTimeDiff());
       m_GyrTime.AddElement(m_Gyr->GetFrameTimeDiff());
       m_MagTime.AddElement(m_Mag->GetFrameTimeDiff());
+      auto PrintMinMax = [dTimeDiv](const char *sName, const CMinMax<int64_t> &val)
+      {
+         printf("%s %011.7f %011.7f %011.7f | %011.7f %011.7f\t\t\t\t\n",sName, (double)val.GetMin() / dTimeDiv, (val.GetAvg<double>()) / dTimeDiv, (double)val.GetMax() / dTimeDiv, val.GetSKO<double>() / dTimeDiv, val.GetLastVal() / dTimeDiv);
 
-      gotoxy(0, 0);
+      };
 
-      printf("m_AccGyrDiff= %06.7f %06.7f %06.7f | %06.7f\t\t\t\n", (double)m_AccGyrDiff.GetMin() / dTimeDiv, ((double)m_AccGyrDiff.GetSum() / (double)m_AccGyrDiff.GetCount()) / dTimeDiv, (double)m_AccGyrDiff.GetMax() / dTimeDiv, (double)(int64_t)(__abs(AccTime - GyrTime)) / dTimeDiv);
-      printf("m_AccMagDiff= %06.7f %06.7f %06.7f | %06.7f\t\t\t \n", (double)m_AccMagDiff.GetMin() / dTimeDiv, ((double)m_AccMagDiff.GetSum() / (double)m_AccMagDiff.GetCount()) / dTimeDiv, (double)m_AccMagDiff.GetMax() / dTimeDiv, (double)(int64_t)(__abs(AccTime - MagTime)) / dTimeDiv);
-      printf("m_GyrMagDiff= %06.7f %06.7f %06.7f | %06.7f\t\t\t \n", (double)m_GyrMagDiff.GetMin() / dTimeDiv, ((double)m_GyrMagDiff.GetSum() / (double)m_GyrMagDiff.GetCount()) / dTimeDiv, (double)m_GyrMagDiff.GetMax() / dTimeDiv, (double)(int64_t)(__abs(GyrTime - MagTime)) / dTimeDiv);
-      printf("m_AccTime= %06.7f %06.7f %06.7f\n", (double)m_AccTime.GetMin() / dTimeDiv, ((double)m_AccTime.GetSum() / (double)m_AccTime.GetCount()) / dTimeDiv, (double)m_AccTime.GetMax() / dTimeDiv);
-      printf("m_GyrTime= %06.7f %06.7f %06.7f\n", (double)m_GyrTime.GetMin() / dTimeDiv, ((double)m_GyrTime.GetSum() / (double)m_GyrTime.GetCount()) / dTimeDiv, (double)m_GyrTime.GetMax() / dTimeDiv);
-      printf("m_MagTime= %06.7f %06.7f %06.7f\n", (double)m_MagTime.GetMin() / dTimeDiv, ((double)m_MagTime.GetSum() / (double)m_MagTime.GetCount()) / dTimeDiv, (double)m_MagTime.GetMax() / dTimeDiv);
-
+      gotoxy(0, 4);
+      
+      PrintMinMax("m_AccGyrDiff=", m_AccGyrDiff);
+      PrintMinMax("m_AccMagDiff=", m_AccMagDiff);
+      PrintMinMax("m_GyrMagDiff=", m_GyrMagDiff);
+      PrintMinMax("m_AccTime=   ", m_AccTime);
+      PrintMinMax("m_GyrTime=   ", m_GyrTime);
+      PrintMinMax("m_MagTime=   ", m_MagTime);
+     // printf("%.3f\n", m_MagTime.GetAvg<double>());
       nCOunt++;
 
-      if(nCOunt > 1000)
-      {
-         nCOunt = 0;
-         m_AccGyrDiff.Reset();
-         m_AccMagDiff.Reset();
-         m_GyrMagDiff.Reset();
-         m_AccTime.Reset();
-         m_GyrTime.Reset();
-         m_MagTime.Reset();
-      }
+//       if(nCOunt > 1000)
+//       {
+//          nCOunt = 0;
+//          m_AccGyrDiff.Reset();
+//          m_AccMagDiff.Reset();
+//          m_GyrMagDiff.Reset();
+//          m_AccTime.Reset();
+//          m_GyrTime.Reset();
+//          m_MagTime.Reset();
+//       }
    }
 
    return true;

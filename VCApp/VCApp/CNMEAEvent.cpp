@@ -73,7 +73,7 @@ CNMEAEvent::CNMEAEvent() : IEventReceiver(NMEA_EV_ID), m_NMEAGps(m_NMEAParser)
             printf("\t[o]%s\n", t.second.c_str());
          }
 
-         std::this_thread::sleep_for(std::chrono::microseconds(20));
+        // std::this_thread::sleep_for(std::chrono::microseconds(20));
          // Sleep(2);
       }
 

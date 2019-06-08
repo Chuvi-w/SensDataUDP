@@ -21,7 +21,7 @@ class CDataReceiver
    virtual ~CDataReceiver();
    virtual void RecvThread() = 0;
 
-   std::atomic_bool IsStopped() const;
+   bool IsStopped() const;
 
    bool ProcessPacket(const CDataPacket& Packet);
 
@@ -72,37 +72,6 @@ class CReceiverNetWork : public CDataReceiver
    std::vector<IRecvSource::Ptr> m_vRecvSource;
 };
 
-class CReceiverFile : public CDataReceiver
-{
 
-   /* typedef struct FilePacket_s
-    {
-       bool bIsEndian;
-       uint64_t nTimeStamp;
-       uint64_t nPacketID;
-       std::vector<uint8_t> vData;
-
-    }FilePacket_t;*/
- public:
-   CReceiverFile();
-   ~CReceiverFile();
-
-   void ResetPackets();
-   void SortPackets();
-   bool LoadFile(const std::string& sFileName);
-
-   virtual std::string GetStat() const override;
-
- private:
-   void GetTimeMinMaxSKO();
-   bool AddPacket(CDataPacket& pPacket);
-
- protected:
-   virtual void RecvThread() override;
-
-   std::vector<CDataPacket> m_vPackets;
-   size_t                   m_CurEvID;
-   mutable std::mutex       m_RdLock;
-};
 
 #endif // CIMUReceiver_h__

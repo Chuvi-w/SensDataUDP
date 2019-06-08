@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -170,6 +170,7 @@
     <ClCompile Include="CIMUBase.cpp" />
     <ClCompile Include="CIMU_Acc.cpp" />
     <ClCompile Include="CNMEAEvent.cpp" />
+    <ClCompile Include="CReceiverFile.cpp" />
     <ClCompile Include="CRecvSource.cpp" />
     <ClCompile Include="CSensorEvent.cpp" />
     <ClCompile Include="CSocketClient.cpp" />
@@ -188,6 +189,7 @@
     <ClInclude Include="CIMU_Acc.h" />
     <ClInclude Include="CNMEAEvent.h" />
     <ClInclude Include="ConsoleTools.h" />
+    <ClInclude Include="CReceiverFile.h" />
     <ClInclude Include="CRecvSource.h" />
     <ClInclude Include="CSensorEvent.h" />
     <ClInclude Include="CSocketClient.h" />

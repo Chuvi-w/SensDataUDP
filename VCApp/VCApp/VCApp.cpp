@@ -7,6 +7,7 @@
 #include <iostream>
 #include <functional>
 #include "CIMU_Acc.h"
+#include "CReceiverFile.h"
 
 typedef CTouchEvent::PTR (*pfnCreate)();
 
@@ -89,7 +90,7 @@ void RunFRead()
 {
    CReceiverFile RF;
    printf("Loading...");
-   RF.LoadFile(R"(D:\AnDroid\2019_06_08-10_50_14.bin)");
+   RF.LoadFile(R"(D:\Chuvi\2019_06_08-10_50_14.bin)");
    // RF.LoadFile(R"(D:\AnDroid\2019_05_31-20_26_41.bin)");
 
    RunReceiver(RF);

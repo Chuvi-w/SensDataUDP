@@ -35,7 +35,7 @@ void CBaseIMUSensor::AddFrame(const CIMUFrame& Fr, float flResolution, float flM
    m_CurFrameTime = Fr.GetIMUTime();
 
    m_vFrames.push_back(FrameData);
-   GetAndPrintSKO(FrameData);
+ //  GetAndPrintSKO(FrameData);
 }
 
 void CBaseIMUSensor::GetAndPrintSKO(const CIMUFrame& Fr) const
@@ -122,6 +122,11 @@ bool CBaseIMUSensor::PreAddFrame(CIMUFrame& fr) { return true; }
 
 Vec3D CBaseIMUSensor::GetAvg(size_t Offset /*=0*/, size_t nCount /*=-1*/) const
 {
+
+   
+   int *a = 0;
+   a = 0;
+   throw("Rewrite me!\n");
    Vec3D Res = {0, 0, 0};
 
    if(Offset >= m_vFrames.size() || m_vFrames.empty())
@@ -141,7 +146,8 @@ Vec3D CBaseIMUSensor::GetAvg(size_t Offset /*=0*/, size_t nCount /*=-1*/) const
 
    for(size_t i = Offset; i < Offset + nCount; i++)
    {
-      Res += m_vFrames[i].GetVal();
+      //ToDo: FixIt;
+    //  Res += m_vFrames[i].GetVal();
    }
 
    Res /= double(nCount);

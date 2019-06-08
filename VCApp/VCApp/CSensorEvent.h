@@ -45,4 +45,5 @@ class CSensorEvent : public IEventReceiver
    CIMUGyr::PTR     m_Gyr;
    CIMUMag::PTR     m_Mag;
    int64_t          m_nLastPacketCount;
+   CTimeStampNS     m_FirstFrameTime;
 };
