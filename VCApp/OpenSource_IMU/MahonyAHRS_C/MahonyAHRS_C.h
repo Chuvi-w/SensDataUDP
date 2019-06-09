@@ -16,10 +16,10 @@
 //----------------------------------------------------------------------------------------------------
 // Variable declaration
 
-extern volatile double twoKp;			// 2 * proportional gain (Kp)
-extern volatile double twoKi;			// 2 * integral gain (Ki)
-extern volatile double Mah_q0, Mah_q1, Mah_q2, Mah_q3;	// quaternion of sensor frame relative to auxiliary frame
-
+extern volatile double twoKp;                          // 2 * proportional gain (Kp)
+extern volatile double twoKi;                          // 2 * integral gain (Ki)
+extern volatile double Mah_q0, Mah_q1, Mah_q2, Mah_q3; // quaternion of sensor frame relative to auxiliary frame
+extern volatile double integralFBx, integralFBy, integralFBz;
 //---------------------------------------------------------------------------------------------------
 // Function declarations
 

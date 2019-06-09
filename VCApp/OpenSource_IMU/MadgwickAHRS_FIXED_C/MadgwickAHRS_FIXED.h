@@ -16,8 +16,8 @@
 //----------------------------------------------------------------------------------------------------
 // Variable declaration
 
-extern volatile double Madg_Fix_beta;				// algorithm gain
-extern volatile double Madg_Fix_q0, Madg_Fix_q1, Madg_Fix_q2, Madg_Fix_q3;	// quaternion of sensor frame relative to auxiliary frame
+extern volatile double Madg_Fix_beta;                                      // algorithm gain
+extern volatile double Madg_Fix_q0, Madg_Fix_q1, Madg_Fix_q2, Madg_Fix_q3; // quaternion of sensor frame relative to auxiliary frame
 
 //---------------------------------------------------------------------------------------------------
 // Function declarations

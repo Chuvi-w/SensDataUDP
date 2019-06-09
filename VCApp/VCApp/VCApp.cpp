@@ -22,8 +22,8 @@ void Create(std::function<std::shared_ptr<IEventReceiver>()> fnCreate)
 void RunReceiver(CDataReceiver& pReceiver)
 {
 
-  Create(std::bind(&CTouchEvent::Create));
-  Create(std::bind(&CSensorEvent::Create));
+ // Create(std::bind(&CTouchEvent::Create));
+ // Create(std::bind(&CSensorEvent::Create));
   
   
   std::vector<CBaseIMUSensor::PTR> vIMU;
