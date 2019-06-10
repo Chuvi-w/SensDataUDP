@@ -219,13 +219,15 @@ void MadgwickAHRSupdateIMU(double gx, double gy, double gz, double ax, double ay
 
 double invSqrt(double x)
 {
-   double halfx = 0.5f * x;
-   double y     = x;
-   long   i     = *(long*)&y;
-   i            = 0x5f3759df - (i >> 1);
-   y            = *(double*)&i;
-   y            = y * (1.5f - (halfx * y * y));
-   return y;
+
+   return 1.0 / sqrt(x);
+//    double halfx = 0.5f * x;
+//    double y     = x;
+//    long   i     = *(long*)&y;
+//    i            = 0x5f3759df - (i >> 1);
+//    y            = *(double*)&i;
+//    y            = y * (1.5f - (halfx * y * y));
+//    return y;
 }
 
 //====================================================================================================

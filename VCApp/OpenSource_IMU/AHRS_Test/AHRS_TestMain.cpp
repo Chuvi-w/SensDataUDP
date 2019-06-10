@@ -95,17 +95,17 @@ TestFrame_t GenerateTestFrame()
 
    TestFrame_t Fr;
   
-   Fr.Acc.x = sqrt(drand(100000) / 1000.0);
-   Fr.Acc.y = sqrt(drand(100000) / 1000.0);
-   Fr.Acc.z = sqrt(drand(100000) / 1000.0);
+   Fr.Acc.x =(drand(100)>50?1.0:-1.0)*sqrt(drand(100000) / 1000.0);
+   Fr.Acc.y =(drand(100)>50?1.0:-1.0)*sqrt(drand(100000) / 1000.0);
+   Fr.Acc.z =(drand(100)>50?1.0:-1.0)*sqrt(drand(100000) / 1000.0);
 
-   Fr.Gyr.x = sqrt(drand(10000) / 1000.0);
-   Fr.Gyr.y = sqrt(drand(10000) / 1000.0);
-   Fr.Gyr.z = sqrt(drand(10000) / 1000.0);
+   Fr.Gyr.x =(drand(100)>50?1.0:-1.0)*sqrt(drand(10000) / 1000.0);
+   Fr.Gyr.y =(drand(100)>50?1.0:-1.0)*sqrt(drand(10000) / 1000.0);
+   Fr.Gyr.z =(drand(100)>50?1.0:-1.0)*sqrt(drand(10000) / 1000.0);
 
-   Fr.Mag.x = sqrt(drand(1000000) / 1000.0);
-   Fr.Mag.y = sqrt(drand(1000000) / 1000.0);
-   Fr.Mag.z = sqrt(drand(1000000) / 1000.0);
+   Fr.Mag.x =(drand(100)>50?1.0:-1.0)*sqrt(drand(1000000) / 1000.0);
+   Fr.Mag.y =(drand(100)>50?1.0:-1.0)*sqrt(drand(1000000) / 1000.0);
+   Fr.Mag.z =(drand(100)>50?1.0:-1.0)*sqrt(drand(1000000) / 1000.0);
    return Fr;
 }
 

@@ -17,6 +17,7 @@
 
 #include "MadgwickAHRS_FIXED_NEW.h"
 #include <math.h>
+#include <stdbool.h>
 
 //---------------------------------------------------------------------------------------------------
 // Definitions
@@ -61,13 +62,20 @@ void MadgwickAHRSupdate_FixedNew(double gx, double gy, double gz, double ax, dou
    double qDot1, qDot2, qDot3, qDot4;
    double hx, hy;
    double _2q0mx, _2q0my, _2q0mz, _2q1mx, _2bx, _2bz, _4bx, _4bz, _8bx, _8bz, _2q0, _2q1, _2q2, _2q3, _2q0q2, _2q2q3, q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
-   double _4q0, _4q1, _4q2, _8q1, _8q2;
+
+
+   bool bHaveMag = true;
    MadgAHRSData_t *pMadgAHRSData = &gMadgAHRSNew;
    // Rate of change of quaternion from gyroscope
    qDot1 = 0.5f * (-pMadgAHRSData->q1 * gx - pMadgAHRSData->q2 * gy - pMadgAHRSData->q3 * gz);
    qDot2 = 0.5f * (pMadgAHRSData->q0 * gx + pMadgAHRSData->q2 * gz - pMadgAHRSData->q3 * gy);
    qDot3 = 0.5f * (pMadgAHRSData->q0 * gy - pMadgAHRSData->q1 * gz + pMadgAHRSData->q3 * gx);
    qDot4 = 0.5f * (pMadgAHRSData->q0 * gz + pMadgAHRSData->q1 * gy - pMadgAHRSData->q2 * gx);
+
+   if((mx == 0.0f) && (my == 0.0f) && (mz == 0.0f))
+   {
+      bHaveMag = false;
+   }
 
    // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
    if(!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f)))
@@ -78,27 +86,26 @@ void MadgwickAHRSupdate_FixedNew(double gx, double gy, double gz, double ax, dou
       ax *= recipNorm;
       ay *= recipNorm;
       az *= recipNorm;
+
+      // Auxiliary variables to avoid repeated arithmetic
+      _2q0 = (2.0f * pMadgAHRSData->q0);
+      _2q1 = (2.0f * pMadgAHRSData->q1);
+      _2q2 = (2.0f * pMadgAHRSData->q2);
+      _2q3 = (2.0f * pMadgAHRSData->q3);
+      q0q0 = pMadgAHRSData->q0 * pMadgAHRSData->q0;
+      q1q1 = pMadgAHRSData->q1 * pMadgAHRSData->q1;
+      q2q2 = pMadgAHRSData->q2 * pMadgAHRSData->q2;
+      q3q3 = pMadgAHRSData->q3 * pMadgAHRSData->q3;
+
+
       if((mx == 0.0f) && (my == 0.0f) && (mz == 0.0f))
       {
          // Auxiliary variables to avoid repeated arithmetic
-         _2q0 = 2.0f * pMadgAHRSData->q0;
-         _2q1 = 2.0f * pMadgAHRSData->q1;
-         _2q2 = 2.0f * pMadgAHRSData->q2;
-         _2q3 = 2.0f * pMadgAHRSData->q3;
-         _4q0 = 4.0f * pMadgAHRSData->q0;
-         _4q1 = 4.0f * pMadgAHRSData->q1;
-         _4q2 = 4.0f * pMadgAHRSData->q2;
-         _8q1 = 8.0f * pMadgAHRSData->q1;
-         _8q2 = 8.0f * pMadgAHRSData->q2;
-         q0q0 = pMadgAHRSData->q0 * pMadgAHRSData->q0;
-         q1q1 = pMadgAHRSData->q1 * pMadgAHRSData->q1;
-         q2q2 = pMadgAHRSData->q2 * pMadgAHRSData->q2;
-         q3q3 = pMadgAHRSData->q3 * pMadgAHRSData->q3;
-
+        
          // Gradient decent algorithm corrective step
-         s0 = _4q0 * q2q2 + _2q2 * ax + _4q0 * q1q1 - _2q1 * ay;
-         s1 = _4q1 * q3q3 - _2q3 * ax + 4.0f * q0q0 * pMadgAHRSData->q1 - _2q0 * ay - _4q1 + _8q1 * q1q1 + _8q1 * q2q2 + _4q1 * az;
-         s2 = 4.0f * q0q0 * pMadgAHRSData->q2 + _2q0 * ax + _4q2 * q3q3 - _2q3 * ay - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * az;
+         s0 = (4.0f * pMadgAHRSData->q0) * q2q2 + _2q2 * ax + (4.0f * pMadgAHRSData->q0) * q1q1 - _2q1 * ay;
+         s1 = (4.0f * pMadgAHRSData->q1) * q3q3 - _2q3 * ax + 4.0f * q0q0 * pMadgAHRSData->q1 - _2q0 * ay - (4.0f * pMadgAHRSData->q1) + (8.0f * pMadgAHRSData->q1) * q1q1 + (8.0f * pMadgAHRSData->q1) * q2q2 + (4.0f * pMadgAHRSData->q1) * az;
+         s2 = 4.0f * q0q0 * pMadgAHRSData->q2 + _2q0 * ax + (4.0f * pMadgAHRSData->q2) * q3q3 - _2q3 * ay - (4.0f * pMadgAHRSData->q2) + (8.0f * pMadgAHRSData->q2) * q1q1 + (8.0f * pMadgAHRSData->q2) * q2q2 + (4.0f * pMadgAHRSData->q2) * az;
          s3 = 4.0f * q1q1 * pMadgAHRSData->q3 - _2q1 * ax + 4.0f * q2q2 * pMadgAHRSData->q3 - _2q2 * ay;
       }
       else
@@ -114,23 +121,14 @@ void MadgwickAHRSupdate_FixedNew(double gx, double gy, double gz, double ax, dou
          _2q0my = 2.0f * pMadgAHRSData->q0 * my;
          _2q0mz = 2.0f * pMadgAHRSData->q0 * mz;
          _2q1mx = 2.0f * pMadgAHRSData->q1 * mx;
-         _2q0 = 2.0f * pMadgAHRSData->q0;
-         _2q1 = 2.0f * pMadgAHRSData->q1;
-         _2q2 = 2.0f * pMadgAHRSData->q2;
-         _2q3 = 2.0f * pMadgAHRSData->q3;
          _2q0q2 = 2.0f * pMadgAHRSData->q0 * pMadgAHRSData->q2;
          _2q2q3 = 2.0f * pMadgAHRSData->q2 * pMadgAHRSData->q3;
-         q0q0 = pMadgAHRSData->q0 * pMadgAHRSData->q0;
          q0q1 = pMadgAHRSData->q0 * pMadgAHRSData->q1;
          q0q2 = pMadgAHRSData->q0 * pMadgAHRSData->q2;
          q0q3 = pMadgAHRSData->q0 * pMadgAHRSData->q3;
-         q1q1 = pMadgAHRSData->q1 * pMadgAHRSData->q1;
          q1q2 = pMadgAHRSData->q1 * pMadgAHRSData->q2;
          q1q3 = pMadgAHRSData->q1 * pMadgAHRSData->q3;
-         q2q2 = pMadgAHRSData->q2 * pMadgAHRSData->q2;
          q2q3 = pMadgAHRSData->q2 * pMadgAHRSData->q3;
-         q3q3 = pMadgAHRSData->q3 * pMadgAHRSData->q3;
-
          // Reference direction of Earth's magnetic field
          hx = mx * q0q0 - _2q0my * pMadgAHRSData->q3 + _2q0mz * pMadgAHRSData->q2 + mx * q1q1 + _2q1 * my * pMadgAHRSData->q2 + _2q1 * mz * pMadgAHRSData->q3 - mx * q2q2 - mx * q3q3;
          hy = _2q0mx * pMadgAHRSData->q3 + my * q0q0 - _2q0mz * pMadgAHRSData->q1 + _2q1mx * pMadgAHRSData->q2 - my * q1q1 + my * q2q2 + _2q2 * mz * pMadgAHRSData->q3 - my * q3q3;
