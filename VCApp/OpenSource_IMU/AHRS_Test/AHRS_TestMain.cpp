@@ -4,11 +4,14 @@ extern "C"
 #include "../MadgwickAHRS_C/MadgwickAHRS_C.h"
 #include "../MadgwickAHRS_FIXED_C/MadgwickAHRS_FIXED.h"
 #include "../MahonyAHRS_C/MahonyAHRS_C.h"
+#include "../MadgwickAHRS_FIXED_C_NEW/MadgwickAHRS_FIXED_NEW.h"
 
 }
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+#include <memory.h>
+#include <conio.h>
 
 typedef struct Vec3D_s
 {
@@ -106,51 +109,52 @@ TestFrame_t GenerateTestFrame()
    return Fr;
 }
 
+typedef struct FileFrame_s
+{
+   TestFrame_t Fr;
+   MagFrameRes_t CurMag, CurMagIMU;
+   MAhonyFrameRes_t CurMah, CurMahIMU;
+}FileFrame_t;
 
-MagFrameRes_t CurMag, CurMagIMU;
-MAhonyFrameRes_t CurMah, CurMahIMU;
 void GenTestData()
 {
-   CurMag = GetMagFrame();
-   CurMagIMU = GetMagFrame();
-   CurMah = GetMahFrame();
-   CurMahIMU = GetMahFrame();
+   FileFrame_t FFrame;
+//    MagFrameRes_t CurMag, CurMagIMU;
+//    MAhonyFrameRes_t CurMah, CurMahIMU;
+   FFrame.CurMag = GetMagFrame();
+   FFrame.CurMagIMU = GetMagFrame();
+   FFrame.CurMah = GetMahFrame();
+   FFrame.CurMahIMU = GetMahFrame();
    FILE *TestData = fopen("IMU_TEST_DATA.bin", "wb");
    if (TestData)
    {
-      for (int i = 0; i < 10000000; i++)
+      for (int i = 0; i < 50000000; i++)
       {
          if (i % 10000 == 0)
          {
             printf("%i\n", i);
          }
-         auto Fr = GenerateTestFrame();
-         SetMagFrame(CurMagIMU);
-         MadgwickAHRSupdateIMU_Fixed(Fr.Gyr.x, Fr.Gyr.y, Fr.Gyr.z, Fr.Acc.x, Fr.Acc.y, Fr.Acc.z);
-         CurMagIMU = GetMagFrame();
+         FFrame.Fr = GenerateTestFrame();
+         SetMagFrame(FFrame.CurMagIMU);
+         MadgwickAHRSupdateIMU_Fixed(FFrame.Fr.Gyr.x, FFrame.Fr.Gyr.y, FFrame.Fr.Gyr.z, FFrame.Fr.Acc.x, FFrame.Fr.Acc.y, FFrame.Fr.Acc.z);
+         FFrame.CurMagIMU = GetMagFrame();
 
-         SetMagFrame(CurMag);
-         MadgwickAHRSupdate_Fixed(Fr.Gyr.x, Fr.Gyr.y, Fr.Gyr.z, Fr.Acc.x, Fr.Acc.y, Fr.Acc.z,Fr.Mag.x, Fr.Mag.y,Fr.Mag.z);
-         CurMag = GetMagFrame();
-
-
-         SetMahFrame(CurMahIMU);
-         MahonyAHRSupdateIMU(Fr.Gyr.x, Fr.Gyr.y, Fr.Gyr.z, Fr.Acc.x, Fr.Acc.y, Fr.Acc.z);
-         CurMahIMU = GetMahFrame();
-
-         SetMahFrame(CurMah);
-         MahonyAHRSupdate(Fr.Gyr.x, Fr.Gyr.y, Fr.Gyr.z, Fr.Acc.x, Fr.Acc.y, Fr.Acc.z, Fr.Mag.x, Fr.Mag.y, Fr.Mag.z);
-         CurMah = GetMahFrame();
+         SetMagFrame(FFrame.CurMag);
+         MadgwickAHRSupdate_Fixed(FFrame.Fr.Gyr.x, FFrame.Fr.Gyr.y, FFrame.Fr.Gyr.z, FFrame.Fr.Acc.x, FFrame.Fr.Acc.y, FFrame.Fr.Acc.z,FFrame.Fr.Mag.x, FFrame.Fr.Mag.y,FFrame.Fr.Mag.z);
+         FFrame.CurMag = GetMagFrame();
 
 
-         fwrite(&Fr, sizeof(Fr), 1, TestData);
-         fwrite(&CurMagIMU, sizeof(CurMagIMU), 1, TestData);
-         fwrite(&CurMag, sizeof(CurMag), 1, TestData);
-         fwrite(&CurMahIMU, sizeof(CurMahIMU), 1, TestData);
-         fwrite(&CurMah, sizeof(CurMah), 1, TestData);
-         
+         SetMahFrame(FFrame.CurMahIMU);
+         MahonyAHRSupdateIMU(FFrame.Fr.Gyr.x, FFrame.Fr.Gyr.y, FFrame.Fr.Gyr.z, FFrame.Fr.Acc.x, FFrame.Fr.Acc.y, FFrame.Fr.Acc.z);
+         FFrame.CurMahIMU = GetMahFrame();
+
+         SetMahFrame(FFrame.CurMah);
+         MahonyAHRSupdate(FFrame.Fr.Gyr.x, FFrame.Fr.Gyr.y, FFrame.Fr.Gyr.z, FFrame.Fr.Acc.x, FFrame.Fr.Acc.y, FFrame.Fr.Acc.z, FFrame.Fr.Mag.x, FFrame.Fr.Mag.y, FFrame.Fr.Mag.z);
+         FFrame.CurMah = GetMahFrame();
 
 
+         fwrite(&FFrame, sizeof(FFrame), 1, TestData);
+       
       }
       fclose(TestData);
    }
@@ -158,10 +162,178 @@ void GenTestData()
 
 }
 
+
+void ReadTestData()
+{
+//    CurMag = GetMagFrame();
+//    CurMagIMU = GetMagFrame();
+//    CurMah = GetMahFrame();
+//    CurMahIMU = GetMahFrame();
+   FILE *TestData = fopen("IMU_TEST_DATA.bin", "rb");
+   size_t FileSz;
+   MagFrameRes_t CurMag, CurMagIMU;
+   MAhonyFrameRes_t CurMah, CurMahIMU;
+
+   CurMag = GetMagFrame();
+   CurMagIMU = GetMagFrame();
+   CurMah = GetMahFrame();
+   CurMahIMU = GetMahFrame();
+   int i = 0;
+   bool bHaveError = false;
+   FileFrame_t FFrame;
+   if(TestData)
+   {
+      auto SeeRes = _fseeki64(TestData, 0, SEEK_END);
+      FileSz = ftell(TestData);
+      _fseeki64(TestData, 0, SEEK_SET);
+      while(FileSz - ftell(TestData) > sizeof(FileFrame_t)&&!bHaveError)
+      {
+         i++;
+         fread(&FFrame, sizeof(FFrame), 1, TestData);
+         if(i % 10000 == 0)
+         {
+            printf("%i\n", i);
+         }
+        
+         SetMagFrame(CurMagIMU);
+         MadgwickAHRSupdateIMU_Fixed(FFrame.Fr.Gyr.x, FFrame.Fr.Gyr.y, FFrame.Fr.Gyr.z, FFrame.Fr.Acc.x, FFrame.Fr.Acc.y, FFrame.Fr.Acc.z);
+         CurMagIMU = GetMagFrame();
+
+         SetMagFrame(CurMag);
+         MadgwickAHRSupdate_Fixed(FFrame.Fr.Gyr.x, FFrame.Fr.Gyr.y, FFrame.Fr.Gyr.z, FFrame.Fr.Acc.x, FFrame.Fr.Acc.y, FFrame.Fr.Acc.z,FFrame.Fr.Mag.x, FFrame.Fr.Mag.y,FFrame.Fr.Mag.z);
+         CurMag = GetMagFrame();
+
+
+         SetMahFrame(CurMahIMU);
+         MahonyAHRSupdateIMU(FFrame.Fr.Gyr.x, FFrame.Fr.Gyr.y, FFrame.Fr.Gyr.z, FFrame.Fr.Acc.x, FFrame.Fr.Acc.y, FFrame.Fr.Acc.z);
+         CurMahIMU = GetMahFrame();
+
+         SetMahFrame(CurMah);
+         MahonyAHRSupdate(FFrame.Fr.Gyr.x, FFrame.Fr.Gyr.y, FFrame.Fr.Gyr.z, FFrame.Fr.Acc.x, FFrame.Fr.Acc.y, FFrame.Fr.Acc.z, FFrame.Fr.Mag.x, FFrame.Fr.Mag.y, FFrame.Fr.Mag.z);
+         CurMah = GetMahFrame();
+
+         if(memcmp(&CurMag, &FFrame.CurMag, sizeof(CurMag)))
+         {
+            printf("Error: CurMag\n");
+            bHaveError = true;
+         }
+
+         if(memcmp(&CurMagIMU, &FFrame.CurMagIMU, sizeof(CurMagIMU)))
+         {
+            printf("Error: CurMagIMU\n");
+            bHaveError = true;
+         }
+
+
+         if(memcmp(&CurMah, &FFrame.CurMah, sizeof(CurMah)))
+         {
+            printf("Error: CurMah\n");
+            bHaveError = true;
+         }
+
+         if(memcmp(&CurMahIMU, &FFrame.CurMahIMU, sizeof(CurMahIMU)))
+         {
+            printf("Error: CurMahIMU\n");
+            bHaveError = true;
+         }
+
+
+      }
+      fclose(TestData);
+   }
+}
+
+
+
+
+void TestNoWrite()
+{
+   MadgAHRSData_t CurMagNew, CurMagIMUNew;
+   MagFrameRes_t CurMag, CurMagIMU;
+   MAhonyFrameRes_t CurMah, CurMahIMU;
+
+   InitMadgAHRS(&CurMagNew);
+   InitMadgAHRS(&CurMagIMUNew);
+   CurMag = GetMagFrame();
+   CurMagIMU = GetMagFrame();
+   CurMah = GetMahFrame();
+   CurMahIMU = GetMahFrame();
+   TestFrame_t Fr;
+   bool bHaveError = false;
+   int i = 0;
+   do
+   {
+      if(i % 10000 == 0)
+      {
+         printf("%i\n", i);
+      }
+      Fr = GenerateTestFrame();
+      SetMagFrame(CurMagIMU);
+      MadgwickAHRSupdateIMU_Fixed(Fr.Gyr.x, Fr.Gyr.y, Fr.Gyr.z, Fr.Acc.x, Fr.Acc.y, Fr.Acc.z);
+      CurMagIMU = GetMagFrame();
+
+      SetMagFrame(CurMag);
+      MadgwickAHRSupdate_Fixed(Fr.Gyr.x, Fr.Gyr.y, Fr.Gyr.z, Fr.Acc.x, Fr.Acc.y, Fr.Acc.z, Fr.Mag.x, Fr.Mag.y, Fr.Mag.z);
+      CurMag = GetMagFrame();
+
+      gMadgAHRSNew = CurMagNew;
+      MadgwickAHRSupdate_FixedNew(Fr.Gyr.x, Fr.Gyr.y, Fr.Gyr.z, Fr.Acc.x, Fr.Acc.y, Fr.Acc.z, Fr.Mag.x, Fr.Mag.y, Fr.Mag.z);
+      CurMagNew = gMadgAHRSNew;
+
+      gMadgAHRSNew = CurMagIMUNew;
+      MadgwickAHRSupdate_FixedNew(Fr.Gyr.x, Fr.Gyr.y, Fr.Gyr.z, Fr.Acc.x, Fr.Acc.y, Fr.Acc.z, 0.0, 0.0, 0.0);
+      CurMagIMUNew = gMadgAHRSNew;
+
+
+#if 0
+
+      SetMahFrame(CurMahIMU);
+      MahonyAHRSupdateIMU(Fr.Gyr.x, Fr.Gyr.y, Fr.Gyr.z, Fr.Acc.x, Fr.Acc.y, Fr.Acc.z);
+      CurMahIMU = GetMahFrame();
+
+      SetMahFrame(CurMah);
+      MahonyAHRSupdate(Fr.Gyr.x, Fr.Gyr.y, Fr.Gyr.z, Fr.Acc.x, Fr.Acc.y, Fr.Acc.z, Fr.Mag.x, Fr.Mag.y, Fr.Mag.z);
+      CurMah = GetMahFrame();
+
+#endif
+      if(memcmp(&CurMag, &CurMagNew, sizeof(CurMag)))
+      {
+         printf("Error: CurMag\n");
+         bHaveError = true;
+      }
+
+      if(memcmp(&CurMagIMU, &CurMagIMUNew, sizeof(CurMagIMU)))
+      {
+         printf("Error: CurMagIMU\n");
+         bHaveError = true;
+      }
+
+      if(bHaveError)
+      {
+         break;;
+      }
+
+      if(_kbhit())
+      {
+         if(_getch()!=-1)
+         {
+            break;;
+         }
+      }
+
+      i++;
+   }
+   while(1);
+   
+
+
+}
+
 int main()
 {
-
-   GenTestData();
+   //GenTestData();
+  // ReadTestData();
+   TestNoWrite();
 
    MadgwickAHRSupdateIMU(0, 0, 0, 0, 0, 0);
    return 0;
