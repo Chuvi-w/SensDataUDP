@@ -1,5 +1,5 @@
 #pragma once
-#include "MathLib/MathLib3D.h"
+#include <MathLib3D.h>
 #include <list>
 
 #define MATH_PI (MATHLIB3D::MathUtils::PI)
