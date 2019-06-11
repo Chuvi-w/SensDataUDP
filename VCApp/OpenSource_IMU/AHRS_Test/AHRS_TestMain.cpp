@@ -58,10 +58,10 @@ typedef struct MagFrameRes_s
    {
       if(
          abs(Madg_Fix_beta - Fr2.beta) > ComparePrecision ||
-         abs(Madg_Fix_q0 - Fr2._q.x) > ComparePrecision ||
-         abs(Madg_Fix_q1 - Fr2._q.y) > ComparePrecision ||
-         abs(Madg_Fix_q2 - Fr2._q.z) > ComparePrecision ||
-         abs(Madg_Fix_q3 - Fr2._q.w) > ComparePrecision
+         abs(Madg_Fix_q0 - Fr2._q.w) > ComparePrecision ||
+         abs(Madg_Fix_q1 - Fr2._q.x) > ComparePrecision ||
+         abs(Madg_Fix_q2 - Fr2._q.y) > ComparePrecision ||
+         abs(Madg_Fix_q3 - Fr2._q.z) > ComparePrecision
          )
       {
          return false;
@@ -310,11 +310,11 @@ void TestNoWrite()
       CurMag = GetMagFrame();
 
       gMadgAHRSNew = CurMagNew;
-      MadgwickAHRSupdate_FixedNew(Fr.Gyr, Fr.Acc, Fr.Mag);
+      MadgwickAHRSupdate_FixedNew(1.0/512.0f, Fr.Gyr, Fr.Acc, Fr.Mag);
       CurMagNew = gMadgAHRSNew;
 
       gMadgAHRSNew = CurMagIMUNew;
-      MadgwickAHRSupdate_FixedNew(Fr.Gyr, Fr.Acc, NullVec3D);
+      MadgwickAHRSupdate_FixedNew(1.0 / 512.0f,Fr.Gyr, Fr.Acc, NullVec3D);
       CurMagIMUNew = gMadgAHRSNew;
 
 

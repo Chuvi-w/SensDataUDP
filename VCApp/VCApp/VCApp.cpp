@@ -9,6 +9,8 @@
 #include "CIMU_Acc.h"
 #include "CReceiverFile.h"
 
+
+
 typedef CTouchEvent::PTR (*pfnCreate)();
 
 void Create(std::function<std::shared_ptr<IEventReceiver>()> fnCreate)
@@ -98,9 +100,9 @@ void RunFRead()
 int main()
 {
 
-   // RunFRead();
+    RunFRead();
 
-   RunUDP();
+   //RunUDP();
 
    return 1;
 }
