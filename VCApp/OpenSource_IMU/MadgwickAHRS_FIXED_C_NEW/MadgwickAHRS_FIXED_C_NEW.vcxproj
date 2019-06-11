@@ -22,7 +22,7 @@
     <ClInclude Include="MadgwickAHRS_FIXED_NEW.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MadgwickAHRS_FIXED_NEW.c" />
+    <ClCompile Include="MadgwickAHRS_FIXED_NEW.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0D06AC39-BE28-45FB-9506-51DB5AFE0BE7}</ProjectGuid>

@@ -73,6 +73,8 @@ class Vector4D
    inline Vector4D     GetHomogenized() const;
    inline Vector4D     GetProjected(const Vector4D& vector) const;
 
+
+
    /* Set Methods - Original Vector Modified */
    inline Vector4D& SetMagnitude(const double& magnitude);
    inline Vector4D& SetNormalized();

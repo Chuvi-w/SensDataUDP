@@ -2,6 +2,7 @@
 #include <inttypes.h>
 #include "CDataPacket.h"
 #include "ConsoleTools.h"
+#include "..\OpenSource_IMU\MadgwickAHRS_FIXED_C_NEW\MadgwickAHRS_FIXED_NEW.h"
 
 CSensorEvent::CSensorEvent() : IEventReceiver(SENSOR_EV_ID), m_Acc(CIMUAcc::Create()), m_Gyr(CIMUGyr::Create()), m_Mag(CIMUMag::Create()), m_nLastPacketCount(-1)
 {
@@ -9,6 +10,7 @@ CSensorEvent::CSensorEvent() : IEventReceiver(SENSOR_EV_ID), m_Acc(CIMUAcc::Crea
    m_vIMU[m_Gyr->GetType()] = m_Gyr;
    m_vIMU[m_Mag->GetType()] = m_Mag;
    m_FirstFrameTime = 0;
+   InitMadgAHRS(&gMadgAHRSNew);
 }
 
 CSensorEvent::~CSensorEvent() {}
@@ -58,6 +60,12 @@ bool CSensorEvent::ParseEvent(const CDataPacket& pPacket)
    }
    m_nLastPacketCount = SensHDR.nCount;
    auto fIMU          = m_vIMU.find(IMUType_t(SensHDR.nType));
+
+   if(SensHDR.nType == ASENSOR_TYPE_GYROSCOPE_UNCALIBRATED)
+   {
+      printf("");
+   }
+
    if(fIMU != m_vIMU.end())
    {
       fIMU->second->AddFrame(CIMUFrame(pPacket.GetCommonData(), SensHDR.nTimeStamp, Vec3D(FlCoords[0], FlCoords[1], FlCoords[2]), Vec3D(FlCalib[0], FlCalib[1], FlCalib[2])), SensHDR.flRes, SensHDR.flMaxRange);
@@ -69,7 +77,7 @@ bool CSensorEvent::ParseEvent(const CDataPacket& pPacket)
    auto          GyrTime  = m_Gyr->GetLastFrameTime();
    auto          MagTime  = m_Mag->GetLastFrameTime();
    double        dTimeDiv = 1000000.0;
-   if(AccTime && GyrTime && MagTime)
+   if(0&&AccTime && GyrTime && MagTime)
    {
 #define __abs(v) (v)
 
@@ -107,7 +115,26 @@ bool CSensorEvent::ParseEvent(const CDataPacket& pPacket)
 //          m_MagTime.Reset();
 //       }
    }
+   static int nFrCala = 0;
+   if(AccTime&&GyrTime&&MagTime&&(double)(int64_t)(AccTime - GyrTime) / dTimeDiv <= 4.0&&!m_Acc->IsProcessed() && !m_Mag->IsProcessed())
+   {
 
+      double dTime = (double)(m_Acc->GetFrameTimeDiff().GetSeconds() + m_Gyr->GetFrameTimeDiff().GetSeconds()) / 2.0;
+      m_Acc->SetProcessed();
+      m_Mag->SetProcessed();
+      gotoxy(0, 11);
+      printf("%i\n", nFrCala++);
+      MadgwickAHRSupdate_FixedNew(dTime,m_Gyr->GetLastFrame(), m_Acc->GetLastFrame(), NullVec3D);
+      gotoxy(0, 12);
+      printf("%018.15f {%018.15f, %018.15f, %018.15f, %018.15f}\n", gMadgAHRSNew.beta, gMadgAHRSNew._q.x, gMadgAHRSNew._q.y, gMadgAHRSNew._q.z, gMadgAHRSNew._q.w);
+   }
+
+//    if(SensHDR.nType == ASENSOR_TYPE_GYROSCOPE_UNCALIBRATED&&GyrTime)
+//    {
+//       MadgwickAHRSupdate_FixedNew(m_Gyr->GetLastFrame(), NullVec3D, NullVec3D);
+//       gotoxy(0, 12);
+//       printf("%018.15f {%018.15f, %018.15f, %018.15f, %018.15f}\n", gMadgAHRSNew.beta, gMadgAHRSNew._q.x, gMadgAHRSNew._q.y, gMadgAHRSNew._q.z, gMadgAHRSNew._q.w);
+//    }
    return true;
 }
 

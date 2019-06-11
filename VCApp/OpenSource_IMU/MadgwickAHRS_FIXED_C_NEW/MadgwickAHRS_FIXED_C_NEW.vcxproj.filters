@@ -20,7 +20,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MadgwickAHRS_FIXED_NEW.c">
+    <ClCompile Include="MadgwickAHRS_FIXED_NEW.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,25 +4,23 @@ extern "C"
 #include "../MadgwickAHRS_C/MadgwickAHRS_C.h"
 #include "../MadgwickAHRS_FIXED_C/MadgwickAHRS_FIXED.h"
 #include "../MahonyAHRS_C/MahonyAHRS_C.h"
-#include "../MadgwickAHRS_FIXED_C_NEW/MadgwickAHRS_FIXED_NEW.h"
-
 }
+
+#include "../MadgwickAHRS_FIXED_C_NEW/MadgwickAHRS_FIXED_NEW.h"
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
 #include <memory.h>
 #include <conio.h>
+#include <MatConv.h>
 
-typedef struct Vec3D_s
-{
-   double x, y, z;
-}Vec3D_t;
+
 
 typedef struct TestFrame_s
 {
-   Vec3D_t Gyr;
-   Vec3D_t Acc;
-   Vec3D_t Mag;
+   Vec3D Gyr;
+   Vec3D Acc;
+   Vec3D Mag;
 }TestFrame_t;
 
 typedef struct MAhonyFrameRes_s
@@ -33,10 +31,45 @@ typedef struct MAhonyFrameRes_s
    double integralFBx, integralFBy, integralFBz; // integral error terms scaled by Ki
 }MAhonyFrameRes_t;
 
+#define ComparePrecision 0.0000000000001
 typedef struct MagFrameRes_s
 {
    double Madg_Fix_beta;                                                        // 2 * proportional gain (Kp)
    double Madg_Fix_q0, Madg_Fix_q1, Madg_Fix_q2, Madg_Fix_q3; // quaternion of sensor frame relative to auxiliary frame 
+
+
+   bool IsEqual(const MagFrameRes_s &Fr2)
+   {
+      if(
+         abs(Madg_Fix_beta - Fr2.Madg_Fix_beta) > ComparePrecision ||
+         abs(Madg_Fix_q0 - Fr2.Madg_Fix_q0) > ComparePrecision ||
+         abs(Madg_Fix_q1 - Fr2.Madg_Fix_q1) > ComparePrecision ||
+         abs(Madg_Fix_q2 - Fr2.Madg_Fix_q2) > ComparePrecision ||
+         abs(Madg_Fix_q3 - Fr2.Madg_Fix_q3) > ComparePrecision
+         )
+      {
+         return false;
+      }
+      return true;
+
+   }
+
+   bool IsEqual(const MadgAHRSData_s &Fr2)
+   {
+      if(
+         abs(Madg_Fix_beta - Fr2.beta) > ComparePrecision ||
+         abs(Madg_Fix_q0 - Fr2._q.x) > ComparePrecision ||
+         abs(Madg_Fix_q1 - Fr2._q.y) > ComparePrecision ||
+         abs(Madg_Fix_q2 - Fr2._q.z) > ComparePrecision ||
+         abs(Madg_Fix_q3 - Fr2._q.w) > ComparePrecision
+         )
+      {
+         return false;
+      }
+      return true;
+
+   }
+
 }MagFrameRes_t;
 
 
@@ -277,11 +310,11 @@ void TestNoWrite()
       CurMag = GetMagFrame();
 
       gMadgAHRSNew = CurMagNew;
-      MadgwickAHRSupdate_FixedNew(Fr.Gyr.x, Fr.Gyr.y, Fr.Gyr.z, Fr.Acc.x, Fr.Acc.y, Fr.Acc.z, Fr.Mag.x, Fr.Mag.y, Fr.Mag.z);
+      MadgwickAHRSupdate_FixedNew(Fr.Gyr, Fr.Acc, Fr.Mag);
       CurMagNew = gMadgAHRSNew;
 
       gMadgAHRSNew = CurMagIMUNew;
-      MadgwickAHRSupdate_FixedNew(Fr.Gyr.x, Fr.Gyr.y, Fr.Gyr.z, Fr.Acc.x, Fr.Acc.y, Fr.Acc.z, 0.0, 0.0, 0.0);
+      MadgwickAHRSupdate_FixedNew(Fr.Gyr, Fr.Acc, NullVec3D);
       CurMagIMUNew = gMadgAHRSNew;
 
 
@@ -296,13 +329,15 @@ void TestNoWrite()
       CurMah = GetMahFrame();
 
 #endif
-      if(memcmp(&CurMag, &CurMagNew, sizeof(CurMag)))
+      //if(memcmp(&CurMag, &CurMagNew, sizeof(CurMag)))
+      if(!CurMag.IsEqual(CurMagNew))
       {
          printf("Error: CurMag\n");
          bHaveError = true;
       }
 
-      if(memcmp(&CurMagIMU, &CurMagIMUNew, sizeof(CurMagIMU)))
+      //if(memcmp(&CurMagIMU, &CurMagIMUNew, sizeof(CurMagIMU)))
+      if(!CurMagIMU.IsEqual(CurMagIMUNew))
       {
          printf("Error: CurMagIMU\n");
          bHaveError = true;

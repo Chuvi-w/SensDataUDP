@@ -92,9 +92,6 @@
     <ClInclude Include="CTimeStamp.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="MatConv.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="CIMUBase.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>

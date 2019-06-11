@@ -1,7 +1,7 @@
 #pragma once
 #include "CTimeStamp.h"
 #include "EvCommon.h"
-#include "MatConv.h"
+#include <MatConv.h>
 #include <mutex>
 
 typedef enum IMUType_e
@@ -89,7 +89,19 @@ class CBaseIMUSensor
    CTimeStampNS GetFrameTimeDiff() const { return m_FrameTimeDiff; }
 
    bool HaveOneFrame() const { return m_flMaxRange != 0.0 && m_FlRes != 0.0; }
+   Vec3D GetLastFrame() const
+   {
+      return m_vFrames.back().GetVal();
+   }
 
+   bool IsProcessed() const
+   {
+      return m_bProcessed;
+   }
+   void SetProcessed()
+   {
+      m_bProcessed = true;
+   }
  private:
    std::mutex             m_FrMux;
    std::list<CIMUFrame> m_vFrames;
@@ -102,4 +114,6 @@ class CBaseIMUSensor
 
    CTimeStampNS m_FrameTimeDiff;
    CTimeStampNS m_CurFrameTime;
+
+   bool m_bProcessed;
 };

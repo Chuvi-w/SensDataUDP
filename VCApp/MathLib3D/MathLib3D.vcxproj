@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MatConv.h" />
     <ClInclude Include="MathLib3D.h" />
     <ClInclude Include="MathUtils.h" />
     <ClInclude Include="Vector2D.h" />

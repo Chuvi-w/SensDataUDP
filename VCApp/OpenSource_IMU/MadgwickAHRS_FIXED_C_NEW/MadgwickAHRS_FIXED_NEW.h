@@ -1,3 +1,4 @@
+
 //=====================================================================================================
 // MadgwickAHRS.h
 //=====================================================================================================
@@ -12,11 +13,11 @@
 //=====================================================================================================
 #ifndef MadgwickAHRS_FIXED_C_NEW_h
 #define MadgwickAHRS_FIXED_C_NEW_h
-
+#include <MatConv.h>
 typedef struct MadgAHRSData_s
 {
    double beta;                                                        // 2 * proportional gain (Kp)
-   double q0, q1, q2, q3; // quaternion of sensor frame relative to auxiliary frame
+   Vec4D _q; // quaternion of sensor frame relative to auxiliary frame
 }MadgAHRSData_t;
 
 void InitMadgAHRS(MadgAHRSData_t *pMadg);
@@ -24,7 +25,7 @@ extern MadgAHRSData_t gMadgAHRSNew;
 //---------------------------------------------------------------------------------------------------
 // Function declarations
 
-void MadgwickAHRSupdate_FixedNew(double gx, double gy, double gz, double ax, double ay, double az, double mx, double my, double mz);
+void MadgwickAHRSupdate_FixedNew(double dTime, Vec3D _g, Vec3D _a=NullVec3D, Vec3D _m=NullVec3D);
 
 
 #endif

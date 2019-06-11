@@ -2,7 +2,7 @@
 #include "ConsoleTools.h"
 #include <mutex>
 
-CBaseIMUSensor::CBaseIMUSensor(IMUType_t Type, bool bUncalib, int nOutPos) : m_ImuType(Type), m_bHaveUncalibrated(bUncalib), m_OutPos(nOutPos), m_FlRes(0.0), m_flMaxRange(0.0), m_FrameTimeDiff(0), m_CurFrameTime(0) { ResetFrames(); }
+CBaseIMUSensor::CBaseIMUSensor(IMUType_t Type, bool bUncalib, int nOutPos): m_ImuType(Type), m_bHaveUncalibrated(bUncalib), m_OutPos(nOutPos), m_FlRes(0.0), m_flMaxRange(0.0), m_FrameTimeDiff(0), m_CurFrameTime(0), m_bProcessed(false){ResetFrames();}
 
 float CBaseIMUSensor::GetMaxRange() const { return m_flMaxRange; }
 
@@ -35,6 +35,7 @@ void CBaseIMUSensor::AddFrame(const CIMUFrame& Fr, float flResolution, float flM
    m_CurFrameTime = Fr.GetIMUTime();
 
    m_vFrames.push_back(FrameData);
+   m_bProcessed = false;
  //  GetAndPrintSKO(FrameData);
 }
 
@@ -116,6 +117,7 @@ void CBaseIMUSensor::ResetFrames()
    OnReset();
    m_vFrames.clear();
    m_SkipCount = 0;
+   m_bProcessed = false;
 }
 
 bool CBaseIMUSensor::PreAddFrame(CIMUFrame& fr) { return true; }

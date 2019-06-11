@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <memory>
 #include "TouchEvData.h"
-#include "MatConv.h"
+#include <MatConv.h>
 
 typedef std::shared_ptr<CMotionEvent> AInputEvent;
 const int32_t                         DOUBLE_TAP_TIMEOUT = 300 * 1000000;
