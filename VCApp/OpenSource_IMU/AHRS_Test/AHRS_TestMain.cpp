@@ -13,6 +13,8 @@ extern "C"
 #include <memory.h>
 #include <conio.h>
 #include <MatConv.h>
+#include "../Depends/include/boost/qvm/quat_operations.hpp"
+#include "../Depends/include/boost/qvm/quat.hpp"
 
 
 
@@ -364,12 +366,26 @@ void TestNoWrite()
 
 }
 
+
+void QVM_Check()
+{
+   boost::qvm::quat<double> qRotX = boost::qvm::rotx_quat(DEG2RAD(45));
+   boost::qvm::quat<double> qRotY = boost::qvm::roty_quat(DEG2RAD(45));
+   boost::qvm::quat<double> qRotZ = boost::qvm::rotz_quat(DEG2RAD(45));
+
+   
+   printf("");
+
+}
+
 int main()
 {
+
+   QVM_Check();
    //GenTestData();
   // ReadTestData();
-   TestNoWrite();
+  // TestNoWrite();
 
-   MadgwickAHRSupdateIMU(0, 0, 0, 0, 0, 0);
+  
    return 0;
 }

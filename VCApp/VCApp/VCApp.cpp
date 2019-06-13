@@ -9,8 +9,6 @@
 #include "CIMU_Acc.h"
 #include "CReceiverFile.h"
 
-
-
 typedef CTouchEvent::PTR (*pfnCreate)();
 
 void Create(std::function<std::shared_ptr<IEventReceiver>()> fnCreate)
@@ -99,8 +97,11 @@ void RunFRead()
 }
 int main()
 {
-
-    RunFRead();
+   Vec3D ve;
+   boost::qvm::quat<double> rx;
+   rx.a
+  
+  //  RunFRead();
 
    //RunUDP();
 

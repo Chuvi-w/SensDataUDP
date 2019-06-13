@@ -54,23 +54,21 @@ extern "C" double invSqrt(double x);
 //---------------------------------------------------------------------------------------------------
 // AHRS algorithm update
 
-void MadgwickAHRSupdate_FixedNew(double dTime,Vec3D _g, Vec3D _a, Vec3D _m)
+void MadgwickAHRSupdate_FixedNew(double dTime, QVec3D _g, QVec3D _a, QVec3D _m)
 {
    double recipNorm;
-   Vec4D _s;
-   Vec4D _qDot;
+   QQuat _s;
+   QQuat _qDot;
   // double qDot1, qDot2, qDot3, qDot4;
    double hx, hy;
    double _2q0mx, _2q0my, _2q0mz, _2q1mx, _2bx, _2bz, _4bx, _4bz, _8bx, _8bz,_2q0q2, _2q2q3, q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
-   Vec4D _2q;
+   QQuat _2q;
 
    bool bHaveMag = true;
    MadgAHRSData_t *pMadgAHRSData = &gMadgAHRSNew;
    // Rate of change of quaternion from gyroscope
-   _qDot.w = 0.5f * (-pMadgAHRSData->_q.x * _g.x - pMadgAHRSData->_q.y * _g.y - pMadgAHRSData->_q.z * _g.z);
-   _qDot.x = 0.5f * (pMadgAHRSData->_q.w * _g.x + pMadgAHRSData->_q.y * _g.z - pMadgAHRSData->_q.z * _g.y);
-   _qDot.y = 0.5f * (pMadgAHRSData->_q.w * _g.y - pMadgAHRSData->_q.x * _g.z + pMadgAHRSData->_q.z * _g.x);
-   _qDot.z = 0.5f * (pMadgAHRSData->_q.w * _g.z + pMadgAHRSData->_q.x * _g.y - pMadgAHRSData->_q.y * _g.x);
+   _qDot = pMadgAHRSData->_q*QQuat({0.0, _g[0], _g[1], _g[2]});
+  
 
    if((_m.x == 0.0f) && (_m.y == 0.0f) && (_m.z == 0.0f))
    {
@@ -82,15 +80,15 @@ void MadgwickAHRSupdate_FixedNew(double dTime,Vec3D _g, Vec3D _a, Vec3D _m)
    {
 
       // Normalise accelerometer measurement
-      _a.SetNormalized();
+     auto qq= _bq::normalize(_a);
 
       // Auxiliary variables to avoid repeated arithmetic
-      _2q = pMadgAHRSData->_q*2.0;
+       _2q = pMadgAHRSData->_q*2.0;
       
-      q0q0 = pMadgAHRSData->_q.w * pMadgAHRSData->_q.w;
-      q1q1 = pMadgAHRSData->_q.x * pMadgAHRSData->_q.x;
-      q2q2 = pMadgAHRSData->_q.y * pMadgAHRSData->_q.y;
-      q3q3 = pMadgAHRSData->_q.z * pMadgAHRSData->_q.z;
+      q0q0 = pMadgAHRSData->_q.a[0] * pMadgAHRSData->_q.a[0];
+      q1q1 = pMadgAHRSData->_q.a[1] * pMadgAHRSData->_q.a[1];
+      q2q2 = pMadgAHRSData->_q.a[2] * pMadgAHRSData->_q.a[2];
+      q3q3 = pMadgAHRSData->_q.a[3] * pMadgAHRSData->_q.a[3];
 
 
       if((_m.x == 0.0f) && (_m.y == 0.0f) && (_m.z == 0.0f))
