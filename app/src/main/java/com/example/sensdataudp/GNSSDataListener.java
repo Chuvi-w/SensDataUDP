@@ -96,6 +96,7 @@ public class GNSSDataListener
                 try
                 {
                     m_LocationPacket.reset();
+
                     m_LocationPacket.write(Integer.valueOf(0x5a));
                     m_LocationPacket.write(location.getProvider());
                     m_LocationPacket.write(location.getTime());
@@ -119,7 +120,7 @@ public class GNSSDataListener
                         m_LocationPacket.write(0.0f);
                         m_LocationPacket.write(0.0f);
                     }
-                    m_Sender.SendPacket(0xCC00, m_LocationPacket);
+                    m_Sender.SendPacket(0xCC00, m_LocationPacket,0);
                 }
                 catch (IOException exc)
                 {
@@ -201,7 +202,7 @@ public class GNSSDataListener
             m_NmeaPacket.write(Integer.valueOf(0xa5));
             m_NmeaPacket.write(timestamp);
             m_NmeaPacket.write(message);
-            m_Sender.SendPacket(0xCC00, m_NmeaPacket);
+            m_Sender.SendPacket(0xCC00, m_NmeaPacket,1);
         }
         catch (IOException exc)
         {

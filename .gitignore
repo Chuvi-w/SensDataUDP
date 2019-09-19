@@ -15,3 +15,5 @@
 /VCApp/Bin
 /VCApp/VCApp.v12.suo
 /VCApp/.vs
+/app/release
+/app/debug

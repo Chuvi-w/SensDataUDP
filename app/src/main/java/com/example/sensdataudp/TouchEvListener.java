@@ -51,7 +51,7 @@ public class TouchEvListener implements View.OnTouchListener
             m_Touch.write(event.getOrientation(i));
             //m_Touch.write(pointerCount);
         }
-        m_Sender.SendPacket(0xAA00, m_Touch);
+        m_Sender.SendPacket(0xAA00, m_Touch,0);
         return true;
     }
 }

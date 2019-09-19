@@ -30,13 +30,13 @@ public class SensorListener implements SensorEventListener
         {
             mSensorPacket.write(event.values[i]);
         }
-        m_Sender.SendPacket(0xBB00, mSensorPacket);
+        m_Sender.SendPacket(0xBB00, mSensorPacket,event.sensor.getType());
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy)
     {
-        Log.d("AAAAA","Accurasy"+accuracy);
+        //Log.d("AAAAA","Accurasy"+accuracy);
         // sensor.
         //sensor.getType();
     }

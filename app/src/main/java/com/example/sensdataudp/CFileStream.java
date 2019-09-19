@@ -111,6 +111,7 @@ public class CFileStream implements IStreamInterface
         mSB.setLength(0);
 
         mSB.append("FileStream:\n{");
+        mSB.append("\tName="+OutFile.getName()+"\n");
         mSB.append("\tTotal="+m_TotalSend+"\n"+"\tBuff="+mDataQueue.size()+"\n");
         mSB.append("\n}\n");
         return mSB;
