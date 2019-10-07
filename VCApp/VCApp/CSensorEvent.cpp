@@ -10,7 +10,7 @@ CSensorEvent::CSensorEvent() : IEventReceiver(SENSOR_EV_ID), m_Acc(CIMUAcc::Crea
    m_vIMU[m_Gyr->GetType()] = m_Gyr;
    m_vIMU[m_Mag->GetType()] = m_Mag;
    m_FirstFrameTime = 0;
-   InitMadgAHRS(&gMadgAHRSNew);
+   //InitMadgAHRS(&gMadgAHRSNew);
 }
 
 CSensorEvent::~CSensorEvent() {}
@@ -124,9 +124,9 @@ bool CSensorEvent::ParseEvent(const CDataPacket& pPacket)
       m_Mag->SetProcessed();
       gotoxy(0, 11);
       printf("%i\n", nFrCala++);
-      MadgwickAHRSupdate_FixedNew(dTime,m_Gyr->GetLastFrame(), m_Acc->GetLastFrame(), NullVec3D);
+    //  MadgwickAHRSupdate_FixedNew(dTime,m_Gyr->GetLastFrame(), m_Acc->GetLastFrame(), NullVec3D);
       gotoxy(0, 12);
-      printf("%018.15f {%018.15f, %018.15f, %018.15f, %018.15f}\n", gMadgAHRSNew.beta, gMadgAHRSNew._q.x, gMadgAHRSNew._q.y, gMadgAHRSNew._q.z, gMadgAHRSNew._q.w);
+//      printf("%018.15f {%018.15f, %018.15f, %018.15f, %018.15f}\n", gMadgAHRSNew.beta, gMadgAHRSNew._q.x, gMadgAHRSNew._q.y, gMadgAHRSNew._q.z, gMadgAHRSNew._q.w);
    }
 
 //    if(SensHDR.nType == ASENSOR_TYPE_GYROSCOPE_UNCALIBRATED&&GyrTime)

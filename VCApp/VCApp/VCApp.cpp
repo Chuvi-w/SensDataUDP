@@ -98,8 +98,8 @@ void RunFRead()
 int main()
 {
    Vec3D ve;
-   boost::qvm::quat<double> rx;
-   rx.a
+   //boost::qvm::quat<double> rx;
+   //rx.a
   
   //  RunFRead();
 
