@@ -22,18 +22,20 @@ void Create(std::function<std::shared_ptr<IEventReceiver>()> fnCreate)
 void RunReceiver(CDataReceiver& pReceiver)
 {
 
-   Create(std::bind(&CTouchEvent::Create));
-   Create(std::bind(&CSensorEvent::Create));
+  // Create(std::bind(&CTouchEvent::Create));
+  // Create(std::bind(&CSensorEvent::Create));
 
    std::vector<CBaseIMUSensor::PTR> vIMU;
 
    pReceiver.SetNewReceiversFunc([&vIMU]() {
       std::vector<IEventReceiver::PTR> vRecv;
-      // auto TouchEv = CTouchEvent::Create();
+      auto TouchEv = CTouchEvent::Create();
       auto SensEv = CSensorEvent::Create();
-      // auto NMEAEv = CNMEAEvent::Create();
+      auto NMEAEv = CNMEAEvent::Create();
 
+      vRecv.push_back(TouchEv);
       vRecv.push_back(SensEv);
+      vRecv.push_back(NMEAEv);
 
       return vRecv;
 
@@ -103,7 +105,7 @@ int main()
   
   //  RunFRead();
 
-   //RunUDP();
+   RunUDP();
 
    return 1;
 }

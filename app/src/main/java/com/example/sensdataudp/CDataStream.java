@@ -8,7 +8,7 @@ import java.util.TimerTask;
 
 public class CDataStream implements IStreamInterface
 {
-  //  private CNetStream m_NetStream = null;
+    private CNetStream m_NetStream = null;
     private CFileStream m_FileStream = null;
     private CNetworkListenersReceiver m_NetReceiver=null;
     private StringBuilder mSB=null;
@@ -25,7 +25,7 @@ public class CDataStream implements IStreamInterface
     private  int m_nMagCountUnc=0;
    private  int m_nCount=1001;
     Timer m_Timer=null;
-    //CCheckReceiverTask m_CheckReceiverTask=null;
+    CCheckReceiverTask m_CheckReceiverTask=null;
 
     class CCheckReceiverTask extends TimerTask
     {
@@ -37,7 +37,7 @@ public class CDataStream implements IStreamInterface
         @Override
         public void run()
         {
-/*
+
             if(m_NetStream.CountReceivers()==0&&m_NetStream.IsEnable())
             {
                 m_NetStream.StopStream();
@@ -49,6 +49,16 @@ public class CDataStream implements IStreamInterface
                 {
                     if(!m_FileStream.IsEnable())
                     {
+                        m_nGNSSCount=0;
+                        m_nTouchCount=0;
+                        m_nSensCount=0;
+                        m_nAccCount=0;
+                        m_nAccCountUnc=0;
+                        m_nGyrCount=0;
+                        m_nGyrCountUnc=0;
+                        m_nMagCount=0;
+                        m_nMagCountUnc=0;
+                        m_nNMEACount=0;
                         m_FileStream.StartStream();
                     }
                 }
@@ -69,21 +79,8 @@ public class CDataStream implements IStreamInterface
                    m_NetStream.AddReceiver(nAddr);
                 }
             }
-            */
-            if(!m_FileStream.IsEnable())
-            {
-               m_nGNSSCount=0;
-               m_nTouchCount=0;
-               m_nSensCount=0;
-               m_nAccCount=0;
-               m_nAccCountUnc=0;
-               m_nGyrCount=0;
-               m_nGyrCountUnc=0;
-               m_nMagCount=0;
-               m_nMagCountUnc=0;
-               m_nNMEACount=0;
-               m_FileStream.StartStream();
-            }
+            
+
         }
     }
 
@@ -91,11 +88,11 @@ public class CDataStream implements IStreamInterface
     {
         mMain=Main;
         m_NetReceiver=new CNetworkListenersReceiver();
-       // m_NetStream = new CNetStream(Main);
+        m_NetStream = new CNetStream(Main);
         m_FileStream = new CFileStream(Main);
         mSB=new StringBuilder();
         m_Timer = new Timer();
-      //  m_CheckReceiverTask=new CCheckReceiverTask(System.currentTimeMillis());
+        m_CheckReceiverTask=new CCheckReceiverTask(System.currentTimeMillis());
 
     }
 
@@ -103,9 +100,9 @@ public class CDataStream implements IStreamInterface
     public boolean StartStream()
     {
 
-      // m_Timer.schedule(m_CheckReceiverTask,1000,1000);
-       if(!m_FileStream.IsEnable())
-       {
+       m_Timer.schedule(m_CheckReceiverTask,1000,1000);
+      // if(!m_FileStream.IsEnable())
+      // {
           m_nGNSSCount=0;
           m_nNMEACount=0;
           m_nTouchCount=0;
@@ -116,8 +113,8 @@ public class CDataStream implements IStreamInterface
           m_nGyrCountUnc=0;
           m_nMagCount=0;
           m_nMagCountUnc=0;
-          m_FileStream.StartStream();
-       }
+         // m_FileStream.StartStream();
+     //  }
        return  true;
     }
 
@@ -128,7 +125,7 @@ public class CDataStream implements IStreamInterface
         //m_Timer.
 
         m_FileStream.StopStream();
-       // m_NetStream.StopStream();
+        m_NetStream.StopStream();
     }
 
     @Override
@@ -144,12 +141,12 @@ public class CDataStream implements IStreamInterface
         {
             mSB.append(m_FileStream.GetStat());
         }
-        /*
+        
         if(m_NetStream.IsEnable())
         {
             mSB.append(m_NetStream.GetStat());
         }
-        */
+        
      /*  m_nGNSSCount=0;
        m_nTouchCount=0;
        m_nSensCount=0;
@@ -174,7 +171,7 @@ public class CDataStream implements IStreamInterface
     @Override
     public boolean IsEnable()
     {
-        return m_FileStream.IsEnable()/* || m_NetStream.IsEnable()*/;
+        return m_FileStream.IsEnable() || m_NetStream.IsEnable();
     }
 
     public void SendPacket(int PacketID, ArrayStream Pack, int SensorType)
@@ -193,7 +190,7 @@ public class CDataStream implements IStreamInterface
         OutPacket.write(Integer.valueOf(Pack.size()));
         OutPacket.write(Pack);
         m_FileStream.SendPacket(OutPacket);
-      //  m_NetStream.SendPacket(OutPacket);
+        m_NetStream.SendPacket(OutPacket);
         //	m_MultiPack.write(OutPacket);
         //	//if(System.nanoTime()-m_LastPacketTime>(20*1000*1000))
         //	if(m_MultiPack.size()>1024)

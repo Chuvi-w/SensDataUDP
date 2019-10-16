@@ -24,7 +24,7 @@ std::vector<uint8_t> CSocketClient::ReceivePacket()
    if(RecvStatus == sf::Socket::Done)
    {
       vData.resize(nRecvd);
-      // std::cout << "Recv " << nRecvd << " bytes from " << m_Socket.getRemoteAddress().toString().c_str() << ":" << m_Socket.getRemotePort() << std::endl;
+       //std::cout << "Recv " << nRecvd << " bytes from " << m_Socket.getRemoteAddress().toString().c_str() << ":" << m_Socket.getRemotePort() << std::endl;
       m_TimeLastRecv.restart();
       // m_Socket.send(Data, nRecvd);
    }
