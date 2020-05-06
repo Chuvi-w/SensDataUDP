@@ -18,3 +18,4 @@
 /app/release
 /app/debug
 /VCApp/Build
+/app/.cxx
