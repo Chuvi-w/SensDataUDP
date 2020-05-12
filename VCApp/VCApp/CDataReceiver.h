@@ -13,6 +13,7 @@
 #include "CRecvSource.h"
 #include <list>
 #include "CSocketClient.h"
+#include <functional>
 
 class CDataReceiver
 {

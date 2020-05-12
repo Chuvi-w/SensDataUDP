@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "CDataPacket.h"
 #include "AndroidInput.h"
+#include "ConsoleTools.h"
 
 CTouchEvent::CTouchEvent() : IEventReceiver(TOUCH_EV_ID) {}
 
@@ -30,7 +31,11 @@ bool CTouchEvent::ParseEvent(const CDataPacket& pPacket)
       return false;
    }
    MotEvPtr = std::make_shared<CMotionEvent>(MotEv);
-
+   if (MotEv.PointerCount)
+   {
+       gotoxy(0, 15);
+       printf("%11.5f:%11.5f} {%11.5f:%11.5f}\n", MotEv.RawX, MotEv.RawY, MotEv.XPrecision, MotEv.YPrecision);
+   }
    for(int i = 0; i < MotEv.PointerCount; i++)
    {
       if(!pPacket.GetData(PtrData.nID) || !pPacket.GetData(PtrData.PointerId) || !pPacket.GetData(PtrData.X) || !pPacket.GetData(PtrData.Y) || !pPacket.GetData(PtrData.ToolType) || !pPacket.GetData(PtrData.Size) || !pPacket.GetData(PtrData.ToolMajor) || !pPacket.GetData(PtrData.ToolMinor) || !pPacket.GetData(PtrData.TouchMajor) || !pPacket.GetData(PtrData.TouchMinor) || !pPacket.GetData(PtrData.Pressure) || !pPacket.GetData(PtrData.Orientation))
@@ -38,12 +43,14 @@ bool CTouchEvent::ParseEvent(const CDataPacket& pPacket)
          return false;
       }
       MotEvPtr->AddPointer(std::make_shared<CTouchPointer>(PtrData));
+      printf("%02i:%02i:%11.5f: {%11.5f:%11.5f} {%11.5f:%11.5f} {%11.5f:%11.5f} {%11.5f:%11.5f}\n",PtrData.nID, PtrData.ToolType,PtrData.Size, PtrData.X, PtrData.Y, PtrData.Pressure, PtrData.Orientation,PtrData.ToolMajor, PtrData.ToolMinor, PtrData.TouchMajor,PtrData.TouchMinor);
+      
    }
    if(!MotEvPtr->IsValidPtrCount())
    {
       return false;
    }
-#if 1
+#if 0
    auto PringGestState = [](const std::string& sName, GESTURE_STATE nState) {
       switch(nState)
       {

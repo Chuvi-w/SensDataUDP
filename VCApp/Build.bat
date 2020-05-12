@@ -38,40 +38,53 @@ goto Start
 
 :DetectVSVersion
 		
-		set VS_Platform=win32
-		if "%VisualStudioVersion%"=="" (
+	set VS_Platform=win32
+	if /i "%Platform%" == "x64" ( 
+		set VS_Platform=x64  
+		set VSPlat= Win64
+	)
+	
+	if "%VisualStudioVersion%"=="" (
 		echo VisualStudioVersion not set
 		echo Run vsvarsall.bat from VS Directory and try again		
 		exit /b 1
 	)
 	if "%VisualStudioVersion%" == "10.0" ( 
 		set GenVer=Visual Studio 10 2010
+		set GeneratorCMD=-G "!GenVer!!VSPlat!"
 		set Toolset=v100
 		)
 
 	if "%VisualStudioVersion%" == "12.0" ( 
 		set GenVer=Visual Studio 12 2013
+		set GeneratorCMD=-G "!GenVer!!VSPlat!"
 		set Toolset=v120
 		)
 		
 	if "%VisualStudioVersion%" == "14.0" ( 
 		set GenVer=Visual Studio 14 2015
+		set GeneratorCMD=-G "!GenVer!!VSPlat!"
 		set Toolset=v140
 		)
 		
 	if "%VisualStudioVersion%" == "15.0" ( 
 		set GenVer=Visual Studio 15 2017
+		set GeneratorCMD=-G "!GenVer!!VSPlat!"
 		set Toolset=v141
 		)	
+	
+	if "%VisualStudioVersion%" == "16.0" ( 
+		set GenVer=Visual Studio 16 2019
+		set GeneratorCMD=-G "!GenVer!" -A !VS_Platform!
+		set Toolset=v142
+		)		
+		
 	if "%Toolset%"=="" (
 		echo Unknown VisualStudioVersion: %VisualStudioVersion%
 		exit /b 1
 		)
 	if %XP_Tool%==1 (set Toolset=%Toolset%_xp)
-	if /i "%Platform%" == "x64" ( 
-		set VS_Platform=x64  
-		set VSPlat= Win64
-	)
+	
 	exit /b 0
 
 :InitBuildPathVars
@@ -96,7 +109,7 @@ exit /b 0
 	if %errorlevel% neq 0 ( exit /b 1)
 	
 	set CMAKE_ARGS=!CMAKE_ARGS! -DCMAKE_INSTALL_PREFIX:PATH=%InstallDir% -DVSTOOLSET:STRING=!Toolset!
-	cmake "%CUR_NO_SLASH%" -G "%GenVer%%VSPlat%"  !CMAKE_ARGS!
+	cmake "%CUR_NO_SLASH%" %GeneratorCMD%  !CMAKE_ARGS!
 	if %Build%==1 (
 		msbuild ALL_BUILD.vcxproj /p:Configuration="Debug"
 		msbuild ALL_BUILD.vcxproj /p:Configuration="Release"
